@@ -1,0 +1,118 @@
+/* ===============================
+   GLOBAL BACKGROUND
+================================ */
+body.dark-mode {
+	background-color: #181824;
+	color: #eaeaea;
+}
+
+/* Content wrapper & main content */
+body.dark-mode #content-wrapper,
+body.dark-mode #content {
+	background-color: #181824;
+}
+
+/* Page content (area putih besar) */
+body.dark-mode .container-fluid {
+	background-color: #181824;
+}
+
+/* ===============================
+   TOPBAR
+================================ */
+body.dark-mode .topbar {
+	background-color: #23233a !important;
+	border-bottom: 1px solid #2f2f4f;
+}
+
+/* ===============================
+   SIDEBAR (FIX BIRU!)
+================================ */
+body.dark-mode .sidebar {
+	background-color: #1c1c2e !important;
+	background-image: none !important;
+}
+
+body.dark-mode .sidebar-brand {
+	background-color: #1c1c2e;
+}
+
+body.dark-mode .sidebar .nav-item .nav-link {
+	color: #cfd2ff !important;
+}
+
+body.dark-mode .sidebar .nav-item.active .nav-link {
+	background-color: #2a2a45;
+	color: #ffffff !important;
+}
+
+body.dark-mode .sidebar .nav-item .nav-link:hover {
+	background-color: #262640;
+}
+
+/* Hilangkan gradient biru SB Admin */
+body.dark-mode .bg-gradient-primary {
+	background-color: #1c1c2e !important;
+	background-image: none !important;
+}
+
+/* ===============================
+   CARD & TABLE
+================================ */
+body.dark-mode .card {
+	background-color: #23233a;
+	color: #eaeaea;
+	border: 1px solid #2f2f4f;
+}
+
+body.dark-mode .table {
+	color: #eaeaea;
+}
+
+body.dark-mode .table thead {
+	background-color: #2a2a45;
+	color: #ffffff;
+}
+
+body.dark-mode .table tbody tr {
+	background-color: #23233a;
+}
+
+body.dark-mode .table tbody tr:hover {
+	background-color: #2a2a45;
+}
+
+/* ===============================
+   BUTTON
+================================ */
+body.dark-mode .btn-primary {
+	background-color: #4e73df;
+	border-color: #4e73df;
+}
+
+/* ===============================
+   FORM
+================================ */
+body.dark-mode input,
+body.dark-mode select,
+body.dark-mode textarea {
+	background-color: #1f1f35;
+	color: #ffffff;
+	border-color: #3a3a5f;
+}
+
+/* ===============================
+   DROPDOWN
+================================ */
+body.dark-mode .dropdown-menu {
+	background-color: #23233a;
+	color: #ffffff;
+}
+
+body.dark-mode .dropdown-item {
+	color: #eaeaea;
+}
+
+body.dark-mode .dropdown-item:hover {
+	background-color: #2a2a45;
+}
