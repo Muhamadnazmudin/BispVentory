@@ -269,15 +269,44 @@ public function stok_pdf()
 
     $data['list'] = $this->Laporan_model->stok($bulan, $tahun);
 
+    // ===============================
+    // PENENTUAN PERIODE & NAMA FILE
+    // ===============================
+    $namaBulan = [
+        1=>'januari',2=>'februari',3=>'maret',4=>'april',
+        5=>'mei',6=>'juni',7=>'juli',8=>'agustus',
+        9=>'september',10=>'oktober',11=>'november',12=>'desember'
+    ];
+
+    $periodeText = 'semua-periode';
+
+    if (!empty($bulan) && !empty($tahun)) {
+        $periodeText = $namaBulan[(int)$bulan].'-'.$tahun;
+    } elseif (!empty($tahun)) {
+        $periodeText = 'tahun-'.$tahun;
+    }
+
+    // NAMA FILE FINAL
+    $filename = 'laporan-stok-'.$periodeText.'.pdf';
+
+    // kirim juga ke view (opsional, kalau mau ditampilkan di PDF)
+    $data['bulan'] = $bulan;
+    $data['tahun'] = $tahun;
+
+    // ===============================
+    // LOAD PDF
+    // ===============================
     $this->pdf->load_view(
         'laporan/stok_pdf',
         $data,
         'A4',
         'portrait',
         true,
-        'laporan-stok.pdf'
+        $filename
     );
 }
+
+
 
 
 /* ===============================
@@ -290,47 +319,96 @@ public function stok_excel()
 
     $list = $this->Laporan_model->stok($bulan, $tahun);
 
+    // ===============================
+    // PENENTUAN PERIODE
+    // ===============================
+    $namaBulan = [
+        1=>'Januari',2=>'Februari',3=>'Maret',4=>'April',
+        5=>'Mei',6=>'Juni',7=>'Juli',8=>'Agustus',
+        9=>'September',10=>'Oktober',11=>'November',12=>'Desember'
+    ];
+
+    $periode = 'SEMUA PERIODE';
+
+    if (!empty($bulan) && !empty($tahun)) {
+        $periode = 'Bulan '.$namaBulan[(int)$bulan].' '.$tahun;
+    } elseif (!empty($tahun)) {
+        $periode = 'Tahun '.$tahun;
+    }
+
+    // ===============================
+    // HEADER EXCEL
+    // ===============================
     header("Content-Type: application/vnd.ms-excel");
     header("Content-Disposition: attachment; filename=laporan-stok.xls");
 
+    // ===============================
+    // OUTPUT HTML EXCEL
+    // ===============================
     echo '
     <html>
     <head>
         <style>
             body { font-family: Arial; }
-            .title { font-size:16px; font-weight:bold; text-align:center; }
-            table { border-collapse: collapse; width:100%; }
-            th { background:#d9d9d9; font-weight:bold; border:1px solid #000; padding:6px; text-align:center; }
-            td { border:1px solid #000; padding:6px; }
+            .title {
+                font-size:16px;
+                font-weight:bold;
+                text-align:center;
+            }
+            .subtitle {
+                font-size:12px;
+                text-align:center;
+                margin-bottom:10px;
+            }
+            table {
+                border-collapse: collapse;
+                width:100%;
+            }
+            th {
+                background:#d9d9d9;
+                font-weight:bold;
+                text-align:center;
+                border:1px solid #000;
+                padding:6px;
+            }
+            td {
+                border:1px solid #000;
+                padding:6px;
+            }
             .text-center { text-align:center; }
         </style>
     </head>
     <body>
 
-    <div class="title">LAPORAN SISA STOK BARANG</div><br>
+        <div class="title">LAPORAN SISA STOK BARANG</div>
+        <div class="subtitle">Periode: <b>'.$periode.'</b></div>
 
-    <table>
-        <tr>
-            <th>No</th>
-            <th>Nama Barang</th>
-            <th>Merk</th>
-            <th>Satuan</th>
-            <th>Sisa Stok</th>
-        </tr>';
+        <table>
+            <tr>
+                <th width="5%">No</th>
+                <th>Nama Barang</th>
+                <th>Merk</th>
+                <th width="10%">Satuan</th>
+                <th width="12%">Sisa Stok</th>
+            </tr>';
 
-    $no=1;
+    $no = 1;
     foreach ($list as $r) {
         echo '
-        <tr>
-            <td class="text-center">'.$no++.'</td>
-            <td>'.$r->nama_barang.'</td>
-            <td>'.$r->merk.'</td>
-            <td class="text-center">'.$r->satuan.'</td>
-            <td class="text-center">'.$r->stok.'</td>
-        </tr>';
+            <tr>
+                <td class="text-center">'.$no++.'</td>
+                <td>'.$r->nama_barang.'</td>
+                <td>'.$r->merk.'</td>
+                <td class="text-center">'.$r->satuan.'</td>
+                <td class="text-center">'.$r->stok.'</td>
+            </tr>';
     }
 
-    echo '</table></body></html>';
+    echo '
+        </table>
+
+    </body>
+    </html>';
 }
 
     /* ===============================

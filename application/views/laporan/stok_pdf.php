@@ -26,8 +26,27 @@
 </div>
 <div class="line"></div>
 <div class="line2"></div>
+<?php
+$namaBulan = [
+    1=>'Januari',2=>'Februari',3=>'Maret',4=>'April',
+    5=>'Mei',6=>'Juni',7=>'Juli',8=>'Agustus',
+    9=>'September',10=>'Oktober',11=>'November',12=>'Desember'
+];
+
+$periode = 'SEMUA PERIODE';
+
+if (!empty($bulan) && !empty($tahun)) {
+    $periode = 'Bulan '.$namaBulan[(int)$bulan].' '.$tahun;
+} elseif (!empty($tahun)) {
+    $periode = 'Tahun '.$tahun;
+}
+?>
 
 <h3 class="text-center">LAPORAN SISA STOK BARANG</h3>
+<p class="text-center" style="margin-top:-5px; font-size:12px;">
+    Periode: <b><?= $periode ?></b>
+</p>
+
 
 <table>
     <thead>

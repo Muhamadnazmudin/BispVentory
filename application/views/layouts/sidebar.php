@@ -1,3 +1,10 @@
+<style>
+    .sidebar-brand img {
+    max-height: 80px;
+    object-fit: contain;
+}
+
+    </style>
 <?php
 $segment1 = $this->uri->segment(1);
 $segment2 = $this->uri->segment(2);
@@ -5,14 +12,27 @@ $segment2 = $this->uri->segment(2);
 
 <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
 
-<!-- BRAND -->
-<a class="sidebar-brand d-flex align-items-center justify-content-center"
+<a class="sidebar-brand d-flex align-items-center"
    href="<?= base_url('dashboard') ?>">
-    <div class="sidebar-brand-icon">
-        <i class="fas fa-warehouse"></i>
+
+    <div class="sidebar-brand-icon mr-2">
+        <img src="<?= base_url('assets/img/logobispar.png') ?>"
+             alt="Logo BIS Inventory"
+             style="width:40px; height:40px; object-fit:contain;">
     </div>
-    <div class="sidebar-brand-text mx-3">BISPVentory 73</div>
+
+    <div class="sidebar-brand-text text-left">
+        <div class="font-weight-bold" style="font-size:13px; line-height:1.2;">
+            BispVentory
+        </div>
+        <div class="small text-center" style="font-size:13px;">
+            73
+        </div>
+    </div>
+
 </a>
+
+
 
 <hr class="sidebar-divider my-0">
 
