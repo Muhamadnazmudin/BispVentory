@@ -14,6 +14,9 @@
 <script src="<?= base_url('assets/sbadmin2/vendor/bootstrap/js/bootstrap.bundle.min.js') ?>"></script>
 <script src="<?= base_url('assets/sbadmin2/vendor/jquery-easing/jquery.easing.min.js') ?>"></script>
 <script src="<?= base_url('assets/sbadmin2/js/sb-admin-2.min.js') ?>"></script>
+<script src="<?= base_url('assets/vendor/datatables/jquery.dataTables.min.js') ?>"></script>
+<script src="<?= base_url('assets/vendor/datatables/dataTables.bootstrap4.min.js') ?>"></script>
+
 <script>
 document.addEventListener("DOMContentLoaded", function () {
     const toggle = document.getElementById('toggleDarkMode');
