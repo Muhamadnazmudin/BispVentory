@@ -244,16 +244,94 @@ public function barang_keluar_excel()
        LAPORAN STOK
     =============================== */
     public function stok()
-    {
-        $data['title'] = 'Laporan Sisa Stok';
-        $data['list']  = $this->Laporan_model->stok();
+{
+    
+    $bulan = $this->input->get('bulan');
+    $tahun = $this->input->get('tahun');
 
-        $this->load->view('layouts/header');
-        $this->load->view('layouts/sidebar');
-        $this->load->view('layouts/topbar');
-        $this->load->view('laporan/stok',$data);
-        $this->load->view('layouts/footer');
+    $data['title'] = 'Laporan Sisa Stok';
+    $data['list']  = $this->Laporan_model->stok($bulan, $tahun);
+
+    $this->load->view('layouts/header');
+    $this->load->view('layouts/sidebar');
+    $this->load->view('layouts/topbar');
+    $this->load->view('laporan/stok', $data);
+    $this->load->view('layouts/footer');
+}
+
+/* ===============================
+   PDF STOK (PREVIEW)
+=============================== */
+public function stok_pdf()
+{
+    $bulan = $this->input->get('bulan');
+    $tahun = $this->input->get('tahun');
+
+    $data['list'] = $this->Laporan_model->stok($bulan, $tahun);
+
+    $this->pdf->load_view(
+        'laporan/stok_pdf',
+        $data,
+        'A4',
+        'portrait',
+        true,
+        'laporan-stok.pdf'
+    );
+}
+
+
+/* ===============================
+   EXCEL STOK (RAPI)
+=============================== */
+public function stok_excel()
+{
+    $bulan = $this->input->get('bulan');
+    $tahun = $this->input->get('tahun');
+
+    $list = $this->Laporan_model->stok($bulan, $tahun);
+
+    header("Content-Type: application/vnd.ms-excel");
+    header("Content-Disposition: attachment; filename=laporan-stok.xls");
+
+    echo '
+    <html>
+    <head>
+        <style>
+            body { font-family: Arial; }
+            .title { font-size:16px; font-weight:bold; text-align:center; }
+            table { border-collapse: collapse; width:100%; }
+            th { background:#d9d9d9; font-weight:bold; border:1px solid #000; padding:6px; text-align:center; }
+            td { border:1px solid #000; padding:6px; }
+            .text-center { text-align:center; }
+        </style>
+    </head>
+    <body>
+
+    <div class="title">LAPORAN SISA STOK BARANG</div><br>
+
+    <table>
+        <tr>
+            <th>No</th>
+            <th>Nama Barang</th>
+            <th>Merk</th>
+            <th>Satuan</th>
+            <th>Sisa Stok</th>
+        </tr>';
+
+    $no=1;
+    foreach ($list as $r) {
+        echo '
+        <tr>
+            <td class="text-center">'.$no++.'</td>
+            <td>'.$r->nama_barang.'</td>
+            <td>'.$r->merk.'</td>
+            <td class="text-center">'.$r->satuan.'</td>
+            <td class="text-center">'.$r->stok.'</td>
+        </tr>';
     }
+
+    echo '</table></body></html>';
+}
 
     /* ===============================
        KARTU PERSEDIAAN

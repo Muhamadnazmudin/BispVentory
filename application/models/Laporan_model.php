@@ -54,26 +54,45 @@ class Laporan_model extends CI_Model {
     /* ===============================
        LAPORAN STOK
     =============================== */
-    public function stok()
-    {
-        return $this->db->query("
-            SELECT 
-                b.nama_barang,
-                b.merk,
-                b.satuan,
-                IFNULL(SUM(bm.jumlah),0)
-                -
-                IFNULL((
-                    SELECT SUM(bk.jumlah)
-                    FROM barang_keluar bk
-                    WHERE bk.id_barang = b.id_barang
-                ),0) AS stok
-            FROM barang b
-            LEFT JOIN barang_masuk bm ON bm.id_barang = b.id_barang
-            GROUP BY b.id_barang, b.nama_barang, b.merk, b.satuan
-            ORDER BY b.nama_barang
-        ")->result();
+    public function stok($bulan = null, $tahun = null)
+{
+    // default: sampai hari ini
+    $batasTanggal = date('Y-m-d');
+
+    if (!empty($bulan) && !empty($tahun)) {
+        // ambil tanggal terakhir di bulan tsb
+        $batasTanggal = date('Y-m-t', strtotime($tahun.'-'.$bulan.'-01'));
+    } elseif (!empty($tahun)) {
+        // kalau hanya tahun → sampai akhir tahun
+        $batasTanggal = $tahun.'-12-31';
     }
+
+    return $this->db->query("
+        SELECT 
+            b.nama_barang,
+            b.merk,
+            b.satuan,
+
+            (
+                SELECT IFNULL(SUM(jumlah),0)
+                FROM barang_masuk
+                WHERE id_barang = b.id_barang
+                  AND tanggal <= ?
+            )
+            -
+            (
+                SELECT IFNULL(SUM(jumlah),0)
+                FROM barang_keluar
+                WHERE id_barang = b.id_barang
+                  AND tanggal <= ?
+            )
+            AS stok
+
+        FROM barang b
+        ORDER BY b.nama_barang ASC
+    ", [$batasTanggal, $batasTanggal])->result();
+}
+
 
     /* ===============================
        MASTER BARANG

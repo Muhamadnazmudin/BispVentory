@@ -10,12 +10,22 @@
 </div>
 </footer>
 
+<!-- jQuery (PALING ATAS) -->
 <script src="<?= base_url('assets/sbadmin2/vendor/jquery/jquery.min.js') ?>"></script>
+
+<!-- Bootstrap -->
 <script src="<?= base_url('assets/sbadmin2/vendor/bootstrap/js/bootstrap.bundle.min.js') ?>"></script>
+
+<!-- jQuery Easing -->
 <script src="<?= base_url('assets/sbadmin2/vendor/jquery-easing/jquery.easing.min.js') ?>"></script>
+
+<!-- SB Admin 2 -->
 <script src="<?= base_url('assets/sbadmin2/js/sb-admin-2.min.js') ?>"></script>
-<script src="<?= base_url('assets/vendor/datatables/jquery.dataTables.min.js') ?>"></script>
-<script src="<?= base_url('assets/vendor/datatables/dataTables.bootstrap4.min.js') ?>"></script>
+
+<!-- DataTables (SETELAH jQuery) -->
+<script src="<?= base_url('assets/sbadmin2/vendor/datatables/jquery.dataTables.min.js') ?>"></script>
+<script src="<?= base_url('assets/sbadmin2/vendor/datatables/dataTables.bootstrap4.min.js') ?>"></script>
+
 
 <script>
 document.addEventListener("DOMContentLoaded", function () {
