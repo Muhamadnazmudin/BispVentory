@@ -180,6 +180,12 @@ $segment2 = $this->uri->segment(2);
         </div>
     </div>
 </li>
+<li class="nav-item <?= $segment1=='backup'?'active':'' ?>">
+    <a class="nav-link" href="<?= base_url('backup') ?>">
+        <i class="fas fa-fw fa-database"></i>
+        <span>Backup & Restore</span>
+    </a>
+</li>
 
 <hr class="sidebar-divider d-none d-md-block">
 
