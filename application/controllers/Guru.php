@@ -1,5 +1,9 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+
 
 class Guru extends MY_Controller {
 
@@ -69,4 +73,81 @@ class Guru extends MY_Controller {
         $this->session->set_flashdata('success','Data guru berhasil dihapus');
         redirect('guru');
     }
+    public function import_excel()
+{
+    if (!isset($_FILES['file_excel']['name'])) {
+        redirect('guru');
+    }
+
+    $file = $_FILES['file_excel']['tmp_name'];
+
+    try {
+        $spreadsheet = IOFactory::load($file);
+        $sheet = $spreadsheet->getActiveSheet()->toArray();
+
+        // mulai dari baris ke-2 (skip header)
+        for ($i = 1; $i < count($sheet); $i++) {
+
+            if ($sheet[$i][0] == '') continue;
+
+            $data = [
+                'nama_guru' => $sheet[$i][0],
+                'nip'       => $sheet[$i][1],
+                'jabatan'   => $sheet[$i][2]
+            ];
+
+            if (!$this->Guru_model->cek_nip($sheet[$i][1])) {
+    $this->Guru_model->insert($data);
+}
+
+        }
+
+        $this->session->set_flashdata(
+            'success',
+            'Import data guru berhasil'
+        );
+
+    } catch (Exception $e) {
+        $this->session->set_flashdata(
+            'error',
+            'Gagal import: '.$e->getMessage()
+        );
+    }
+
+    redirect('guru');
+}
+public function download_template()
+{
+    $spreadsheet = new Spreadsheet();
+    $sheet = $spreadsheet->getActiveSheet();
+
+    // Header
+    $sheet->setCellValue('A1', 'nama_guru');
+    $sheet->setCellValue('B1', 'nip');
+    $sheet->setCellValue('C1', 'jabatan');
+
+    // Contoh data
+    $sheet->setCellValue('A2', 'Budi Santoso');
+    $sheet->setCellValue('B2', '19871234');
+    $sheet->setCellValue('C2', 'Guru Matematika');
+
+    // Styling header
+    $sheet->getStyle('A1:C1')->getFont()->setBold(true);
+
+    // Auto width
+    foreach (range('A','C') as $col) {
+        $sheet->getColumnDimension($col)->setAutoSize(true);
+    }
+
+    $filename = 'template_import_guru.xlsx';
+
+    header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    header('Content-Disposition: attachment;filename="'.$filename.'"');
+    header('Cache-Control: max-age=0');
+
+    $writer = new Xlsx($spreadsheet);
+    $writer->save('php://output');
+    exit;
+}
+
 }

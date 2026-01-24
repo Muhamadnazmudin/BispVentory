@@ -36,4 +36,9 @@ class Guru_model extends CI_Model {
             ['id_guru' => $id]
         );
     }
+    public function cek_nip($nip)
+{
+    return $this->db->get_where('guru', ['nip' => $nip])->row();
+}
+
 }
