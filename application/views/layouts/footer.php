@@ -1,7 +1,4 @@
 </div> <!-- End of Main Content -->
-</div> <!-- End of Content Wrapper -->
-</div> <!-- End of Page Wrapper -->
-
 <footer class="sticky-footer bg-white">
 <div class="container my-auto">
 <div class="copyright text-center my-auto">
@@ -9,6 +6,10 @@
 </div>
 </div>
 </footer>
+</div> <!-- End of Content Wrapper -->
+</div> <!-- End of Page Wrapper -->
+
+
 
 <!-- jQuery (PALING ATAS) -->
 <script src="<?= base_url('assets/sbadmin2/vendor/jquery/jquery.min.js') ?>"></script>
@@ -25,6 +26,7 @@
 <!-- DataTables (SETELAH jQuery) -->
 <script src="<?= base_url('assets/sbadmin2/vendor/datatables/jquery.dataTables.min.js') ?>"></script>
 <script src="<?= base_url('assets/sbadmin2/vendor/datatables/dataTables.bootstrap4.min.js') ?>"></script>
+
 
 
 <script>

@@ -3,13 +3,25 @@
     max-height: 80px;
     object-fit: contain;
 }
-.sidebar {
-    position: fixed;
-    height: 100vh;
-    overflow-y: auto;
-}
-#content-wrapper {
-    margin-left: 224px;
+@media (min-width: 768px) {
+
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        overflow-y: auto;
+        z-index: 1030;
+    }
+
+    #content-wrapper {
+        margin-left: 224px;
+    }
+
+    /* Saat sidebar di-toggle (SB Admin 2) */
+    body.sidebar-toggled #content-wrapper {
+        margin-left: 6.5rem;
+    }
 }
 
     </style>
@@ -187,12 +199,6 @@ $segment2 = $this->uri->segment(2);
                href="<?= base_url('laporan/buku_besar') ?>">Kartu Persediaan</a>
         </div>
     </div>
-</li>
-<li class="nav-item <?= $segment1=='backup'?'active':'' ?>">
-    <a class="nav-link" href="<?= base_url('backup') ?>">
-        <i class="fas fa-fw fa-database"></i>
-        <span>Backup & Restore</span>
-    </a>
 </li>
 
 <hr class="sidebar-divider d-none d-md-block">
