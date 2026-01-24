@@ -8,9 +8,39 @@
 </div>
 <?php endif; ?>
 
-<a href="<?= base_url('kategori/tambah') ?>" class="btn btn-primary mb-3">
-<i class="fas fa-plus"></i> Tambah Kategori
-</a>
+<div class="d-flex flex-wrap align-items-center mb-3">
+
+    <!-- Tambah -->
+    <a href="<?= base_url('kategori/tambah') ?>"
+       class="btn btn-primary mr-2 mb-2">
+        <i class="fas fa-plus"></i> Tambah Kategori
+    </a>
+
+    <!-- Import -->
+    <form action="<?= base_url('kategori/import_excel') ?>"
+          method="post"
+          enctype="multipart/form-data"
+          class="d-flex align-items-center mr-2 mb-2">
+
+        <input type="file"
+               name="file"
+               accept=".xls,.xlsx"
+               class="form-control form-control-sm mr-2"
+               style="width: 220px;"
+               required>
+
+        <button class="btn btn-success btn-sm">
+            <i class="fas fa-file-excel"></i> Import
+        </button>
+    </form>
+
+    <!-- Download Template -->
+    <a href="<?= base_url('kategori/download_template') ?>"
+       class="btn btn-success btn-sm mb-2">
+        <i class="fas fa-download"></i> Template Excel
+    </a>
+
+</div>
 
 <div class="card shadow mb-4">
 <div class="card-body">

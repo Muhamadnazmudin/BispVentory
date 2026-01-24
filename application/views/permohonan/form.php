@@ -1,3 +1,9 @@
+<style>
+body.dark-mode .card-body input[readonly] {
+    color: #212529 !important;
+    background-color: #e9ecef !important;
+}
+    </style>
 <div class="container-fluid">
 
 <h1 class="h3 mb-4 text-gray-800"><?= $title ?></h1>

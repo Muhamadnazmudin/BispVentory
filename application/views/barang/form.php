@@ -9,9 +9,19 @@
 
 <div class="form-group">
 <label>Kode Barang</label>
-<input type="text" name="kode_barang" class="form-control"
-value="<?= isset($row)?$row->kode_barang:'' ?>" required>
+
+<!-- tampil ke user -->
+<input type="text"
+       class="form-control"
+       value="<?= isset($row) ? $row->kode_barang : $kode_barang ?>"
+       readonly>
+
+<!-- dikirim ke server -->
+<input type="hidden"
+       name="kode_barang"
+       value="<?= isset($row) ? $row->kode_barang : $kode_barang ?>">
 </div>
+
 
 <div class="form-group">
 <label>Nama Barang</label>
@@ -41,6 +51,17 @@ value="<?= isset($row)?$row->nama_barang:'' ?>" required>
 <label>Satuan</label>
 <input type="text" name="satuan" class="form-control"
 value="<?= isset($row)?$row->satuan:'' ?>">
+</div>
+<div class="form-group">
+    <label>Harga</label>
+    <input type="number"
+           name="harga"
+           class="form-control"
+           value="<?= isset($row)?$row->harga:'' ?>"
+           min="0"
+           step="0.01"
+           placeholder="Contoh: 150000"
+           required>
 </div>
 
 <div class="form-group">

@@ -20,8 +20,9 @@
 <th>Kode</th>
 <th>Nama Barang</th>
 <th>merk</th>
-<th>Kategori</th>
 <th>Satuan</th>
+<th>Harga</th>
+<th>Kategori</th>
 <th width="15%">Aksi</th>
 </tr>
 </thead>
@@ -31,8 +32,9 @@
 <td><?= $b->kode_barang ?></td>
 <td><?= $b->nama_barang ?></td>
 <td><?= $b->merk ?></td>
-<td><?= $b->nama_kategori ?></td>
 <td><?= $b->satuan ?></td>
+<td><?= rupiah($b->harga) ?></td>
+<td><?= $b->nama_kategori ?></td>
 <td>
 <a href="<?= base_url('barang/edit/'.$b->id_barang) ?>" class="btn btn-warning btn-sm">
 <i class="fas fa-edit"></i>

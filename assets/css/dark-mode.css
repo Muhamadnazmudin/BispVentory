@@ -146,3 +146,17 @@ body.dark-mode .dropdown-item:hover {
 		margin-top: auto;
 	}
 }
+/* Dark mode input fix */
+body.dark-mode input,
+body.dark-mode textarea,
+body.dark-mode select {
+	color: #212529 !important; /* teks gelap */
+	background-color: #f1f3f5 !important;
+}
+
+/* readonly / disabled lebih soft */
+body.dark-mode input[readonly],
+body.dark-mode input:disabled {
+	background-color: #e9ecef !important;
+	color: #212529 !important;
+}

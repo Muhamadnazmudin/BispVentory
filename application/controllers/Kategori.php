@@ -25,9 +25,12 @@ class Kategori extends MY_Controller {
     {
         if ($this->input->post()) {
             $this->Kategori_model->insert([
-                'nama_kategori' => $this->input->post('nama_kategori'),
-                'keterangan'    => $this->input->post('keterangan')
-            ]);
+    'kodering'       => $this->input->post('kodering'),
+    'nama_kodering'  => $this->input->post('nama_kodering'),
+    'nama_kategori'  => $this->input->post('nama_kategori'),
+    'keterangan'     => $this->input->post('keterangan')
+]);
+
             $this->session->set_flashdata('success','Data berhasil disimpan');
             redirect('kategori');
         }
@@ -44,9 +47,12 @@ class Kategori extends MY_Controller {
     {
         if ($this->input->post()) {
             $this->Kategori_model->update($id, [
-                'nama_kategori' => $this->input->post('nama_kategori'),
-                'keterangan'    => $this->input->post('keterangan')
-            ]);
+    'kodering'       => $this->input->post('kodering'),
+    'nama_kodering'  => $this->input->post('nama_kodering'),
+    'nama_kategori'  => $this->input->post('nama_kategori'),
+    'keterangan'     => $this->input->post('keterangan')
+]);
+
             $this->session->set_flashdata('success','Data berhasil diupdate');
             redirect('kategori');
         }
@@ -67,4 +73,64 @@ class Kategori extends MY_Controller {
         $this->session->set_flashdata('success','Data berhasil dihapus');
         redirect('kategori');
     }
+    public function import_excel()
+{
+    if (!isset($_FILES['file']['name'])) {
+        redirect('kategori');
+    }
+
+    require_once APPPATH.'third_party/PhpSpreadsheet/vendor/autoload.php';
+
+    $filePath = $_FILES['file']['tmp_name'];
+
+    $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($filePath);
+    $sheetData   = $spreadsheet->getActiveSheet()->toArray();
+
+    // hapus header
+    unset($sheetData[0]);
+
+    $dataInsert = [];
+
+    foreach ($sheetData as $row) {
+        if (empty($row[0]) || empty($row[2])) continue;
+
+        $dataInsert[] = [
+            'kodering'       => trim($row[0]),
+            'nama_kodering'  => trim($row[1]),
+            'nama_kategori'  => trim($row[2]),
+            'keterangan'     => trim($row[3])
+        ];
+    }
+
+    if (!empty($dataInsert)) {
+        $this->Kategori_model->insert_batch($dataInsert);
+    }
+
+    $this->session->set_flashdata(
+        'success',
+        'Import kategori berhasil ('.count($dataInsert).' data)'
+    );
+
+    redirect('kategori');
+}
+public function download_template()
+{
+    $file = FCPATH . 'assets/template/template_kategori.xlsx';
+
+    if (!file_exists($file)) {
+        show_404();
+    }
+
+    header('Content-Description: File Transfer');
+    header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    header('Content-Disposition: attachment; filename="template_import_kategori.xlsx"');
+    header('Expires: 0');
+    header('Cache-Control: must-revalidate');
+    header('Pragma: public');
+    header('Content-Length: ' . filesize($file));
+
+    readfile($file);
+    exit;
+}
+
 }

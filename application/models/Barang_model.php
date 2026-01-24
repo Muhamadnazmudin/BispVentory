@@ -47,4 +47,16 @@ class Barang_model extends CI_Model {
             ['id_barang' => $id]
         );
     }
+    public function generate_kode()
+{
+    $last = $this->db
+        ->select('MAX(CAST(kode_barang AS UNSIGNED)) AS max_kode')
+        ->get('barang')
+        ->row();
+
+    $next = ($last && $last->max_kode) ? $last->max_kode + 1 : 1;
+
+    return str_pad($next, 3, '0', STR_PAD_LEFT);
+}
+
 }

@@ -21,30 +21,35 @@ class Barang extends MY_Controller {
         $this->load->view('layouts/footer');
     }
 
-    public function tambah()
-    {
-        if ($this->input->post()) {
-            $this->Barang_model->insert([
-                'kode_barang' => $this->input->post('kode_barang'),
-                'nama_barang' => $this->input->post('nama_barang'),
-                'merk'        => $this->input->post('merk'),
-                'id_kategori' => $this->input->post('id_kategori'),
-                'satuan'      => $this->input->post('satuan'),
-                'keterangan'  => $this->input->post('keterangan')
-            ]);
-            $this->session->set_flashdata('success','Data barang berhasil disimpan');
-            redirect('barang');
-        }
+   public function tambah()
+{
+    if ($this->input->post()) {
 
-        $data['title']    = 'Tambah Barang';
-        $data['kategori'] = $this->Barang_model->get_kategori();
+        $data = [
+            'kode_barang' => $this->input->post('kode_barang'),
+            'nama_barang' => $this->input->post('nama_barang'),
+            'id_kategori' => $this->input->post('id_kategori'),
+            'merk'        => $this->input->post('merk'),
+            'harga'       => $this->input->post('harga'),
+            'satuan'      => $this->input->post('satuan'),
+            'keterangan'  => $this->input->post('keterangan'),
+        ];
 
-        $this->load->view('layouts/header');
-        $this->load->view('layouts/sidebar');
-        $this->load->view('layouts/topbar');
-        $this->load->view('barang/form', $data);
-        $this->load->view('layouts/footer');
+        $this->Barang_model->insert($data);
+        redirect('barang');
     }
+
+    $data['title']       = 'Tambah Barang';
+    $data['kode_barang'] = $this->Barang_model->generate_kode();
+    $data['kategori']    = $this->Barang_model->get_kategori();
+
+    $this->load->view('layouts/header');
+    $this->load->view('layouts/sidebar');
+    $this->load->view('layouts/topbar');
+    $this->load->view('barang/form', $data);
+    $this->load->view('layouts/footer');
+}
+
 
     public function edit($id)
     {
@@ -54,6 +59,7 @@ class Barang extends MY_Controller {
                 'nama_barang' => $this->input->post('nama_barang'),
                 'id_kategori' => $this->input->post('id_kategori'),
                 'satuan'      => $this->input->post('satuan'),
+                'harga'       => $this->input->post('harga'),
                 'keterangan'  => $this->input->post('keterangan')
             ]);
             $this->session->set_flashdata('success','Data barang berhasil diupdate');

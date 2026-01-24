@@ -36,4 +36,9 @@ class Kategori_model extends CI_Model {
             ['id_kategori' => $id]
         );
     }
+    public function insert_batch($data)
+{
+    return $this->db->insert_batch('kategori', $data);
+}
+
 }
