@@ -86,7 +86,7 @@ $segment2 = $this->uri->segment(2);
          class="collapse <?= in_array($segment1,['user','guru','siswa'])?'show':'' ?>">
         <div class="bg-white py-2 collapse-inner rounded">
             <a class="collapse-item <?= $segment2=='admin'?'active':'' ?>"
-               href="<?= base_url('user/admin') ?>">Admin</a>
+               href="<?= base_url('admin') ?>">Admin</a>
             <a class="collapse-item <?= $segment1=='guru'?'active':'' ?>"
                href="<?= base_url('guru') ?>">Guru</a>
             <a class="collapse-item <?= $segment1=='siswa'?'active':'' ?>"
