@@ -31,17 +31,42 @@ class Permohonan extends MY_Controller {
     public function tambah()
     {
         if ($this->input->post()) {
+            $tanggal = $this->input->post('tanggal');
+$tahun   = date('Y', strtotime($tanggal));
+$bulan   = bulan_romawi(date('m', strtotime($tanggal)));
 
-            $header = [
-                'tanggal'   => $this->input->post('tanggal'),
-                'pemohon'   => $this->input->post('pemohon'),
-                'id_guru'   => $this->input->post('pemohon') == 'guru'
-                                ? $this->input->post('id_guru') : NULL,
-                'id_siswa'  => $this->input->post('pemohon') == 'siswa'
-                                ? $this->input->post('id_siswa') : NULL,
-                'keterangan'=> $this->input->post('keterangan'),
-                'status'    => 'pending'
-            ];
+// ambil nomor terakhir di tahun yang sama
+$last = $this->db
+    ->select('nomor_surat')
+    ->like('nomor_surat', "/$tahun", 'both') // atau 'after'
+    ->order_by('id_permohonan','DESC')
+    ->limit(1)
+    ->get('permohonan')
+    ->row();
+
+
+$urut = 1;
+if($last){
+    preg_match('/^(\d+)/', $last->nomor_surat, $m);
+    $urut = ((int)$m[1]) + 1;
+}
+
+$nomor_surat = str_pad($urut,3,'0',STR_PAD_LEFT)
+    ."/PL.01/SMKN1-CILIMUS/$bulan/$tahun";
+
+$header = [
+    'nomor_surat'    => $nomor_surat,
+    'tanggal'        => $this->input->post('tanggal'),
+    'jenis_kebutuhan'=> $this->input->post('jenis_kebutuhan'),
+    'pemohon'        => $this->input->post('pemohon'),
+    'id_guru'        => $this->input->post('pemohon') == 'guru'
+                        ? $this->input->post('id_guru') : NULL,
+    'id_siswa'       => $this->input->post('pemohon') == 'siswa'
+                        ? $this->input->post('id_siswa') : NULL,
+    'keterangan'     => $this->input->post('keterangan'),
+    'status'         => 'pending'
+];
+
 
             $detail = [];
             foreach ($this->input->post('id_barang') as $i => $id_barang) {
@@ -177,10 +202,23 @@ class Permohonan extends MY_Controller {
     /* =========================
        PDF PERMOHONAN (SIAP PAKAI)
     ==========================*/
-    public function pdf($id)
+   public function pdf($id)
 {
     require_once APPPATH.'third_party/dompdf/autoload.inc.php';
-    $dompdf = new Dompdf\Dompdf();
+
+$options = new Dompdf\Options();
+$options->set('isRemoteEnabled', true);
+$options->set('isHtml5ParserEnabled', true);
+$options->set('defaultFont', 'Arial');
+
+/**
+ * INI KUNCI UTAMA
+ * Izinkan DOMPDF membaca file di folder project
+ */
+$options->set('chroot', FCPATH);
+
+$dompdf = new Dompdf\Dompdf($options);
+
 
     $data['permohonan'] = $this->db
         ->select('p.*, g.nama_guru, s.nama_siswa')
@@ -198,12 +236,12 @@ class Permohonan extends MY_Controller {
     $dompdf->setPaper('A4','portrait');
     $dompdf->render();
 
-    // tampil di browser
     $dompdf->stream(
         'Permohonan_Barang_'.$id.'.pdf',
         ['Attachment' => false]
     );
 }
+
 public function download_pdf($id)
 {
     require_once APPPATH.'third_party/dompdf/autoload.inc.php';

@@ -15,6 +15,11 @@
 <label>Tanggal</label>
 <input type="date" name="tanggal" class="form-control" required>
 </div>
+<div class="col-md-6">
+<label>Jenis Kebutuhan</label>
+<input type="text" name="jenis_kebutuhan" class="form-control" required
+placeholder="Contoh: Perlengkapan Olahraga / ATK">
+</div>
 
 <div class="col-md-3">
 <label>Pemohon</label>

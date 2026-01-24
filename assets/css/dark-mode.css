@@ -120,17 +120,7 @@ body.dark-mode .dropdown-item:hover {
 /* DESKTOP ONLY - FIX SCROLL       */
 /* =============================== */
 @media (min-width: 768px) {
-	html,
-	body {
-		height: 100%;
-		overflow: hidden;
-	}
-
-	#wrapper {
-		height: 100vh;
-	}
-
-	/* Sidebar benar-benar diam */
+	/* Sidebar tetap */
 	#accordionSidebar {
 		position: fixed;
 		top: 0;
@@ -138,10 +128,21 @@ body.dark-mode .dropdown-item:hover {
 		height: 100vh;
 	}
 
-	/* Konten geser ke kanan */
+	/* Content wrapper = tinggi layar dikurangi topbar */
 	#content-wrapper {
 		margin-left: 224px;
-		height: 100vh;
-		overflow-y: auto;
+		min-height: calc(100vh - 70px); /* 70px = tinggi topbar SB Admin 2 */
+		display: flex;
+		flex-direction: column;
+	}
+
+	/* Area konten fleksibel */
+	#content {
+		flex: 1;
+	}
+
+	/* Footer dipaksa ke bawah */
+	.sticky-footer {
+		margin-top: auto;
 	}
 }
