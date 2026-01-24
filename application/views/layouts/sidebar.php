@@ -3,6 +3,14 @@
     max-height: 80px;
     object-fit: contain;
 }
+.sidebar {
+    position: fixed;
+    height: 100vh;
+    overflow-y: auto;
+}
+#content-wrapper {
+    margin-left: 224px;
+}
 
     </style>
 <?php
