@@ -167,5 +167,166 @@ class Laporan_model extends CI_Model {
             $id_barang, $awal, $akhir
         ])->result();
     }
+public function laporan_mutasi_tahunan($tahun)
+{
+    $barang = $this->db->get('barang')->result();
+
+    $hasil = [];
+
+    foreach ($barang as $b) {
+
+        $saldo = 0; // saldo awal januari
+
+        for ($bulan = 1; $bulan <= 12; $bulan++) {
+
+            // ===============================
+            // BARANG MASUK
+            // ===============================
+            $masuk = $this->db->query("
+                SELECT SUM(jumlah) AS total
+                FROM barang_masuk
+                WHERE id_barang = ?
+                AND MONTH(tanggal) = ?
+                AND YEAR(tanggal) = ?
+            ", [$b->id_barang, $bulan, $tahun])->row()->total ?? 0;
+
+            // ===============================
+            // BARANG KELUAR
+            // ===============================
+            $keluar = $this->db->query("
+                SELECT SUM(jumlah) AS total
+                FROM barang_keluar
+                WHERE id_barang = ?
+                AND MONTH(tanggal) = ?
+                AND YEAR(tanggal) = ?
+            ", [$b->id_barang, $bulan, $tahun])->row()->total ?? 0;
+
+            $saldo_akhir = $saldo + $masuk - $keluar;
+
+            $data_bulan[$bulan] = [
+                'saldo_awal'  => (int)$saldo,
+                'masuk'       => (int)$masuk,
+                'keluar'      => (int)$keluar,
+                'saldo_akhir' => (int)$saldo_akhir
+            ];
+
+            $saldo = $saldo_akhir; // lanjut bulan berikutnya
+        }
+
+        $hasil[] = [
+            'id_barang'   => $b->id_barang,
+            'nama_barang' => $b->nama_barang,
+            'bulan'       => $data_bulan
+        ];
+    }
+
+    return $hasil;
+}
+public function mutasi_bulanan($bulan, $tahun)
+{
+    return $this->db->query("
+        SELECT 
+            b.nama_barang,
+            b.merk,
+            b.satuan,
+            kb.kodering,
+            b.harga,
+
+            bm.no_faktur,
+            bm.no_kwitansi,
+            bm.no_bast,
+            bm.tanggal,
+
+            IFNULL(bm.jumlah,0) AS masuk_vol,
+            IFNULL(bm.jumlah * b.harga,0) AS masuk_total,
+
+            IFNULL(bk.jumlah,0) AS keluar_vol,
+            IFNULL(bk.jumlah * b.harga,0) AS keluar_total
+
+        FROM barang b
+        JOIN kategori_barang kb 
+            ON kb.id_kategori = b.id_kategori
+
+        LEFT JOIN barang_masuk bm 
+            ON bm.id_barang = b.id_barang
+            AND MONTH(bm.tanggal) = ?
+            AND YEAR(bm.tanggal) = ?
+
+        LEFT JOIN barang_keluar bk
+            ON bk.id_barang = b.id_barang
+            AND MONTH(bk.tanggal) = ?
+            AND YEAR(bk.tanggal) = ?
+
+        ORDER BY kb.kodering, b.nama_barang
+    ", [$bulan, $tahun, $bulan, $tahun])->result();
+}
+public function mutasi_range_bulan($bulan_awal, $bulan_akhir, $tahun)
+{
+    return $this->db->query("
+        SELECT 
+            b.nama_barang,
+            b.merk,
+            b.satuan,
+            kb.kodering,
+            b.harga,
+
+            bm.no_faktur,
+            bm.no_kwitansi,
+            bm.no_bast,
+            bm.tanggal,
+
+            -- TOTAL MASUK (RANGE BULAN)
+            IFNULL((
+                SELECT SUM(jumlah)
+                FROM barang_masuk
+                WHERE id_barang = b.id_barang
+                  AND YEAR(tanggal) = ?
+                  AND MONTH(tanggal) BETWEEN ? AND ?
+            ),0) AS masuk_vol,
+
+            IFNULL((
+                SELECT SUM(jumlah * b.harga)
+                FROM barang_masuk
+                WHERE id_barang = b.id_barang
+                  AND YEAR(tanggal) = ?
+                  AND MONTH(tanggal) BETWEEN ? AND ?
+            ),0) AS masuk_total,
+
+            -- TOTAL KELUAR (RANGE BULAN)
+            IFNULL((
+                SELECT SUM(jumlah)
+                FROM barang_keluar
+                WHERE id_barang = b.id_barang
+                  AND YEAR(tanggal) = ?
+                  AND MONTH(tanggal) BETWEEN ? AND ?
+            ),0) AS keluar_vol,
+
+            IFNULL((
+                SELECT SUM(jumlah * b.harga)
+                FROM barang_keluar
+                WHERE id_barang = b.id_barang
+                  AND YEAR(tanggal) = ?
+                  AND MONTH(tanggal) BETWEEN ? AND ?
+            ),0) AS keluar_total
+
+        FROM barang b
+        JOIN kategori_barang kb 
+            ON kb.id_kategori = b.id_kategori
+
+        LEFT JOIN barang_masuk bm 
+            ON bm.id_barang = b.id_barang
+            AND YEAR(bm.tanggal) = ?
+            AND MONTH(bm.tanggal) BETWEEN ? AND ?
+
+        ORDER BY kb.kodering, b.nama_barang
+    ", [
+        $tahun, $bulan_awal, $bulan_akhir,
+        $tahun, $bulan_awal, $bulan_akhir,
+        $tahun, $bulan_awal, $bulan_akhir,
+        $tahun, $bulan_awal, $bulan_akhir,
+        $tahun, $bulan_awal, $bulan_akhir
+    ])->result();
+}
+
 
 }

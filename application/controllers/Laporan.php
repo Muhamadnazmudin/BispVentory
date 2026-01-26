@@ -306,9 +306,6 @@ public function stok_pdf()
     );
 }
 
-
-
-
 /* ===============================
    EXCEL STOK (RAPI)
 =============================== */
@@ -444,4 +441,151 @@ public function stok_excel()
         $this->load->view('laporan/kartu_persediaan',$data);
         $this->load->view('layouts/footer');
     }
+    public function mutasi()
+{
+    $bulan_awal  = $this->input->get('bulan_awal') ?? 1;
+    $bulan_akhir = $this->input->get('bulan_akhir') ?? 12;
+    $tahun       = $this->input->get('tahun') ?? date('Y');
+
+    $data['title']       = 'Laporan Mutasi Barang';
+    $data['bulan_awal']  = $bulan_awal;
+    $data['bulan_akhir'] = $bulan_akhir;
+    $data['tahun']       = $tahun;
+
+    // ambil data per bulan
+    $data['data_bulan'] = [];
+
+    for ($b = $bulan_awal; $b <= $bulan_akhir; $b++) {
+        $data['data_bulan'][$b] = $this->Laporan_model
+            ->mutasi_bulanan($b, $tahun);
+    }
+
+    $this->load->view('layouts/header');
+    $this->load->view('layouts/sidebar');
+    $this->load->view('layouts/topbar');
+    $this->load->view('laporan/laporan_mutasi', $data);
+    $this->load->view('layouts/footer');
+}
+public function mutasi_pdf()
+{
+    $bulan_awal  = $this->input->get('bulan_awal') ?? 1;
+    $bulan_akhir = $this->input->get('bulan_akhir') ?? 12;
+    $tahun       = $this->input->get('tahun') ?? date('Y');
+
+    $data['bulan_awal']  = $bulan_awal;
+    $data['bulan_akhir'] = $bulan_akhir;
+    $data['tahun']       = $tahun;
+
+    $data['data_bulan'] = [];
+    for ($b=$bulan_awal; $b<=$bulan_akhir; $b++) {
+        $data['data_bulan'][$b] = $this->Laporan_model->mutasi_bulanan($b, $tahun);
+    }
+
+    $this->pdf->load_view(
+        'laporan/laporan_mutasi_pdf',
+        $data,
+        'A4',
+        'landscape',
+        true,
+        'laporan-mutasi.pdf'
+    );
+}
+
+public function mutasi_excel()
+{
+    $bulan_awal  = $this->input->get('bulan_awal') ?? 1;
+    $bulan_akhir = $this->input->get('bulan_akhir') ?? 12;
+    $tahun       = $this->input->get('tahun') ?? date('Y');
+
+    $namaBulan = [
+        1=>'JAN',2=>'FEB',3=>'MAR',4=>'APR',
+        5=>'MEI',6=>'JUN',7=>'JUL',8=>'AGU',
+        9=>'SEP',10=>'OKT',11=>'NOV',12=>'DES'
+    ];
+
+    header("Content-Type: application/vnd.ms-excel");
+    header("Content-Disposition: attachment; filename=laporan-mutasi.xls");
+
+    echo '<table border="1">';
+
+    /* ===== HEADER UTAMA ===== */
+    echo '<tr>
+        <th rowspan="2">No</th>
+        <th rowspan="2">Kode Rekening</th>
+        <th rowspan="2">Nama Barang</th>
+        <th rowspan="2">Merk</th>';
+
+    for ($b=$bulan_awal; $b<=$bulan_akhir; $b++) {
+        echo '<th colspan="12">MUTASI '.$namaBulan[$b].' '.$tahun.'</th>';
+    }
+    echo '</tr>';
+
+    echo '<tr>';
+    for ($b=$bulan_awal; $b<=$bulan_akhir; $b++) {
+        echo '
+        <th colspan="4">Masuk</th>
+        <th colspan="4">Keluar</th>
+        <th colspan="4">Saldo</th>';
+    }
+    echo '</tr>';
+
+    /* ===== SUB HEADER ===== */
+    echo '<tr>
+        <th></th><th></th><th></th><th></th>';
+    for ($b=$bulan_awal; $b<=$bulan_akhir; $b++) {
+        for ($i=0;$i<3;$i++) {
+            echo '<th>Vol</th><th>Satuan</th><th>Harga</th><th>Jumlah</th>';
+        }
+    }
+    echo '</tr>';
+
+    /* ===== DATA ===== */
+    $barang = $this->db->get('barang')->result();
+    $no = 1;
+
+    foreach ($barang as $brg) {
+        echo '<tr>';
+        echo '<td>'.$no++.'</td>';
+        echo '<td>'.$brg->kode_barang.'</td>';
+        echo '<td>'.$brg->nama_barang.'</td>';
+        echo '<td>'.$brg->merk.'</td>';
+
+        for ($b=$bulan_awal; $b<=$bulan_akhir; $b++) {
+            $list = $this->Laporan_model->mutasi_bulanan($b, $tahun);
+            $row  = null;
+            foreach ($list as $r) {
+                if ($r->nama_barang == $brg->nama_barang) {
+                    $row = $r; break;
+                }
+            }
+
+            if ($row) {
+                $saldo_vol   = $row->masuk_vol - $row->keluar_vol;
+                $saldo_total = $saldo_vol * $row->harga;
+
+                echo '
+                <td>'.$row->masuk_vol.'</td>
+                <td>'.$row->satuan.'</td>
+                <td>'.$row->harga.'</td>
+                <td>'.$row->masuk_total.'</td>
+
+                <td>'.$row->keluar_vol.'</td>
+                <td>'.$row->satuan.'</td>
+                <td>'.$row->harga.'</td>
+                <td>'.$row->keluar_total.'</td>
+
+                <td>'.$saldo_vol.'</td>
+                <td>'.$row->satuan.'</td>
+                <td>'.$row->harga.'</td>
+                <td>'.$saldo_total.'</td>';
+            } else {
+                echo str_repeat('<td>0</td>', 12);
+            }
+        }
+        echo '</tr>';
+    }
+
+    echo '</table>';
+}
+
 }
