@@ -241,6 +241,45 @@ $dompdf = new Dompdf\Dompdf($options);
         ['Attachment' => false]
     );
 }
+public function pdf_pbj($id)
+{
+    require_once APPPATH.'third_party/dompdf/autoload.inc.php';
+
+$options = new Dompdf\Options();
+$options->set('isRemoteEnabled', true);
+$options->set('isHtml5ParserEnabled', true);
+$options->set('defaultFont', 'Arial');
+
+/**
+ * INI KUNCI UTAMA
+ * Izinkan DOMPDF membaca file di folder project
+ */
+$options->set('chroot', FCPATH);
+
+$dompdf = new Dompdf\Dompdf($options);
+
+
+    $data['permohonan'] = $this->db
+        ->select('p.*, g.nama_guru, s.nama_siswa')
+        ->from('permohonan p')
+        ->join('guru g','g.id_guru=p.id_guru','left')
+        ->join('siswa s','s.id_siswa=p.id_siswa','left')
+        ->where('p.id_permohonan',$id)
+        ->get()->row();
+
+    $data['detail'] = $this->Permohonan_model->get_detail($id);
+
+    $html = $this->load->view('permohonan/pdf_pbj',$data,true);
+
+    $dompdf->loadHtml($html);
+    $dompdf->setPaper('A4','portrait');
+    $dompdf->render();
+
+    $dompdf->stream(
+        'Permohonan_Barang_'.$id.'.pdf',
+        ['Attachment' => false]
+    );
+}
 
 public function download_pdf($id)
 {

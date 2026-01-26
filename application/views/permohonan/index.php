@@ -88,6 +88,13 @@ $p->status=='pending' ? 'warning' :
 <i class="fas fa-file-pdf"></i> PDF
 </a>
 
+<!-- PDF PBJ -->
+<a href="<?= base_url('permohonan/pdf_pbj/'.$p->id_permohonan) ?>"
+   target="_blank"
+   class="btn btn-dark btn-sm">
+<i class="fas fa-file-signature"></i> PDF PBJ
+</a>
+
 <?php endif; ?>
 
 </td>
