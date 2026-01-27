@@ -11,7 +11,7 @@
 
 
 
-<!-- jQuery (PALING ATAS) -->
+<!-- jQuery (WAJIB PERTAMA & SATU-SATUNYA) -->
 <script src="<?= base_url('assets/sbadmin2/vendor/jquery/jquery.min.js') ?>"></script>
 
 <!-- Bootstrap -->
@@ -23,9 +23,14 @@
 <!-- SB Admin 2 -->
 <script src="<?= base_url('assets/sbadmin2/js/sb-admin-2.min.js') ?>"></script>
 
-<!-- DataTables (SETELAH jQuery) -->
+<!-- DataTables -->
 <script src="<?= base_url('assets/sbadmin2/vendor/datatables/jquery.dataTables.min.js') ?>"></script>
 <script src="<?= base_url('assets/sbadmin2/vendor/datatables/dataTables.bootstrap4.min.js') ?>"></script>
+
+<!-- Select2 -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
 
 
 
@@ -53,6 +58,45 @@ document.addEventListener("DOMContentLoaded", function () {
             icon.classList.replace('fa-sun', 'fa-moon');
         }
     });
+});
+</script>
+<script>
+$(document).ready(function () {
+    if ($('#barangSelect').length) {
+        $('#barangSelect').select2({
+            placeholder: '- Pilih Barang -',
+            width: '100%',
+            minimumResultsForSearch: 0
+        });
+    }
+});
+</script>
+<script>
+$(document).ready(function () {
+
+    function formatRupiah(angka){
+        return new Intl.NumberFormat('id-ID').format(angka);
+    }
+
+    function setBarangInfo() {
+        const opt = $('#barangSelect option:selected');
+        if (!opt.length) return;
+
+        $('[name="satuan"]').val(opt.data('satuan') || '');
+        $('[name="merk"]').val(opt.data('merk') || '');
+
+        const harga = opt.data('harga') || 0;
+        $('[name="harga_view"]').val(harga ? formatRupiah(harga) : '');
+        $('[name="harga"]').val(harga);
+    }
+
+    // 🔥 EVENT SELECT2
+    $('#barangSelect')
+        .on('select2:select', setBarangInfo)
+        .on('change', setBarangInfo);
+
+    // 🔁 untuk mode edit
+    setBarangInfo();
 });
 </script>
 

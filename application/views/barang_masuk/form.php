@@ -3,6 +3,50 @@ body.dark-mode .card-body input[readonly] {
     color: #212529 !important;
     background-color: #e9ecef !important;
 }
+
+.select2-container .select2-selection--single {
+    height: 38px;
+}
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+    line-height: 38px;
+}
+.select2-container--default .select2-selection--single .select2-selection__arrow {
+    height: 38px;
+}
+/* 🔥 FIX SELECT2 TIDAK BISA NGETIK */
+.select2-container input {
+    pointer-events: auto !important;
+}
+
+/* biar rapi dengan bootstrap */
+.select2-container .select2-selection--single {
+    height: 38px;
+}
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+    line-height: 38px;
+}
+.select2-container--default .select2-selection--single .select2-selection__arrow {
+    height: 38px;
+}
+/* ===============================
+   FIX SEARCH SELECT2 - SB ADMIN 2
+================================ */
+.select2-container--open .select2-dropdown {
+    pointer-events: auto !important;
+}
+
+.select2-container--open .select2-search__field {
+    pointer-events: auto !important;
+    user-select: text !important;
+}
+/* ===============================
+   FORCE SHOW SEARCHBOX SELECT2
+   (SB ADMIN 2)
+================================ */
+.select2-container--default .select2-search--dropdown {
+    display: block !important;
+}
+
     </style>
 <div class="container-fluid">
 
@@ -39,7 +83,10 @@ value="<?= isset($row)?$row->tanggal:'' ?>" required>
 
 <div class="form-group">
 <label>Barang</label>
-<select name="id_barang" class="form-control" required id="barangSelect">
+<select name="id_barang"
+        class="form-control select-barang"
+        required
+        id="barangSelect">
 <option value="">- Pilih Barang -</option>
 <?php foreach($barang as $b): ?>
 <option value="<?= $b->id_barang ?>"
@@ -133,4 +180,6 @@ barangSelect.addEventListener('change', setBarangInfo);
 // saat edit / reload
 window.addEventListener('DOMContentLoaded', setBarangInfo);
 </script>
+
+
 

@@ -160,3 +160,24 @@ body.dark-mode input:disabled {
 	background-color: #e9ecef !important;
 	color: #212529 !important;
 }
+/* ===============================
+   SELECT2 SEARCH FIX - DARK MODE
+   (SB ADMIN 2)
+================================ */
+
+/* paksa searchbox muncul */
+body.dark-mode .select2-search--dropdown {
+	display: block !important;
+}
+
+/* pastikan input search terlihat & bisa diketik */
+body.dark-mode .select2-search__field {
+	background-color: #ffffff !important;
+	color: #212529 !important;
+	border: 1px solid #ced4da !important;
+}
+
+/* dropdown tidak ketimpa rule select */
+body.dark-mode .select2-container--default .select2-results__option {
+	color: #212529;
+}
