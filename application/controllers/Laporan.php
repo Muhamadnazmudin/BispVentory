@@ -1,6 +1,9 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
-
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
 class Laporan extends MY_Controller {
 
     public function __construct()
@@ -491,6 +494,9 @@ public function mutasi_pdf()
     );
 }
 
+
+
+
 public function mutasi_excel()
 {
     $bulan_awal  = $this->input->get('bulan_awal') ?? 1;
@@ -498,118 +504,205 @@ public function mutasi_excel()
     $tahun       = $this->input->get('tahun') ?? date('Y');
 
     $namaBulan = [
-        1=>'JAN',2=>'FEB',3=>'MAR',4=>'APR',
-        5=>'MEI',6=>'JUN',7=>'JUL',8=>'AGU',
-        9=>'SEP',10=>'OKT',11=>'NOV',12=>'DES'
+        1=>'JANUARI',2=>'FEBRUARI',3=>'MARET',4=>'APRIL',
+        5=>'MEI',6=>'JUNI',7=>'JULI',8=>'AGUSTUS',
+        9=>'SEPTEMBER',10=>'OKTOBER',11=>'NOVEMBER',12=>'DESEMBER'
     ];
 
-    header("Content-Type: application/vnd.ms-excel");
-    header("Content-Disposition: attachment; filename=laporan-mutasi.xls");
+    $spreadsheet = new Spreadsheet();
 
-    echo '<table border="1">';
+    /* =====================================================
+       SHEET 1 : LAPORAN MUTASI
+    ===================================================== */
+    $sheet = $spreadsheet->getActiveSheet();
+    $sheet->setTitle('Laporan Mutasi');
 
-    /* ================= HEADER 1 ================= */
-    echo '<tr>
-        <th rowspan="2">No</th>
-        <th rowspan="2">Kode Rekening</th>
-        <th rowspan="2">Nama Barang</th>
-        <th rowspan="2">Merk</th>
-        <th rowspan="2">No Faktur</th>
-        <th rowspan="2">No Kwitansi</th>
-        <th rowspan="2">No BAST</th>';
+    $row1=1; $row2=2; $row3=3;
 
-    for ($b=$bulan_awal; $b<=$bulan_akhir; $b++) {
-        echo '<th colspan="12">MUTASI '.$namaBulan[$b].' '.$tahun.'</th>';
-    }
-    echo '</tr>';
+    // ===== KOLOM KIRI =====
+    $sheet->setCellValueByColumnAndRow(1,$row1,'No');
+    $sheet->mergeCellsByColumnAndRow(1,$row1,1,$row3);
 
-    /* ================= HEADER 2 ================= */
-    echo '<tr>';
-    for ($b=$bulan_awal; $b<=$bulan_akhir; $b++) {
-        echo '
-            <th colspan="4">Masuk</th>
-            <th colspan="4">Keluar</th>
-            <th colspan="4">Saldo</th>';
-    }
-    echo '</tr>';
+    $sheet->setCellValueByColumnAndRow(2,$row1,'Kode Rekening');
+    $sheet->mergeCellsByColumnAndRow(2,$row1,2,$row3);
 
-    /* ================= HEADER 3 ================= */
-    echo '<tr>
-        <th></th><th></th><th></th><th></th>
-        <th></th><th></th><th></th>';
+    $sheet->setCellValueByColumnAndRow(3,$row1,'Kode');
+    $sheet->mergeCellsByColumnAndRow(3,$row1,3,$row3);
+
+    $sheet->setCellValueByColumnAndRow(4,$row1,'Nama Barang');
+    $sheet->mergeCellsByColumnAndRow(4,$row1,4,$row3);
+
+    $sheet->setCellValueByColumnAndRow(5,$row1,'Merk');
+    $sheet->mergeCellsByColumnAndRow(5,$row1,5,$row3);
+
+    // MUTASI mulai kolom 6
+    $col = 6;
 
     for ($b=$bulan_awal; $b<=$bulan_akhir; $b++) {
+
+        $sheet->mergeCellsByColumnAndRow($col,$row1,$col+11,$row1);
+        $sheet->setCellValueByColumnAndRow($col,$row1,'MUTASI '.$namaBulan[$b].' '.$tahun);
+
+        $sheet->mergeCellsByColumnAndRow($col,$row2,$col+3,$row2);
+        $sheet->setCellValueByColumnAndRow($col,$row2,'PENAMBAHAN');
+
+        $sheet->mergeCellsByColumnAndRow($col+4,$row2,$col+7,$row2);
+        $sheet->setCellValueByColumnAndRow($col+4,$row2,'PENGURANGAN');
+
+        $sheet->mergeCellsByColumnAndRow($col+8,$row2,$col+11,$row2);
+        $sheet->setCellValueByColumnAndRow($col+8,$row2,'SALDO AKHIR');
+
+        $sub = ['Vol','Satuan','Harga Satuan','Jumlah (Rp)'];
+        $c = $col;
         for ($i=0;$i<3;$i++) {
-            echo '<th>Vol</th><th>Satuan</th><th>Harga</th><th>Jumlah</th>';
+            foreach ($sub as $s) {
+                $sheet->setCellValueByColumnAndRow($c,$row3,$s);
+                $c++;
+            }
         }
+
+        $col += 12;
     }
-    echo '</tr>';
+
+    // STYLE HEADER
+    $lastCol = $col-1;
+    $sheet->getStyleByColumnAndRow(1,1,$lastCol,3)->applyFromArray([
+        'font'=>['bold'=>true],
+        'alignment'=>[
+            'horizontal'=>Alignment::HORIZONTAL_CENTER,
+            'vertical'=>Alignment::VERTICAL_CENTER
+        ],
+        'fill'=>[
+            'fillType'=>Fill::FILL_SOLID,
+            'startColor'=>['rgb'=>'FFF200']
+        ]
+    ]);
 
     /* ================= DATA ================= */
-    $barang = $this->db->get('barang')->result();
-    $no = 1;
+    $row = 4;
+    $no  = 1;
 
-    foreach ($barang as $brg) {
+    $barang = $this->db->query("
+        SELECT b.id_barang, b.nama_barang, b.merk, kb.kodering
+        FROM barang b
+        JOIN kategori_barang kb ON kb.id_kategori=b.id_kategori
+        ORDER BY kb.kodering, b.nama_barang
+    ")->result();
 
-        // ambil dokumen (sekali saja per barang)
-        $doc = $this->db->select('no_faktur, no_kwitansi, no_bast')
-                        ->from('barang_masuk')
-                        ->where('id_barang', $brg->id_barang)
-                        ->where('YEAR(tanggal)', $tahun)
-                        ->order_by('tanggal','ASC')
-                        ->limit(1)
-                        ->get()
-                        ->row();
-
-        echo '<tr>';
-        echo '<td>'.$no++.'</td>';
-        echo '<td>'.$brg->kode_barang.'</td>';
-        echo '<td>'.$brg->nama_barang.'</td>';
-        echo '<td>'.$brg->merk.'</td>';
-        echo '<td>'.($doc->no_faktur ?? '-').'</td>';
-        echo '<td>'.($doc->no_kwitansi ?? '-').'</td>';
-        echo '<td>'.($doc->no_bast ?? '-').'</td>';
-
-        for ($b=$bulan_awal; $b<=$bulan_akhir; $b++) {
-
-            $list = $this->Laporan_model->mutasi_bulanan($b, $tahun);
-            $row  = null;
-
-            foreach ($list as $r) {
-                if ($r->nama_barang == $brg->nama_barang) {
-                    $row = $r;
-                    break;
-                }
-            }
-
-            if ($row) {
-                $saldo_vol   = $row->masuk_vol - $row->keluar_vol;
-                $saldo_total = $saldo_vol * $row->harga;
-
-                echo '
-                <td>'.$row->masuk_vol.'</td>
-                <td>'.$row->satuan.'</td>
-                <td>'.$row->harga.'</td>
-                <td>'.$row->masuk_total.'</td>
-
-                <td>'.$row->keluar_vol.'</td>
-                <td>'.$row->satuan.'</td>
-                <td>'.$row->harga.'</td>
-                <td>'.$row->keluar_total.'</td>
-
-                <td>'.$saldo_vol.'</td>
-                <td>'.$row->satuan.'</td>
-                <td>'.$row->harga.'</td>
-                <td>'.$saldo_total.'</td>';
-            } else {
-                echo str_repeat('<td>0</td>', 12);
-            }
-        }
-
-        echo '</tr>';
+    $data_bulan=[];
+    for ($b=$bulan_awal;$b<=$bulan_akhir;$b++){
+        $data_bulan[$b]=$this->Laporan_model->mutasi_bulanan($b,$tahun);
     }
 
-    echo '</table>';
+    $saldo=[];
+
+    foreach($barang as $brg){
+        $sheet->setCellValueByColumnAndRow(1,$row,$no++);
+        $sheet->setCellValueByColumnAndRow(2,$row,$brg->kodering);
+        $sheet->setCellValueByColumnAndRow(3,$row,'');
+        $sheet->setCellValueByColumnAndRow(4,$row,$brg->nama_barang);
+        $sheet->setCellValueByColumnAndRow(5,$row,$brg->merk);
+
+        $saldo[$brg->id_barang]=0;
+        $col=6;
+
+        for($b=$bulan_awal;$b<=$bulan_akhir;$b++){
+            $rdata=null;
+            foreach($data_bulan[$b] as $r){
+                if($r->id_barang==$brg->id_barang){ $rdata=$r; break; }
+            }
+
+            if($rdata){
+                $saldo[$brg->id_barang]+=$rdata->masuk_vol-$rdata->keluar_vol;
+                $vals=[
+                    $rdata->masuk_vol,$rdata->satuan,$rdata->harga,$rdata->masuk_total,
+                    $rdata->keluar_vol,$rdata->satuan,$rdata->harga,$rdata->keluar_total,
+                    $saldo[$brg->id_barang],$rdata->satuan,$rdata->harga,
+                    $saldo[$brg->id_barang]*$rdata->harga
+                ];
+                foreach($vals as $v){
+                    $sheet->setCellValueByColumnAndRow($col++,$row,$v);
+                }
+            } else {
+                for($i=0;$i<12;$i++){
+                    $sheet->setCellValueByColumnAndRow($col++,$row,0);
+                }
+            }
+        }
+        $row++;
+    }
+
+    /* ================= OUTPUT ================= */
+    /* =====================================================
+   SHEET 2 : DETAIL BARANG MASUK
+===================================================== */
+$sheet2 = $spreadsheet->createSheet();
+$sheet2->setTitle('Detail Barang Masuk');
+
+// Header
+$headers = [
+    'Tanggal',
+    'Nama Barang',
+    'Merk',
+    'Jumlah',
+    'Satuan',
+    'No Faktur',
+    'No Kwitansi',
+    'No BAST',
+    'Perolehan'
+];
+
+$col = 1;
+foreach ($headers as $h) {
+    $sheet2->setCellValueByColumnAndRow($col++, 1, $h);
 }
+
+// Style header
+$sheet2->getStyle('A1:I1')->applyFromArray([
+    'font' => ['bold' => true],
+    'alignment' => [
+        'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER
+    ]
+]);
+
+// Data
+$row = 2;
+$detail = $this->db->query("
+    SELECT 
+        bm.tanggal,
+        b.nama_barang,
+        b.merk,
+        bm.jumlah,
+        bm.satuan,
+        bm.no_faktur,
+        bm.no_kwitansi,
+        bm.no_bast,
+        bm.perolehan
+    FROM barang_masuk bm
+    JOIN barang b ON b.id_barang = bm.id_barang
+    WHERE YEAR(bm.tanggal) = ?
+    ORDER BY bm.tanggal ASC
+", [$tahun])->result();
+
+foreach ($detail as $d) {
+    $sheet2->setCellValueByColumnAndRow(1, $row, date('d-m-Y', strtotime($d->tanggal)));
+    $sheet2->setCellValueByColumnAndRow(2, $row, $d->nama_barang);
+    $sheet2->setCellValueByColumnAndRow(3, $row, $d->merk);
+    $sheet2->setCellValueByColumnAndRow(4, $row, $d->jumlah);
+    $sheet2->setCellValueByColumnAndRow(5, $row, $d->satuan);
+    $sheet2->setCellValueByColumnAndRow(6, $row, $d->no_faktur);
+    $sheet2->setCellValueByColumnAndRow(7, $row, $d->no_kwitansi);
+    $sheet2->setCellValueByColumnAndRow(8, $row, $d->no_bast);
+    $sheet2->setCellValueByColumnAndRow(9, $row, $d->perolehan);
+    $row++;
+}
+
+    $writer=new Xlsx($spreadsheet);
+    header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    header("Content-Disposition: attachment; filename=laporan-mutasi-$tahun.xlsx");
+    $writer->save('php://output');
+    exit;
+}
+
 
 }

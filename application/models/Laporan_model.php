@@ -226,22 +226,25 @@ public function mutasi_bulanan($bulan, $tahun)
 {
     return $this->db->query("
         SELECT 
+            b.id_barang,
             b.nama_barang,
             b.merk,
             b.satuan,
             kb.kodering,
             b.harga,
 
-            bm.no_faktur,
-            bm.no_kwitansi,
-            bm.no_bast,
-            bm.tanggal,
+            -- dokumen (ambil salah satu, cukup untuk laporan)
+            MAX(bm.no_faktur)   AS no_faktur,
+            MAX(bm.no_kwitansi) AS no_kwitansi,
+            MAX(bm.no_bast)     AS no_bast,
 
-            IFNULL(bm.jumlah,0) AS masuk_vol,
-            IFNULL(bm.jumlah * b.harga,0) AS masuk_total,
+            -- TOTAL MASUK BULAN INI
+            IFNULL(SUM(bm.jumlah),0) AS masuk_vol,
+            IFNULL(SUM(bm.jumlah * b.harga),0) AS masuk_total,
 
-            IFNULL(bk.jumlah,0) AS keluar_vol,
-            IFNULL(bk.jumlah * b.harga,0) AS keluar_total
+            -- TOTAL KELUAR BULAN INI
+            IFNULL(SUM(bk.jumlah),0) AS keluar_vol,
+            IFNULL(SUM(bk.jumlah * b.harga),0) AS keluar_total
 
         FROM barang b
         JOIN kategori_barang kb 
@@ -257,9 +260,11 @@ public function mutasi_bulanan($bulan, $tahun)
             AND MONTH(bk.tanggal) = ?
             AND YEAR(bk.tanggal) = ?
 
+        GROUP BY b.id_barang
         ORDER BY kb.kodering, b.nama_barang
     ", [$bulan, $tahun, $bulan, $tahun])->result();
 }
+
 public function mutasi_range_bulan($bulan_awal, $bulan_akhir, $tahun)
 {
     return $this->db->query("
