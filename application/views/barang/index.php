@@ -9,8 +9,18 @@
 <?php endif; ?>
 
 <a href="<?= base_url('barang/tambah') ?>" class="btn btn-primary mb-3">
-<i class="fas fa-plus"></i> Tambah Barang
+    <i class="fas fa-plus"></i> Tambah Barang
 </a>
+
+<button class="btn btn-success mb-3" data-toggle="modal" data-target="#modalImport">
+    <i class="fas fa-file-excel"></i> Import Excel
+</button>
+
+<a href="<?= base_url('barang/download_template') ?>" class="btn btn-secondary mb-3">
+    <i class="fas fa-download"></i> Download Template
+</a>
+
+
 
 <div class="card shadow mb-4">
 <div class="card-body">
@@ -53,3 +63,37 @@
 </div>
 
 </div>
+<!-- Modal Import Excel -->
+<div class="modal fade" id="modalImport" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <form action="<?= base_url('barang/import_excel') ?>" method="post" enctype="multipart/form-data">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Import Data Barang</h5>
+          <button type="button" class="close" data-dismiss="modal">
+            <span>&times;</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <div class="form-group">
+            <label>File Excel</label>
+            <input type="file" name="file" class="form-control" accept=".xls,.xlsx" required>
+            <small class="text-muted">
+              Gunakan template resmi agar format sesuai
+            </small>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+          <button type="submit" class="btn btn-success">
+            <i class="fas fa-upload"></i> Import
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+

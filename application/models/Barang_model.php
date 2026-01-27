@@ -11,7 +11,7 @@ class Barang_model extends CI_Model {
             'kategori_barang',
             'kategori_barang.id_kategori = barang.id_kategori'
         );
-        $this->db->order_by('barang.id_barang','DESC');
+        $this->db->order_by('barang.id_barang','ASC');
         return $this->db->get()->result();
     }
 
@@ -57,6 +57,10 @@ class Barang_model extends CI_Model {
     $next = ($last && $last->max_kode) ? $last->max_kode + 1 : 1;
 
     return str_pad($next, 3, '0', STR_PAD_LEFT);
+}
+public function insert_batch($data)
+{
+    return $this->db->insert_batch('barang', $data);
 }
 
 }
