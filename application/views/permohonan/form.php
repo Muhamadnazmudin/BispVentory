@@ -76,12 +76,10 @@ placeholder="Contoh: Perlengkapan Olahraga / ATK">
 <select name="id_barang[]" class="form-control barangSelect" required>
 <option value="">- Pilih Barang -</option>
 <?php foreach($barang as $b): ?>
-<option value="<?= $b->id_barang ?>"
-    data-stok="<?= $b->stok ?>">
-    <?= $b->nama_barang ?> 
-(<span class="font-weight-bold text-primary"><?= $b->merk ?></span>)
-
+<option value="<?= $b->id_barang ?>" data-stok="<?= $b->stok ?>">
+    <?= $b->nama_barang ?> (<?= $b->merk ?>)
 </option>
+
 <?php endforeach; ?>
 </select>
 </td>
@@ -160,18 +158,36 @@ function bindRow(row){
 }
 
 // tambah baris
+const barangOptions = `<?= implode('', array_map(function($b){
+    return "<option value='{$b->id_barang}' data-stok='{$b->stok}'>
+        {$b->nama_barang} ({$b->merk})
+    </option>";
+}, $barang)) ?>`;
+
 function addRow(){
     const tbody = document.querySelector('#tableItem tbody');
-    const row   = tbody.rows[0].cloneNode(true);
 
-    row.querySelector('.barangSelect').value = '';
-    row.querySelector('.stokView').value = '';
-    row.querySelector('.jumlahInput').value = '';
-
-    row.querySelector('td:last-child').innerHTML = `
-        <button type="button" class="btn btn-sm btn-danger" onclick="this.closest('tr').remove()">
-            <i class="fas fa-trash"></i>
-        </button>`;
+    const row = document.createElement('tr');
+    row.innerHTML = `
+        <td>
+            <select name="id_barang[]" class="form-control barangSelect" required>
+                <option value="">- Pilih Barang -</option>
+                ${barangOptions}
+            </select>
+        </td>
+        <td>
+            <input type="text" class="form-control stokView" readonly value="0">
+        </td>
+        <td>
+            <input type="number" name="jumlah[]" class="form-control jumlahInput" min="1" required>
+        </td>
+        <td class="text-center">
+            <button type="button" class="btn btn-sm btn-danger"
+                onclick="this.closest('tr').remove()">
+                <i class="fas fa-trash"></i>
+            </button>
+        </td>
+    `;
 
     tbody.appendChild(row);
     bindRow(row);

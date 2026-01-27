@@ -90,7 +90,7 @@ $(document).ready(function () {
         $('[name="harga"]').val(harga);
     }
 
-    // 🔥 EVENT SELECT2
+    // select2 untukselect
     $('#barangSelect')
         .on('select2:select', setBarangInfo)
         .on('change', setBarangInfo);
@@ -99,6 +99,58 @@ $(document).ready(function () {
     setBarangInfo();
 });
 </script>
+<script>
+$(document).ready(function () {
+
+    /* =========================
+       SELECT2 GURU & SISWA
+    ========================= */
+    $('.select2-guru').select2({
+        placeholder: '- Pilih Guru -',
+        width: '100%',
+        minimumResultsForSearch: 0
+    });
+
+    $('.select2-siswa').select2({
+        placeholder: '- Pilih Siswa -',
+        width: '100%',
+        minimumResultsForSearch: 0
+    });
+
+    /* =========================
+       SELECT2 BARANG (SEMUA ROW)
+       INIT SEKALI SAJA
+    ========================= */
+    $('.barangSelect').select2({
+        placeholder: '- Pilih Barang -',
+        width: '100%',
+        minimumResultsForSearch: 0
+    });
+
+    /* =========================
+       EVENT BARANG (STOK)
+       DELEGATION (AMAN)
+    ========================= */
+    $(document).on('select2:select', '.barangSelect', function () {
+        const opt   = $(this).find('option:selected');
+        const stok  = opt.data('stok') || 0;
+        const row   = $(this).closest('tr');
+
+        row.find('.stokView').val(stok);
+        row.find('.jumlahInput').attr('max', stok);
+    });
+
+    $(document).on('input', '.jumlahInput', function () {
+        const max = parseInt($(this).attr('max') || 0);
+        if (parseInt(this.value) > max) {
+            alert('Jumlah melebihi stok tersedia');
+            this.value = max;
+        }
+    });
+
+});
+</script>
+
 
 </body>
 </html>

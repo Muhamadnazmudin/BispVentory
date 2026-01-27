@@ -181,3 +181,60 @@ body.dark-mode .select2-search__field {
 body.dark-mode .select2-container--default .select2-results__option {
 	color: #212529;
 }
+/* ===============================
+   SELECT2 STYLE - SAMA DENGAN FORM
+   SB ADMIN 2 + DARK MODE
+================================ */
+
+/* container utama */
+.select2-container--default .select2-selection--single {
+	height: 38px;
+	border: 1px solid #ced4da;
+	border-radius: 0.35rem;
+	background-color: #fff;
+}
+
+/* teks di dalam */
+.select2-container--default
+	.select2-selection--single
+	.select2-selection__rendered {
+	line-height: 36px;
+	padding-left: 0.75rem;
+	color: #495057;
+}
+
+/* arrow */
+.select2-container--default
+	.select2-selection--single
+	.select2-selection__arrow {
+	height: 36px;
+	right: 6px;
+}
+
+/* fokus (klik) */
+.select2-container--default.select2-container--focus
+	.select2-selection--single {
+	border-color: #4e73df;
+	box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+}
+
+/* ===============================
+   DARK MODE ADJUSTMENT
+================================ */
+body.dark-mode .select2-container--default .select2-selection--single {
+	background-color: #f1f3f5;
+	border-color: #ced4da;
+}
+
+body.dark-mode
+	.select2-container--default
+	.select2-selection--single
+	.select2-selection__rendered {
+	color: #212529;
+}
+
+/* dropdown */
+body.dark-mode .select2-dropdown {
+	background-color: #ffffff;
+	color: #212529;
+}
