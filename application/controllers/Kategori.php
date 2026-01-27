@@ -79,7 +79,7 @@ class Kategori extends MY_Controller {
         redirect('kategori');
     }
 
-    require_once APPPATH.'third_party/PhpSpreadsheet/vendor/autoload.php';
+    require_once FCPATH . 'vendor/autoload.php';
 
     $filePath = $_FILES['file']['tmp_name'];
 
@@ -91,16 +91,25 @@ class Kategori extends MY_Controller {
 
     $dataInsert = [];
 
-    foreach ($sheetData as $row) {
-        if (empty($row[0]) || empty($row[2])) continue;
+foreach ($sheetData as $row) {
+    if (empty($row[0]) || empty($row[2])) continue;
 
-        $dataInsert[] = [
-            'kodering'       => trim($row[0]),
-            'nama_kodering'  => trim($row[1]),
-            'nama_kategori'  => trim($row[2]),
-            'keterangan'     => trim($row[3])
-        ];
-    }
+    // cek kodering sudah ada
+    $exists = $this->db
+        ->where('kodering', trim($row[0]))
+        ->get('kategori_barang')
+        ->row();
+
+    if ($exists) continue; // SKIP duplikat
+
+    $dataInsert[] = [
+        'kodering'       => trim($row[0]),
+        'nama_kodering'  => trim($row[1]),
+        'nama_kategori'  => trim($row[2]),
+        'keterangan'     => trim($row[3])
+    ];
+}
+
 
     if (!empty($dataInsert)) {
         $this->Kategori_model->insert_batch($dataInsert);
@@ -113,6 +122,7 @@ class Kategori extends MY_Controller {
 
     redirect('kategori');
 }
+
 public function download_template()
 {
     $file = FCPATH . 'assets/template/template_kategori.xlsx';

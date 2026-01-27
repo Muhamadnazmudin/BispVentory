@@ -5,7 +5,7 @@ class Kategori_model extends CI_Model {
 
     public function get_all()
     {
-        return $this->db->order_by('id_kategori','DESC')
+        return $this->db->order_by('id_kategori','ASC')
                         ->get('kategori_barang')
                         ->result();
     }
@@ -38,7 +38,8 @@ class Kategori_model extends CI_Model {
     }
     public function insert_batch($data)
 {
-    return $this->db->insert_batch('kategori', $data);
+    return $this->db->insert_batch('kategori_barang', $data);
 }
+
 
 }
