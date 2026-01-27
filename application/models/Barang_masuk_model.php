@@ -7,24 +7,28 @@ class Barang_masuk_model extends CI_Model {
     // LIST DATA
     // =========================
     public function get_all()
-    {
-        $this->db->select('
-            bm.id_masuk,
-            bm.tanggal,
-            bm.jumlah,
-            bm.satuan,
-            bm.perolehan,
-            bm.toko,
-            bm.keterangan,
-            b.nama_barang,
-            b.merk
-        ');
-        $this->db->from('barang_masuk bm');
-        $this->db->join('barang b','b.id_barang = bm.id_barang');
-        return $this->db->order_by('bm.id_masuk','DESC')
-                        ->get()
-                        ->result();
-    }
+{
+    $this->db->select('
+        bm.id_masuk,
+        bm.tanggal,
+        bm.no_faktur,
+        bm.no_kwitansi,
+        bm.no_bast,
+        bm.jumlah,
+        bm.satuan,
+        bm.perolehan,
+        bm.toko,
+        bm.keterangan,
+        b.nama_barang,
+        b.merk
+    ');
+    $this->db->from('barang_masuk bm');
+    $this->db->join('barang b','b.id_barang = bm.id_barang');
+    return $this->db->order_by('bm.id_masuk','DESC')
+                    ->get()
+                    ->result();
+}
+
 
     // =========================
     // DATA BARANG (DROPDOWN)
@@ -59,21 +63,25 @@ class Barang_masuk_model extends CI_Model {
     // =========================
     // UPDATE
     // =========================
-    public function update($id_masuk)
-    {
-        $data = [
-            'tanggal'    => $this->input->post('tanggal'),
-            'id_barang'  => $this->input->post('id_barang'),
-            'jumlah'     => $this->input->post('jumlah'),
-            'satuan'     => $this->input->post('satuan'),
-            'toko'       => $this->input->post('toko'),
-            'perolehan'  => $this->input->post('perolehan'),
-            'keterangan' => $this->input->post('keterangan')
-        ];
+   public function update($id_masuk)
+{
+    $data = [
+        'tanggal'     => $this->input->post('tanggal'),
+        'no_faktur'   => $this->input->post('no_faktur'),
+        'no_kwitansi' => $this->input->post('no_kwitansi'),
+        'no_bast'     => $this->input->post('no_bast'),
+        'id_barang'   => $this->input->post('id_barang'),
+        'jumlah'      => $this->input->post('jumlah'),
+        'satuan'      => $this->input->post('satuan'),
+        'toko'        => $this->input->post('toko'),
+        'perolehan'   => $this->input->post('perolehan'),
+        'keterangan'  => $this->input->post('keterangan')
+    ];
 
-        return $this->db->where('id_masuk',$id_masuk)
-                        ->update('barang_masuk',$data);
-    }
+    return $this->db->where('id_masuk',$id_masuk)
+                    ->update('barang_masuk',$data);
+}
+
 
     // =========================
     // DELETE

@@ -26,14 +26,18 @@ class Barang_masuk extends MY_Controller {
         if ($this->input->post()) {
 
             $simpan = $this->Barang_masuk_model->insert([
-                'tanggal'    => $this->input->post('tanggal'),
-                'id_barang'  => $this->input->post('id_barang'),
-                'jumlah'     => $this->input->post('jumlah'),
-                'satuan'     => $this->input->post('satuan'),
-                'toko'       => $this->input->post('toko'),
-                'perolehan'  => $this->input->post('perolehan'),
-                'keterangan' => $this->input->post('keterangan')
-            ]);
+    'tanggal'     => $this->input->post('tanggal'),
+    'no_faktur'   => $this->input->post('no_faktur'),
+    'no_kwitansi' => $this->input->post('no_kwitansi'),
+    'no_bast'     => $this->input->post('no_bast'),
+    'id_barang'   => $this->input->post('id_barang'),
+    'jumlah'      => $this->input->post('jumlah'),
+    'satuan'      => $this->input->post('satuan'),
+    'toko'        => $this->input->post('toko'),
+    'perolehan'   => $this->input->post('perolehan'),
+    'keterangan'  => $this->input->post('keterangan')
+]);
+
 
             if ($simpan) {
                 $this->session->set_flashdata('success','Barang masuk berhasil disimpan');
@@ -95,4 +99,5 @@ class Barang_masuk extends MY_Controller {
 
         redirect('barang_masuk');
     }
+    
 }

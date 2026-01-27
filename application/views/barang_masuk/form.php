@@ -18,6 +18,24 @@ body.dark-mode .card-body input[readonly] {
 <input type="date" name="tanggal" class="form-control"
 value="<?= isset($row)?$row->tanggal:'' ?>" required>
 </div>
+<div class="form-group">
+    <label>Nomor Faktur</label>
+    <input type="text" name="no_faktur" class="form-control"
+           value="<?= isset($row)?$row->no_faktur:'' ?>">
+</div>
+
+<div class="form-group">
+    <label>Nomor Kwitansi</label>
+    <input type="text" name="no_kwitansi" class="form-control"
+           value="<?= isset($row)?$row->no_kwitansi:'' ?>">
+</div>
+
+<div class="form-group">
+    <label>Nomor BAST</label>
+    <input type="text" name="no_bast" class="form-control"
+           value="<?= isset($row)?$row->no_bast:'' ?>">
+</div>
+
 
 <div class="form-group">
 <label>Barang</label>
