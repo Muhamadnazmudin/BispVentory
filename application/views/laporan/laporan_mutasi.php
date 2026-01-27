@@ -83,6 +83,9 @@ $namaBulan = [
     <th rowspan="2">Kode Rekening</th>
     <th rowspan="2">Nama Barang</th>
     <th rowspan="2">Merk</th>
+    <th rowspan="2">No Faktur</th>
+    <th rowspan="2">No Kwitansi</th>
+    <th rowspan="2">No BAST</th>
 
     <th colspan="4">PENAMBAHAN</th>
     <th colspan="4">PENGURANGAN</th>
@@ -113,6 +116,9 @@ foreach ($list as $r):
     <td><?= $r->kodering ?></td>
     <td><?= $r->nama_barang ?></td>
     <td><?= $r->merk ?></td>
+    <td><?= $r->no_faktur ?? '-' ?></td>
+<td><?= $r->no_kwitansi ?? '-' ?></td>
+<td><?= $r->no_bast ?? '-' ?></td>
 
     <!-- PENAMBAHAN -->
     <td class="text-center"><?= $r->masuk_vol ?></td>

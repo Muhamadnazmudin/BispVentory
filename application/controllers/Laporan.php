@@ -508,30 +508,36 @@ public function mutasi_excel()
 
     echo '<table border="1">';
 
-    /* ===== HEADER UTAMA ===== */
+    /* ================= HEADER 1 ================= */
     echo '<tr>
         <th rowspan="2">No</th>
         <th rowspan="2">Kode Rekening</th>
         <th rowspan="2">Nama Barang</th>
-        <th rowspan="2">Merk</th>';
+        <th rowspan="2">Merk</th>
+        <th rowspan="2">No Faktur</th>
+        <th rowspan="2">No Kwitansi</th>
+        <th rowspan="2">No BAST</th>';
 
     for ($b=$bulan_awal; $b<=$bulan_akhir; $b++) {
         echo '<th colspan="12">MUTASI '.$namaBulan[$b].' '.$tahun.'</th>';
     }
     echo '</tr>';
 
+    /* ================= HEADER 2 ================= */
     echo '<tr>';
     for ($b=$bulan_awal; $b<=$bulan_akhir; $b++) {
         echo '
-        <th colspan="4">Masuk</th>
-        <th colspan="4">Keluar</th>
-        <th colspan="4">Saldo</th>';
+            <th colspan="4">Masuk</th>
+            <th colspan="4">Keluar</th>
+            <th colspan="4">Saldo</th>';
     }
     echo '</tr>';
 
-    /* ===== SUB HEADER ===== */
+    /* ================= HEADER 3 ================= */
     echo '<tr>
-        <th></th><th></th><th></th><th></th>';
+        <th></th><th></th><th></th><th></th>
+        <th></th><th></th><th></th>';
+
     for ($b=$bulan_awal; $b<=$bulan_akhir; $b++) {
         for ($i=0;$i<3;$i++) {
             echo '<th>Vol</th><th>Satuan</th><th>Harga</th><th>Jumlah</th>';
@@ -539,23 +545,40 @@ public function mutasi_excel()
     }
     echo '</tr>';
 
-    /* ===== DATA ===== */
+    /* ================= DATA ================= */
     $barang = $this->db->get('barang')->result();
     $no = 1;
 
     foreach ($barang as $brg) {
+
+        // ambil dokumen (sekali saja per barang)
+        $doc = $this->db->select('no_faktur, no_kwitansi, no_bast')
+                        ->from('barang_masuk')
+                        ->where('id_barang', $brg->id_barang)
+                        ->where('YEAR(tanggal)', $tahun)
+                        ->order_by('tanggal','ASC')
+                        ->limit(1)
+                        ->get()
+                        ->row();
+
         echo '<tr>';
         echo '<td>'.$no++.'</td>';
         echo '<td>'.$brg->kode_barang.'</td>';
         echo '<td>'.$brg->nama_barang.'</td>';
         echo '<td>'.$brg->merk.'</td>';
+        echo '<td>'.($doc->no_faktur ?? '-').'</td>';
+        echo '<td>'.($doc->no_kwitansi ?? '-').'</td>';
+        echo '<td>'.($doc->no_bast ?? '-').'</td>';
 
         for ($b=$bulan_awal; $b<=$bulan_akhir; $b++) {
+
             $list = $this->Laporan_model->mutasi_bulanan($b, $tahun);
             $row  = null;
+
             foreach ($list as $r) {
                 if ($r->nama_barang == $brg->nama_barang) {
-                    $row = $r; break;
+                    $row = $r;
+                    break;
                 }
             }
 
@@ -582,6 +605,7 @@ public function mutasi_excel()
                 echo str_repeat('<td>0</td>', 12);
             }
         }
+
         echo '</tr>';
     }
 
