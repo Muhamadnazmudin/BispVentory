@@ -88,18 +88,28 @@ class Guru extends MY_Controller {
         // mulai dari baris ke-2 (skip header)
         for ($i = 1; $i < count($sheet); $i++) {
 
-            if ($sheet[$i][0] == '') continue;
+    $nama_guru = trim($sheet[$i][0]);
+    $nip       = trim($sheet[$i][1]);
+    $jabatan   = trim($sheet[$i][2]);
 
-            $data = [
-                'nama_guru' => $sheet[$i][0],
-                'nip'       => $sheet[$i][1],
-                'jabatan'   => $sheet[$i][2]
-            ];
+    if ($nama_guru == '') continue; // wajib nama
 
-            if (!$this->Guru_model->cek_nip($sheet[$i][1])) {
-    $this->Guru_model->insert($data);
-}
+    $data = [
+        'nama_guru' => $nama_guru,
+        'nip'       => $nip ?: null,
+        'jabatan'   => $jabatan
+    ];
 
+    
+    if ($nip) {
+        // Kalau ada NIP → cek duplikat
+        if (!$this->Guru_model->cek_nip($nip)) {
+            $this->Guru_model->insert($data);
+        }
+    } else {
+        // Kalau NIP kosong → langsung insert
+        $this->Guru_model->insert($data);
+    }
         }
 
         $this->session->set_flashdata(

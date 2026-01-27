@@ -33,32 +33,6 @@
     </a>
 
 </form>
-<hr>
-
-<h5 class="mt-4">Import Data Guru (Excel)</h5>
-
-<form action="<?= base_url('guru/import_excel') ?>" 
-      method="post" enctype="multipart/form-data">
-
-    <div class="form-group">
-        <input type="file" name="file_excel"
-               class="form-control"
-               accept=".xls,.xlsx" required>
-        <small class="text-muted">
-            Format: nama_guru | nip | jabatan (baris pertama header)
-        </small>
-        <a href="<?= base_url('guru/download_template') ?>"
-   class="btn btn-success mb-3">
-   <i class="fas fa-download"></i> Download Template Excel
-</a>
-
-    </div>
-
-    <button class="btn btn-primary">
-        <i class="fas fa-file-excel"></i> Import Excel
-    </button>
-</form>
-
 </div>
 </div>
 
