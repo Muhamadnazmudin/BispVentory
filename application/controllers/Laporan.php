@@ -703,6 +703,128 @@ foreach ($detail as $d) {
     $writer->save('php://output');
     exit;
 }
+public function rekap_kendali()
+{
+    $tahun = $this->input->get('tahun') ?? date('Y');
 
+    $this->load->model('Rekap_kendali_model');
+
+    $data['title'] = 'Rekap Kendali';
+    $data['tahun'] = $tahun;
+    $data['rekap'] = $this->Rekap_kendali_model->get_rekap($tahun);
+
+    $this->load->view('layouts/header');
+    $this->load->view('layouts/sidebar');
+    $this->load->view('layouts/topbar');
+    $this->load->view('laporan/rekap_kendali', $data);
+    $this->load->view('layouts/footer');
+}
+public function export_excel()
+{
+    $tahun = $this->input->get('tahun');
+    $rekap = $this->Laporan_model->getRekap($tahun);
+
+    $spreadsheet = new Spreadsheet();
+    $sheet = $spreadsheet->getActiveSheet();
+
+    /* =====================================================
+       HEADER (2 BARIS)
+    ===================================================== */
+    $row1 = 1;
+    $row2 = 2;
+    $col  = 1;
+
+    // Kodering
+    $sheet->setCellValueByColumnAndRow($col, $row1, 'Kodering');
+    $sheet->mergeCellsByColumnAndRow($col, $row1, $col, $row2);
+    $col++;
+
+    // Uraian
+    $sheet->setCellValueByColumnAndRow($col, $row1, 'Uraian');
+    $sheet->mergeCellsByColumnAndRow($col, $row1, $col, $row2);
+    $col++;
+
+    // Saldo Awal
+    $sheet->setCellValueByColumnAndRow($col, $row1, 'Saldo Awal');
+    $sheet->mergeCellsByColumnAndRow($col, $row1, $col, $row2);
+    $col++;
+
+    // JANUARI - DESEMBER
+    for ($b = 1; $b <= 12; $b++) {
+
+        $sheet->setCellValueByColumnAndRow($col, $row1, strtoupper(bulan_id($b)));
+        $sheet->mergeCellsByColumnAndRow($col, $row1, $col + 2, $row1);
+
+        $sheet->setCellValueByColumnAndRow($col,     $row2, 'Masuk');
+        $sheet->setCellValueByColumnAndRow($col + 1, $row2, 'Keluar');
+        $sheet->setCellValueByColumnAndRow($col + 2, $row2, 'Saldo');
+
+        $col += 3;
+    }
+
+    // TOTAL
+    $sheet->setCellValueByColumnAndRow($col, $row1, 'TOTAL');
+    $sheet->mergeCellsByColumnAndRow($col, $row1, $col + 2, $row1);
+
+    $sheet->setCellValueByColumnAndRow($col,     $row2, 'Masuk');
+    $sheet->setCellValueByColumnAndRow($col + 1, $row2, 'Keluar');
+    $sheet->setCellValueByColumnAndRow($col + 2, $row2, 'Saldo');
+
+    /* =====================================================
+       DATA
+    ===================================================== */
+    $rowNum = 3;
+
+    foreach ($rekap as $r) {
+
+        $col = 1;
+
+        // Kodering
+        $sheet->setCellValueByColumnAndRow($col++, $rowNum, $r['kode']);
+
+        // Uraian
+        $sheet->setCellValueByColumnAndRow($col++, $rowNum, $r['uraian']);
+
+        // Saldo Awal
+        $sheet->setCellValueByColumnAndRow($col++, $rowNum, $r['saldo_awal']);
+
+        $totalMasuk  = 0;
+        $totalKeluar = 0;
+        $saldoAkhir  = 0;
+
+        for ($b = 1; $b <= 12; $b++) {
+
+            $masuk  = $r['bulan'][$b]['masuk'] ?? 0;
+            $keluar = $r['bulan'][$b]['keluar'] ?? 0;
+            $saldo  = $r['bulan'][$b]['saldo'] ?? 0;
+
+            $totalMasuk  += $masuk;
+            $totalKeluar += $keluar;
+            $saldoAkhir   = $saldo;
+
+            $sheet->setCellValueByColumnAndRow($col++, $rowNum, $masuk);
+            $sheet->setCellValueByColumnAndRow($col++, $rowNum, $keluar);
+            $sheet->setCellValueByColumnAndRow($col++, $rowNum, $saldo);
+        }
+
+        // TOTAL
+        $sheet->setCellValueByColumnAndRow($col++, $rowNum, $totalMasuk);
+        $sheet->setCellValueByColumnAndRow($col++, $rowNum, $totalKeluar);
+        $sheet->setCellValueByColumnAndRow($col++, $rowNum, $saldoAkhir);
+
+        $rowNum++;
+    }
+
+    /* =====================================================
+       OUTPUT
+    ===================================================== */
+    $writer = new Xlsx($spreadsheet);
+    $filename = "rekap-$tahun.xlsx";
+
+    header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    header("Content-Disposition: attachment; filename=\"$filename\"");
+    $writer->save('php://output');
+    exit;
+}
 
 }

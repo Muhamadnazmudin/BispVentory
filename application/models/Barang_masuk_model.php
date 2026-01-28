@@ -20,11 +20,12 @@ class Barang_masuk_model extends CI_Model {
             bm.toko,
             bm.keterangan,
             b.nama_barang,
-            b.merk
+            b.merk,
+            b.harga
         ');
         $this->db->from('barang_masuk bm');
         $this->db->join('barang b','b.id_barang = bm.id_barang');
-        return $this->db->order_by('bm.id_masuk','DESC')
+        return $this->db->order_by('bm.id_masuk','ASC')
                         ->get()
                         ->result();
     }

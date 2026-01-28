@@ -333,5 +333,66 @@ public function mutasi_range_bulan($bulan_awal, $bulan_akhir, $tahun)
     ])->result();
 }
 
+public function getRekap($tahun)
+{
+    // ambil semua kategori / akun
+    $akun = $this->db->query("
+        SELECT id_kategori, kodering, nama_kategori
+        FROM kategori_barang
+        ORDER BY kodering
+    ")->result();
+
+    $hasil = [];
+
+    foreach ($akun as $a) {
+
+        $row = [
+            'kode'       => $a->kodering,
+            'uraian'     => $a->nama_kategori,
+            'saldo_awal' => 0,
+            'bulan'      => []
+        ];
+
+        $saldo = 0;
+
+        for ($b = 1; $b <= 12; $b++) {
+
+            // ===== BARANG MASUK (NILAI) =====
+$masuk = $this->db->query("
+    SELECT IFNULL(SUM(bm.jumlah * b.harga),0) AS total
+    FROM barang_masuk bm
+    JOIN barang b ON b.id_barang = bm.id_barang
+    WHERE b.id_kategori = ?
+    AND MONTH(bm.tanggal) = ?
+    AND YEAR(bm.tanggal) = ?
+", [$a->id_kategori, $b, $tahun])->row()->total;
+
+
+// ===== BARANG KELUAR (NILAI) =====
+$keluar = $this->db->query("
+    SELECT IFNULL(SUM(bk.jumlah * b.harga),0) AS total
+    FROM barang_keluar bk
+    JOIN barang b ON b.id_barang = bk.id_barang
+    WHERE b.id_kategori = ?
+    AND MONTH(bk.tanggal) = ?
+    AND YEAR(bk.tanggal) = ?
+", [$a->id_kategori, $b, $tahun])->row()->total;
+
+
+
+            $saldo = $saldo + $masuk - $keluar;
+
+            $row['bulan'][$b] = [
+                'masuk'  => (int)$masuk,
+                'keluar' => (int)$keluar,
+                'saldo'  => (int)$saldo
+            ];
+        }
+
+        $hasil[] = $row;
+    }
+
+    return $hasil;
+}
 
 }

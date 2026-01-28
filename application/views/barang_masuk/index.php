@@ -76,6 +76,7 @@ Format sesuai input manual. Stok akan otomatis bertambah.
 <th>Merk</th>
 <th>Jumlah</th>
 <th>Satuan</th>
+<th>Harga</th>
 <th>Perolehan</th>
 <th>Toko</th>
 <th width="12%">Aksi</th>
@@ -92,6 +93,7 @@ Format sesuai input manual. Stok akan otomatis bertambah.
 <td><?= $r->merk ?></td>
 <td><?= $r->jumlah ?></td>
 <td><?= $r->satuan ?></td>
+<td><?= rupiah($r->harga) ?></td>
 <td><?= $r->perolehan ?></td>
 <td><?= $r->toko ?></td>
 <td class="text-center">

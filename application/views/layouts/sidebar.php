@@ -199,6 +199,10 @@ $segment2 = $this->uri->segment(2);
                href="<?= base_url('laporan/buku_besar') ?>">Kartu Persediaan</a>
                <a class="collapse-item <?= $segment2=='mutasi'?'active':'' ?>"
                href="<?= base_url('laporan/mutasi') ?>">Laporan Mutasi</a>
+               <a class="collapse-item <?= $segment2=='rekap_kendali'?'active':'' ?>"
+               href="<?= base_url('laporan/rekap_kendali') ?>">
+               Rekap Kendali
+            </a>
         </div>
     </div>
 </li>
