@@ -52,30 +52,35 @@ class Barang extends MY_Controller {
 
 
     public function edit($id)
-    {
-        if ($this->input->post()) {
-            $this->Barang_model->update($id, [
-                'kode_barang' => $this->input->post('kode_barang'),
-                'nama_barang' => $this->input->post('nama_barang'),
-                'id_kategori' => $this->input->post('id_kategori'),
-                'satuan'      => $this->input->post('satuan'),
-                'harga'       => $this->input->post('harga'),
-                'keterangan'  => $this->input->post('keterangan')
-            ]);
-            $this->session->set_flashdata('success','Data barang berhasil diupdate');
-            redirect('barang');
-        }
+{
+    if ($this->input->post()) {
+        $this->Barang_model->update($id, [
+            'kode_barang' => $this->input->post('kode_barang'),
+            'nama_barang' => $this->input->post('nama_barang'),
+            'id_kategori' => $this->input->post('id_kategori'),
+            'merk'        => $this->input->post('merk'),
+            'satuan'      => $this->input->post('satuan'),
+            'harga'       => $this->input->post('harga'),
+            'keterangan'  => $this->input->post('keterangan')
+        ]);
 
-        $data['title']    = 'Edit Barang';
-        $data['row']      = $this->Barang_model->get_by_id($id);
-        $data['kategori'] = $this->Barang_model->get_kategori();
-
-        $this->load->view('layouts/header');
-        $this->load->view('layouts/sidebar');
-        $this->load->view('layouts/topbar');
-        $this->load->view('barang/form', $data);
-        $this->load->view('layouts/footer');
+        $this->session->set_flashdata(
+            'success',
+            'Data barang berhasil diupdate'
+        );
+        redirect('barang');
     }
+
+    $data['title']    = 'Edit Barang';
+    $data['row']      = $this->Barang_model->get_by_id($id);
+    $data['kategori'] = $this->Barang_model->get_kategori();
+
+    $this->load->view('layouts/header');
+    $this->load->view('layouts/sidebar');
+    $this->load->view('layouts/topbar');
+    $this->load->view('barang/form', $data);
+    $this->load->view('layouts/footer');
+}
 
     public function hapus($id)
     {
