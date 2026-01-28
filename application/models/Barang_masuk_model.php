@@ -7,46 +7,59 @@ class Barang_masuk_model extends CI_Model {
     // LIST DATA
     // =========================
     public function get_all()
-{
-    $this->db->select('
-        bm.id_masuk,
-        bm.tanggal,
-        bm.no_faktur,
-        bm.no_kwitansi,
-        bm.no_bast,
-        bm.jumlah,
-        bm.satuan,
-        bm.perolehan,
-        bm.toko,
-        bm.keterangan,
-        b.nama_barang,
-        b.merk
-    ');
-    $this->db->from('barang_masuk bm');
-    $this->db->join('barang b','b.id_barang = bm.id_barang');
-    return $this->db->order_by('bm.id_masuk','DESC')
-                    ->get()
-                    ->result();
-}
-
+    {
+        $this->db->select('
+            bm.id_masuk,
+            bm.tanggal,
+            bm.no_faktur,
+            bm.no_kwitansi,
+            bm.no_bast,
+            bm.jumlah,
+            bm.satuan,
+            bm.perolehan,
+            bm.toko,
+            bm.keterangan,
+            b.nama_barang,
+            b.merk
+        ');
+        $this->db->from('barang_masuk bm');
+        $this->db->join('barang b','b.id_barang = bm.id_barang');
+        return $this->db->order_by('bm.id_masuk','DESC')
+                        ->get()
+                        ->result();
+    }
 
     // =========================
     // DATA BARANG (DROPDOWN)
     // =========================
     public function get_barang()
     {
-        $this->db->select('b.*, k.nama_kategori');
-        $this->db->from('barang b');
-        $this->db->join('kategori_barang k','k.id_kategori = b.id_kategori');
-        return $this->db->get()->result();
+        return $this->db
+            ->select('b.*, k.nama_kategori')
+            ->from('barang b')
+            ->join('kategori_barang k','k.id_kategori = b.id_kategori')
+            ->get()
+            ->result();
     }
 
     // =========================
-    // INSERT
+    // INSERT (MANUAL + IMPORT)
     // =========================
     public function insert($data)
     {
-        return $this->db->insert('barang_masuk',$data);
+        $this->db->trans_start();
+
+        // insert barang masuk
+        $this->db->insert('barang_masuk', $data);
+
+        // update stok barang
+        $this->db->set('stok', 'stok + '.$data['jumlah'], false)
+                 ->where('id_barang', $data['id_barang'])
+                 ->update('barang');
+
+        $this->db->trans_complete();
+
+        return $this->db->trans_status();
     }
 
     // =========================
@@ -56,39 +69,73 @@ class Barang_masuk_model extends CI_Model {
     {
         return $this->db->get_where(
             'barang_masuk',
-            ['id_masuk'=>$id_masuk]
+            ['id_masuk' => $id_masuk]
         )->row();
     }
 
     // =========================
-    // UPDATE
+    // UPDATE (ROLLBACK STOK)
     // =========================
-   public function update($id_masuk)
-{
-    $data = [
-        'tanggal'     => $this->input->post('tanggal'),
-        'no_faktur'   => $this->input->post('no_faktur'),
-        'no_kwitansi' => $this->input->post('no_kwitansi'),
-        'no_bast'     => $this->input->post('no_bast'),
-        'id_barang'   => $this->input->post('id_barang'),
-        'jumlah'      => $this->input->post('jumlah'),
-        'satuan'      => $this->input->post('satuan'),
-        'toko'        => $this->input->post('toko'),
-        'perolehan'   => $this->input->post('perolehan'),
-        'keterangan'  => $this->input->post('keterangan')
-    ];
+    public function update($id_masuk)
+    {
+        $lama = $this->get_by_id($id_masuk);
+        if (!$lama) return false;
 
-    return $this->db->where('id_masuk',$id_masuk)
-                    ->update('barang_masuk',$data);
-}
+        $baru = [
+            'tanggal'     => $this->input->post('tanggal'),
+            'no_faktur'   => $this->input->post('no_faktur'),
+            'no_kwitansi' => $this->input->post('no_kwitansi'),
+            'no_bast'     => $this->input->post('no_bast'),
+            'id_barang'   => $this->input->post('id_barang'),
+            'jumlah'      => $this->input->post('jumlah'),
+            'satuan'      => $this->input->post('satuan'),
+            'toko'        => $this->input->post('toko'),
+            'perolehan'   => $this->input->post('perolehan'),
+            'keterangan'  => $this->input->post('keterangan')
+        ];
 
+        $this->db->trans_start();
+
+        // rollback stok lama
+        $this->db->set('stok', 'stok - '.$lama->jumlah, false)
+                 ->where('id_barang', $lama->id_barang)
+                 ->update('barang');
+
+        // update barang masuk
+        $this->db->where('id_masuk', $id_masuk)
+                 ->update('barang_masuk', $baru);
+
+        // tambah stok baru
+        $this->db->set('stok', 'stok + '.$baru['jumlah'], false)
+                 ->where('id_barang', $baru['id_barang'])
+                 ->update('barang');
+
+        $this->db->trans_complete();
+
+        return $this->db->trans_status();
+    }
 
     // =========================
-    // DELETE
+    // DELETE (ROLLBACK STOK)
     // =========================
     public function delete($id_masuk)
     {
-        return $this->db->where('id_masuk',$id_masuk)
-                        ->delete('barang_masuk');
+        $row = $this->get_by_id($id_masuk);
+        if (!$row) return false;
+
+        $this->db->trans_start();
+
+        // rollback stok
+        $this->db->set('stok', 'stok - '.$row->jumlah, false)
+                 ->where('id_barang', $row->id_barang)
+                 ->update('barang');
+
+        // hapus data
+        $this->db->where('id_masuk', $id_masuk)
+                 ->delete('barang_masuk');
+
+        $this->db->trans_complete();
+
+        return $this->db->trans_status();
     }
 }
