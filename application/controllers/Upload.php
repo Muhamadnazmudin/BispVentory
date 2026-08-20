@@ -606,7 +606,130 @@ class Upload extends MY_Controller
         );
     }
 
+public function preview($id)
+{
+    $file = $this->Upload_model->get_file($id);
 
+    if (!$file) {
+        show_404();
+    }
+
+    $path = FCPATH . $file->lokasi_file;
+
+    if (!file_exists($path)) {
+        show_error('File tidak ditemukan di server.');
+    }
+
+    $ext = strtolower(
+        pathinfo($file->nama_file_asli, PATHINFO_EXTENSION)
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | FILE YANG BISA DITAMPILKAN LANGSUNG DI BROWSER
+    |--------------------------------------------------------------------------
+    */
+
+    $inline_types = array(
+        'pdf'  => 'application/pdf',
+
+        'jpg'  => 'image/jpeg',
+        'jpeg' => 'image/jpeg',
+        'png'  => 'image/png',
+        'gif'  => 'image/gif',
+        'webp' => 'image/webp'
+    );
+
+    if (isset($inline_types[$ext])) {
+
+        header(
+            'Content-Type: ' .
+            $inline_types[$ext]
+        );
+
+        header(
+            'Content-Length: ' . filesize($path)
+        );
+
+        header(
+            'Content-Disposition: inline; filename="' .
+            basename($file->nama_file_asli) .
+            '"'
+        );
+
+        header('X-Content-Type-Options: nosniff');
+
+        readfile($path);
+        exit;
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | WORD / EXCEL
+    |--------------------------------------------------------------------------
+    |
+    | Browser tidak dapat merender file Office secara native.
+    | Karena aplikasi Anda online, kita arahkan ke Google Viewer.
+    |
+    */
+
+    if (in_array(
+        $ext,
+        array('doc', 'docx', 'xls', 'xlsx'),
+        true
+    )) {
+
+        $file_url = base_url(
+            $file->lokasi_file
+        );
+
+        $viewer_url =
+            'https://docs.google.com/gview?embedded=1&url=' .
+            urlencode($file_url);
+
+        redirect($viewer_url);
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | POWERPOINT
+    |--------------------------------------------------------------------------
+    */
+
+    if (in_array(
+        $ext,
+        array('ppt', 'pptx'),
+        true
+    )) {
+
+        $file_url = base_url(
+            $file->lokasi_file
+        );
+
+        $viewer_url =
+            'https://docs.google.com/gview?embedded=1&url=' .
+            urlencode($file_url);
+
+        redirect($viewer_url);
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | FILE LAIN
+    |--------------------------------------------------------------------------
+    */
+
+    $this->session->set_flashdata(
+        'error',
+        'Format file "' . strtoupper($ext) .
+        '" tidak mendukung preview. Silakan download file.'
+    );
+
+    redirect('upload');
+}
     /* =========================================================
        DOWNLOAD
     ========================================================= */
