@@ -437,20 +437,105 @@ foreach ($points as $point) {
     color: #087f42;
 }
 
-/* tombol ceklis */
+/* =========================================================
+   CHECK SELESAI
+========================================================= */
+
+.point-check {
+    width: 37px;
+    height: 37px;
+
+    flex: 0 0 37px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 0;
+    margin: 0;
+
+    border: 1px solid #dfe5ec;
+    border-radius: 10px;
+
+    background: #fff;
+    color: #a0a8b5;
+
+    font-size: .78rem;
+
+    cursor: pointer;
+
+    transition:
+        background .18s ease,
+        border-color .18s ease,
+        color .18s ease,
+        transform .18s ease,
+        box-shadow .18s ease;
+}
+
+.point-check:hover {
+    background: #f0fff5;
+    border-color: #20c875;
+    color: #20c875;
+
+    transform: translateY(-1px);
+}
+
+.point-check:active {
+    transform: scale(.94);
+}
+
+
+/* =========================================================
+   CHECK SUDAH SELESAI
+========================================================= */
 
 .point-check.checked {
     background: #20c875;
     border-color: #20c875;
     color: #fff;
-    box-shadow: 0 3px 8px rgba(32, 200, 117, .25);
+
+    box-shadow:
+        0 4px 10px rgba(32, 200, 117, .22);
 }
 
 .point-check.checked:hover {
-    background: #16b567;
-    border-color: #16b567;
+    background: #18b866;
+    border-color: #18b866;
+    color: #fff;
 }
 
+
+/* =========================================================
+   LABEL SELESAI
+========================================================= */
+
+.point-completed-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+
+    margin-bottom: 4px;
+
+    color: #16a05a;
+
+    font-size: .62rem;
+    font-weight: 800;
+    letter-spacing: .03em;
+    line-height: 1;
+}
+
+.point-completed-label i {
+    font-size: .58rem;
+}
+
+
+/* =========================================================
+   JUDUL SAAT SELESAI
+========================================================= */
+
+.point-card.completed .point-title {
+    color: #087f42;
+}
 .point-header {
     display: flex;
     align-items: center;
@@ -1413,33 +1498,43 @@ foreach ($points as $point) {
 
                     <div class="point-info">
 
-                        <h2 class="point-title">
+    <?php if (!empty($point->selesai)): ?>
 
-                            <?= html_escape(
-                                $point->nama_point
-                            ) ?>
+        <div class="point-completed-label">
+            <i class="fas fa-check-circle"></i>
+            SELESAI
+        </div>
 
-                        </h2>
+    <?php endif; ?>
 
 
-                        <?php if (
-                            isset($point->keterangan) &&
-                            trim($point->keterangan) !== ''
-                        ): ?>
+    <h2 class="point-title">
 
-                            <div class="point-description">
+        <?= html_escape(
+            $point->nama_point
+        ) ?>
 
-                                <?= nl2br(
-                                    html_escape(
-                                        $point->keterangan
-                                    )
-                                ) ?>
+    </h2>
 
-                            </div>
 
-                        <?php endif; ?>
+    <?php if (
+        isset($point->keterangan) &&
+        trim($point->keterangan) !== ''
+    ): ?>
 
-                    </div>
+        <div class="point-description">
+
+            <?= nl2br(
+                html_escape(
+                    $point->keterangan
+                )
+            ) ?>
+
+        </div>
+
+    <?php endif; ?>
+
+</div>
 
 
                     <div class="point-actions">
