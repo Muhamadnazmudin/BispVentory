@@ -1354,10 +1354,11 @@ foreach ($points as $point) {
                  POINT CARD
             ================================================== -->
 
-            <div
-                class="point-card"
-                data-point="<?= $point_id ?>"
-            >
+           <div
+    class="point-card collapsed"
+    id="point-<?= $point_id ?>"
+    data-point="<?= $point_id ?>"
+>
 
 
                 <div class="point-header">
@@ -2049,34 +2050,83 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
     /* =====================================================
-       TOGGLE POINT
-    ===================================================== */
+   TOGGLE POINT
+===================================================== */
 
-    document.querySelectorAll('.point-toggle').forEach(function (button) {
+document.querySelectorAll('.point-toggle').forEach(function (button) {
 
-        button.addEventListener('click', function (event) {
+    button.addEventListener('click', function (event) {
 
-            event.preventDefault();
-            event.stopPropagation();
+        event.preventDefault();
+        event.stopPropagation();
 
-            var card =
-                button.closest('.point-card');
+        var card = button.closest('.point-card');
 
-            if (!card) {
-                return;
-            }
+        if (!card) {
+            return;
+        }
 
-            var collapsed =
-                card.classList.toggle('collapsed');
+        var collapsed =
+            card.classList.toggle('collapsed');
 
-            button.setAttribute(
-                'aria-expanded',
-                collapsed ? 'false' : 'true'
-            );
-
-        });
+        button.setAttribute(
+            'aria-expanded',
+            collapsed ? 'false' : 'true'
+        );
 
     });
+
+});
+
+/* =====================================================
+   BUKA POINT TERAKHIR SETELAH REDIRECT
+===================================================== */
+
+var hash = window.location.hash;
+
+if (hash && hash.indexOf('#point-') === 0) {
+
+    var activePoint = document.querySelector(hash);
+
+    if (activePoint) {
+
+        /*
+         * Buka point
+         */
+        activePoint.classList.remove('collapsed');
+
+
+        /*
+         * Update tombol panah
+         */
+        var toggleButton =
+            activePoint.querySelector('.point-toggle');
+
+        if (toggleButton) {
+
+            toggleButton.setAttribute(
+                'aria-expanded',
+                'true'
+            );
+
+        }
+
+
+        /*
+         * Scroll perlahan ke point tersebut
+         */
+        setTimeout(function () {
+
+            activePoint.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+
+        }, 150);
+
+    }
+
+}
 
 
     /* =====================================================

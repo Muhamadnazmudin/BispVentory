@@ -587,23 +587,22 @@ class Upload extends MY_Controller
 
 
         /* =====================================================
-           SUCCESS
-        ===================================================== */
+   SUCCESS
+===================================================== */
 
-        $this->session->set_flashdata(
-            'success',
-            'Berkas berhasil diupload: ' .
-            $upload['orig_name'] .
-            ' — ' .
-            $tahun .
-            ' / ' .
-            $sumber_dana
-        );
+$this->session->set_flashdata(
+    'success',
+    'Berkas berhasil diupload: ' .
+    $upload['orig_name'] .
+    ' — ' .
+    $tahun .
+    ' / ' .
+    $sumber_dana
+);
 
-
-        redirect(
-            'upload'
-        );
+redirect(
+    'upload#point-' . (int) $point_id
+);
     }
 
 public function preview($id)
