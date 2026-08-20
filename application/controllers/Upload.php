@@ -1230,12 +1230,11 @@ public function preview($id)
 
     /*
     |--------------------------------------------------------------------------
-    | CEK ZIPARCHIVE
+    | CEK ZIP
     |--------------------------------------------------------------------------
     */
 
     if (!class_exists('ZipArchive')) {
-
         show_error(
             'Ekstensi PHP ZipArchive belum aktif di server.',
             500,
@@ -1246,20 +1245,48 @@ public function preview($id)
 
     /*
     |--------------------------------------------------------------------------
-    | AMBIL SEMUA BERKAS
+    | AMBIL SEMUA POINT
+    |--------------------------------------------------------------------------
+    */
+
+    $points = $this->Upload_model->get_points();
+
+
+    if (empty($points)) {
+
+        $this->session->set_flashdata(
+            'error',
+            'Belum ada point dokumen.'
+        );
+
+        redirect('upload');
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | AMBIL SEMUA FILE
     |--------------------------------------------------------------------------
     */
 
     $files = $this->Upload_model->get_all_files_for_zip();
 
-    if (empty($files)) {
 
-        $this->session->set_flashdata(
-            'error',
-            'Belum ada berkas yang dapat diunduh.'
-        );
+    /*
+    |--------------------------------------------------------------------------
+    | GROUP FILE BERDASARKAN POINT
+    |--------------------------------------------------------------------------
+    */
 
-        redirect('upload');
+    $files_by_point = array();
+
+    foreach ($files as $file) {
+
+        if (!isset($files_by_point[$file->point_id])) {
+            $files_by_point[$file->point_id] = array();
+        }
+
+        $files_by_point[$file->point_id][] = $file;
     }
 
 
@@ -1269,7 +1296,10 @@ public function preview($id)
     |--------------------------------------------------------------------------
     */
 
-    $temp_dir = FCPATH . 'uploads/inspektorat/temp_zip/';
+    $temp_dir =
+        FCPATH .
+        'uploads/inspektorat/temp_zip/';
+
 
     if (!is_dir($temp_dir)) {
 
@@ -1294,8 +1324,10 @@ public function preview($id)
         date('Y-m-d_H-i-s') .
         '.zip';
 
+
     $zip_path =
-        $temp_dir . $zip_filename;
+        $temp_dir .
+        $zip_filename;
 
 
     /*
@@ -1312,6 +1344,7 @@ public function preview($id)
         ZipArchive::OVERWRITE
     );
 
+
     if ($result !== true) {
 
         show_error(
@@ -1323,64 +1356,40 @@ public function preview($id)
 
     /*
     |--------------------------------------------------------------------------
-    | ROOT FOLDER
+    | ROOT
     |--------------------------------------------------------------------------
     */
 
-    $root_folder = 'BispVentory_Berkas_Inspektorat/';
+    $root_folder =
+        'BispVentory_Berkas_Inspektorat/';
 
-    $zip->addEmptyDir($root_folder);
+
+    $zip->addEmptyDir(
+        $root_folder
+    );
 
 
     /*
     |--------------------------------------------------------------------------
-    | TRACK FILE
+    | BUAT SEMUA POINT
     |--------------------------------------------------------------------------
     */
 
-    $jumlah_berhasil = 0;
-    $jumlah_gagal    = 0;
-    $used_zip_files = array();
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | MASUKKAN FILE KE ZIP
-    |--------------------------------------------------------------------------
-    */
-
-    foreach ($files as $file) {
+    foreach ($points as $point) {
 
 
         /*
-        | Hanya 2025 / 2026
+        |--------------------------------------------------------------------------
+        | NOMOR POINT
+        |--------------------------------------------------------------------------
         */
 
-        if (!in_array(
-            (int) $file->tahun,
-            array(2025, 2026),
-            true
-        )) {
-            continue;
-        }
-
-
-        /*
-        | Hanya BOSP / BOPD
-        */
-
-        $sumber_dana = strtoupper(
-            trim((string) $file->sumber_dana)
+        $nomor = str_pad(
+            (int) $point->nomor,
+            2,
+            '0',
+            STR_PAD_LEFT
         );
-
-        if (!in_array(
-            $sumber_dana,
-            array('BOSP', 'BOPD'),
-            true
-        )) {
-
-            $sumber_dana = 'BOSP';
-        }
 
 
         /*
@@ -1389,21 +1398,13 @@ public function preview($id)
         |--------------------------------------------------------------------------
         */
 
-        $nomor = str_pad(
-            (int) $file->nomor,
-            2,
-            '0',
-            STR_PAD_LEFT
-        );
-
-
         $nama_point = trim(
-            (string) $file->nama_point
+            (string) $point->nama_point
         );
 
 
         /*
-        | Bersihkan karakter yang tidak aman
+        | Bersihkan nama folder
         */
 
         $nama_point = preg_replace(
@@ -1424,185 +1425,274 @@ public function preview($id)
 
         /*
         |--------------------------------------------------------------------------
-        | STRUKTUR FOLDER
+        | FOLDER POINT
         |--------------------------------------------------------------------------
         */
 
         $point_folder =
-            $nomor . '. ' . $nama_point;
-
-
-        $year_folder =
-            (string) $file->tahun;
-
-
-        $fund_folder =
-            $sumber_dana;
-
-
-        $zip_folder =
-            $root_folder .
-            $point_folder . '/' .
-            $year_folder . '/' .
-            $fund_folder . '/';
+            $nomor .
+            '. ' .
+            $nama_point;
 
 
         /*
         |--------------------------------------------------------------------------
-        | BUAT FOLDER
+        | BUAT FOLDER POINT
         |--------------------------------------------------------------------------
         */
 
-        $zip->addEmptyDir(
+        $point_path =
             $root_folder .
-            $point_folder
-        );
+            $point_folder .
+            '/';
+
 
         $zip->addEmptyDir(
-            $root_folder .
-            $point_folder . '/' .
-            $year_folder
-        );
-
-        $zip->addEmptyDir(
-            $zip_folder
+            $point_path
         );
 
 
         /*
         |--------------------------------------------------------------------------
-        | LOKASI FILE ASLI
+        | BUAT TAHUN 2025 & 2026
         |--------------------------------------------------------------------------
         */
 
-        $file_path =
-            FCPATH .
-            ltrim(
-                $file->lokasi_file,
-                '/\\'
+        foreach (array(2025, 2026) as $tahun) {
+
+
+            $year_path =
+                $point_path .
+                $tahun .
+                '/';
+
+
+            $zip->addEmptyDir(
+                $year_path
             );
 
 
-        /*
-        | File tidak ditemukan
-        */
+            /*
+            |--------------------------------------------------------------------------
+            | BUAT BOSP & BOPD
+            |--------------------------------------------------------------------------
+            */
 
-        if (!file_exists($file_path)) {
-
-            $jumlah_gagal++;
-
-            continue;
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | NAMA FILE ASLI
-        |--------------------------------------------------------------------------
-        */
-
-        $original_name =
-            trim(
-                (string) $file->nama_file_asli
-            );
+            foreach (
+                array('BOSP', 'BOPD')
+                as $sumber_dana
+            ) {
 
 
-        if ($original_name === '') {
-
-            $original_name =
-                basename($file_path);
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | BERSIHKAN NAMA FILE
-        |--------------------------------------------------------------------------
-        */
-
-        $original_name = preg_replace(
-            '/[\\\\\/:*?"<>|]+/',
-            '_',
-            $original_name
-        );
+                $fund_path =
+                    $year_path .
+                    $sumber_dana .
+                    '/';
 
 
-        $original_name = trim(
-            $original_name
-        );
+                /*
+                | Ini yang penting:
+                | folder tetap dibuat walaupun kosong.
+                */
+
+                $zip->addEmptyDir(
+                    $fund_path
+                );
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | CEGAH FILE DENGAN NAMA SAMA
-        |--------------------------------------------------------------------------
-        */
+                /*
+                |--------------------------------------------------------------------------
+                | CARI FILE UNTUK POINT + TAHUN + DANA
+                |--------------------------------------------------------------------------
+                */
 
-        $zip_file_path =
-            $zip_folder .
-            $original_name;
+                if (
+                    !isset(
+                        $files_by_point[$point->id]
+                    )
+                ) {
 
-
-        /*
-        | Jika nama file sama,
-        | tambahkan nomor.
-        */
-
-        $counter = 1;
-
-        while (
-            isset($used_zip_files[$zip_file_path])
-        ) {
-
-            $pathinfo =
-                pathinfo($original_name);
-
-            $base_name =
-                isset($pathinfo['filename'])
-                    ? $pathinfo['filename']
-                    : 'berkas';
-
-            $extension =
-                isset($pathinfo['extension'])
-                    ? '.' . $pathinfo['extension']
-                    : '';
-
-            $new_name =
-                $base_name .
-                ' (' .
-                $counter .
-                ')' .
-                $extension;
-
-            $zip_file_path =
-                $zip_folder .
-                $new_name;
-
-            $counter++;
-        }
+                    continue;
+                }
 
 
-        $used_zip_files[$zip_file_path] = true;
+                $used_names = array();
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | TAMBAHKAN FILE
-        |--------------------------------------------------------------------------
-        */
+                foreach (
+                    $files_by_point[$point->id]
+                    as $file
+                ) {
 
-        if (
-            $zip->addFile(
-                $file_path,
-                $zip_file_path
-            )
-        ) {
 
-            $jumlah_berhasil++;
+                    /*
+                    | Pastikan tahun sesuai
+                    */
 
-        } else {
+                    if (
+                        (int) $file->tahun !==
+                        (int) $tahun
+                    ) {
+                        continue;
+                    }
 
-            $jumlah_gagal++;
+
+                    /*
+                    | Pastikan sumber dana sesuai
+                    */
+
+                    $file_sumber =
+                        strtoupper(
+                            trim(
+                                (string)
+                                $file->sumber_dana
+                            )
+                        );
+
+
+                    if (
+                        $file_sumber !==
+                        $sumber_dana
+                    ) {
+                        continue;
+                    }
+
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | LOKASI FILE
+                    |--------------------------------------------------------------------------
+                    */
+
+                    $file_path =
+                        FCPATH .
+                        ltrim(
+                            $file->lokasi_file,
+                            '/\\'
+                        );
+
+
+                    /*
+                    | File fisik tidak ada
+                    */
+
+                    if (
+                        !file_exists(
+                            $file_path
+                        )
+                    ) {
+
+                        continue;
+                    }
+
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | NAMA FILE ASLI
+                    |--------------------------------------------------------------------------
+                    */
+
+                    $original_name =
+                        trim(
+                            (string)
+                            $file->nama_file_asli
+                        );
+
+
+                    if (
+                        $original_name === ''
+                    ) {
+
+                        $original_name =
+                            basename(
+                                $file_path
+                            );
+                    }
+
+
+                    /*
+                    | Bersihkan nama file
+                    */
+
+                    $original_name =
+                        preg_replace(
+                            '/[\\\\\/:*?"<>|]+/',
+                            '_',
+                            $original_name
+                        );
+
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | CEGAH DUPLIKAT NAMA
+                    |--------------------------------------------------------------------------
+                    */
+
+                    $final_name =
+                        $original_name;
+
+
+                    $counter = 1;
+
+
+                    while (
+                        isset(
+                            $used_names[$final_name]
+                        )
+                    ) {
+
+                        $pathinfo =
+                            pathinfo(
+                                $original_name
+                            );
+
+
+                        $base_name =
+                            isset(
+                                $pathinfo['filename']
+                            )
+                                ? $pathinfo['filename']
+                                : 'berkas';
+
+
+                        $extension =
+                            isset(
+                                $pathinfo['extension']
+                            )
+                                ? '.' .
+                                  $pathinfo['extension']
+                                : '';
+
+
+                        $final_name =
+                            $base_name .
+                            ' (' .
+                            $counter .
+                            ')' .
+                            $extension;
+
+
+                        $counter++;
+                    }
+
+
+                    $used_names[$final_name] =
+                        true;
+
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | MASUKKAN FILE
+                    |--------------------------------------------------------------------------
+                    */
+
+                    $zip->addFile(
+                        $file_path,
+                        $fund_path .
+                        $final_name
+                    );
+                }
+            }
         }
     }
 
@@ -1618,7 +1708,7 @@ public function preview($id)
 
     /*
     |--------------------------------------------------------------------------
-    | CEK HASIL
+    | CEK ZIP
     |--------------------------------------------------------------------------
     */
 
@@ -1639,6 +1729,7 @@ public function preview($id)
 
     $this->load->helper('download');
 
+
     force_download(
         $zip_filename,
         file_get_contents($zip_path)
@@ -1647,7 +1738,7 @@ public function preview($id)
 
     /*
     |--------------------------------------------------------------------------
-    | HAPUS ZIP TEMPORARY
+    | HAPUS FILE ZIP
     |--------------------------------------------------------------------------
     */
 
