@@ -1436,7 +1436,7 @@ foreach ($points as $point) {
                             </a>
 
 
-                            <a
+                            <!-- <a
                                 href="<?= site_url(
                                     'upload/delete_point/' . $point_id
                                 ) ?>"
@@ -1451,7 +1451,7 @@ foreach ($points as $point) {
 
                                 <i class="fas fa-trash"></i>
 
-                            </a>
+                            </a> -->
 
                         <?php endif; ?>
 
