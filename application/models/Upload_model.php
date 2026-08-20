@@ -356,4 +356,27 @@ class Upload_model extends CI_Model
                 $this->table_file
             );
     }
+
+    public function get_all_files_for_zip()
+{
+    return $this->db
+        ->select('
+            f.*,
+            p.nomor,
+            p.nama_point
+        ')
+        ->from($this->table_file . ' f')
+        ->join(
+            $this->table_point . ' p',
+            'p.id = f.point_id',
+            'inner'
+        )
+        ->where('p.aktif', 1)
+        ->order_by('p.nomor', 'ASC')
+        ->order_by('f.tahun', 'ASC')
+        ->order_by('f.sumber_dana', 'ASC')
+        ->order_by('f.uploaded_at', 'ASC')
+        ->get()
+        ->result();
+}
 }

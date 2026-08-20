@@ -1270,20 +1270,32 @@ foreach ($points as $point) {
             </form>
 
 
-            <?php if ($isAdmin): ?>
+          <?php if ($isAdmin): ?>
 
-                <a
-                    href="<?= site_url('upload/tambah_point') ?>"
-                    class="btn-add-point"
-                >
+    <a
+        href="<?= site_url('upload/download_all') ?>"
+        class="btn-add-point"
+        style="background:#198754;"
+        onclick="
+            return confirm(
+                'Download seluruh berkas Inspektorat dalam satu ZIP?'
+            );
+        "
+    >
+        <i class="fas fa-file-archive mr-1"></i>
+        Download Semua
+    </a>
 
-                    <i class="fas fa-plus mr-1"></i>
 
-                    Tambah Point
+    <a
+        href="<?= site_url('upload/tambah_point') ?>"
+        class="btn-add-point"
+    >
+        <i class="fas fa-plus mr-1"></i>
+        Tambah Point
+    </a>
 
-                </a>
-
-            <?php endif; ?>
+<?php endif; ?>
 
         </div>
 
@@ -1928,7 +1940,7 @@ foreach ($points as $point) {
 
                                         PDF, Word, Excel, PowerPoint,
                                         gambar, ZIP/RAR.
-                                        Maksimal 50 MB.
+                                        Maksimal 200 MB.
 
                                     </div>
 

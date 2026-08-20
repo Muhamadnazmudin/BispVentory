@@ -414,7 +414,7 @@ class Upload extends MY_Controller
                 'jpg|jpeg|png|gif|webp|zip|rar',
 
             'max_size' =>
-                51200,
+                204800,
 
             'encrypt_name' =>
                 true,
@@ -1198,4 +1198,462 @@ public function preview($id)
             'upload'
         );
     }
+
+
+    public function download_all()
+{
+    /*
+    |--------------------------------------------------------------------------
+    | CEK ROLE
+    |--------------------------------------------------------------------------
+    */
+
+    $role_id   = (int) $this->session->userdata('role_id');
+    $role      = strtolower(trim((string) $this->session->userdata('role')));
+    $role_name = strtolower(trim((string) $this->session->userdata('role_name')));
+
+    $isAdmin =
+        $role_id === 1 ||
+        $role === 'admin' ||
+        $role === 'administrator' ||
+        $role_name === 'admin' ||
+        $role_name === 'administrator';
+
+    if (!$isAdmin) {
+        show_error(
+            'Anda tidak memiliki akses untuk mengunduh seluruh berkas.',
+            403,
+            'Akses Ditolak'
+        );
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | CEK ZIPARCHIVE
+    |--------------------------------------------------------------------------
+    */
+
+    if (!class_exists('ZipArchive')) {
+
+        show_error(
+            'Ekstensi PHP ZipArchive belum aktif di server.',
+            500,
+            'ZIP Tidak Tersedia'
+        );
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | AMBIL SEMUA BERKAS
+    |--------------------------------------------------------------------------
+    */
+
+    $files = $this->Upload_model->get_all_files_for_zip();
+
+    if (empty($files)) {
+
+        $this->session->set_flashdata(
+            'error',
+            'Belum ada berkas yang dapat diunduh.'
+        );
+
+        redirect('upload');
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | FOLDER TEMPORARY
+    |--------------------------------------------------------------------------
+    */
+
+    $temp_dir = FCPATH . 'uploads/inspektorat/temp_zip/';
+
+    if (!is_dir($temp_dir)) {
+
+        if (!mkdir($temp_dir, 0755, true)) {
+
+            show_error(
+                'Folder temporary ZIP tidak dapat dibuat.',
+                500
+            );
+        }
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | NAMA ZIP
+    |--------------------------------------------------------------------------
+    */
+
+    $zip_filename =
+        'BispVentory_Berkas_Inspektorat_' .
+        date('Y-m-d_H-i-s') .
+        '.zip';
+
+    $zip_path =
+        $temp_dir . $zip_filename;
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | BUAT ZIP
+    |--------------------------------------------------------------------------
+    */
+
+    $zip = new ZipArchive();
+
+    $result = $zip->open(
+        $zip_path,
+        ZipArchive::CREATE |
+        ZipArchive::OVERWRITE
+    );
+
+    if ($result !== true) {
+
+        show_error(
+            'ZIP tidak dapat dibuat. Kode: ' . $result,
+            500
+        );
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | ROOT FOLDER
+    |--------------------------------------------------------------------------
+    */
+
+    $root_folder = 'BispVentory_Berkas_Inspektorat/';
+
+    $zip->addEmptyDir($root_folder);
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | TRACK FILE
+    |--------------------------------------------------------------------------
+    */
+
+    $jumlah_berhasil = 0;
+    $jumlah_gagal    = 0;
+    $used_zip_files = array();
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | MASUKKAN FILE KE ZIP
+    |--------------------------------------------------------------------------
+    */
+
+    foreach ($files as $file) {
+
+
+        /*
+        | Hanya 2025 / 2026
+        */
+
+        if (!in_array(
+            (int) $file->tahun,
+            array(2025, 2026),
+            true
+        )) {
+            continue;
+        }
+
+
+        /*
+        | Hanya BOSP / BOPD
+        */
+
+        $sumber_dana = strtoupper(
+            trim((string) $file->sumber_dana)
+        );
+
+        if (!in_array(
+            $sumber_dana,
+            array('BOSP', 'BOPD'),
+            true
+        )) {
+
+            $sumber_dana = 'BOSP';
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | NAMA POINT
+        |--------------------------------------------------------------------------
+        */
+
+        $nomor = str_pad(
+            (int) $file->nomor,
+            2,
+            '0',
+            STR_PAD_LEFT
+        );
+
+
+        $nama_point = trim(
+            (string) $file->nama_point
+        );
+
+
+        /*
+        | Bersihkan karakter yang tidak aman
+        */
+
+        $nama_point = preg_replace(
+            '/[\\\\\/:*?"<>|]+/',
+            '-',
+            $nama_point
+        );
+
+
+        $nama_point = trim(
+            preg_replace(
+                '/\s+/',
+                ' ',
+                $nama_point
+            )
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | STRUKTUR FOLDER
+        |--------------------------------------------------------------------------
+        */
+
+        $point_folder =
+            $nomor . '. ' . $nama_point;
+
+
+        $year_folder =
+            (string) $file->tahun;
+
+
+        $fund_folder =
+            $sumber_dana;
+
+
+        $zip_folder =
+            $root_folder .
+            $point_folder . '/' .
+            $year_folder . '/' .
+            $fund_folder . '/';
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | BUAT FOLDER
+        |--------------------------------------------------------------------------
+        */
+
+        $zip->addEmptyDir(
+            $root_folder .
+            $point_folder
+        );
+
+        $zip->addEmptyDir(
+            $root_folder .
+            $point_folder . '/' .
+            $year_folder
+        );
+
+        $zip->addEmptyDir(
+            $zip_folder
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | LOKASI FILE ASLI
+        |--------------------------------------------------------------------------
+        */
+
+        $file_path =
+            FCPATH .
+            ltrim(
+                $file->lokasi_file,
+                '/\\'
+            );
+
+
+        /*
+        | File tidak ditemukan
+        */
+
+        if (!file_exists($file_path)) {
+
+            $jumlah_gagal++;
+
+            continue;
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | NAMA FILE ASLI
+        |--------------------------------------------------------------------------
+        */
+
+        $original_name =
+            trim(
+                (string) $file->nama_file_asli
+            );
+
+
+        if ($original_name === '') {
+
+            $original_name =
+                basename($file_path);
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | BERSIHKAN NAMA FILE
+        |--------------------------------------------------------------------------
+        */
+
+        $original_name = preg_replace(
+            '/[\\\\\/:*?"<>|]+/',
+            '_',
+            $original_name
+        );
+
+
+        $original_name = trim(
+            $original_name
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | CEGAH FILE DENGAN NAMA SAMA
+        |--------------------------------------------------------------------------
+        */
+
+        $zip_file_path =
+            $zip_folder .
+            $original_name;
+
+
+        /*
+        | Jika nama file sama,
+        | tambahkan nomor.
+        */
+
+        $counter = 1;
+
+        while (
+            isset($used_zip_files[$zip_file_path])
+        ) {
+
+            $pathinfo =
+                pathinfo($original_name);
+
+            $base_name =
+                isset($pathinfo['filename'])
+                    ? $pathinfo['filename']
+                    : 'berkas';
+
+            $extension =
+                isset($pathinfo['extension'])
+                    ? '.' . $pathinfo['extension']
+                    : '';
+
+            $new_name =
+                $base_name .
+                ' (' .
+                $counter .
+                ')' .
+                $extension;
+
+            $zip_file_path =
+                $zip_folder .
+                $new_name;
+
+            $counter++;
+        }
+
+
+        $used_zip_files[$zip_file_path] = true;
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | TAMBAHKAN FILE
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            $zip->addFile(
+                $file_path,
+                $zip_file_path
+            )
+        ) {
+
+            $jumlah_berhasil++;
+
+        } else {
+
+            $jumlah_gagal++;
+        }
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | TUTUP ZIP
+    |--------------------------------------------------------------------------
+    */
+
+    $zip->close();
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | CEK HASIL
+    |--------------------------------------------------------------------------
+    */
+
+    if (!file_exists($zip_path)) {
+
+        show_error(
+            'File ZIP gagal dibuat.',
+            500
+        );
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | DOWNLOAD
+    |--------------------------------------------------------------------------
+    */
+
+    $this->load->helper('download');
+
+    force_download(
+        $zip_filename,
+        file_get_contents($zip_path)
+    );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | HAPUS ZIP TEMPORARY
+    |--------------------------------------------------------------------------
+    */
+
+    if (file_exists($zip_path)) {
+
+        unlink($zip_path);
+    }
+}
 }
