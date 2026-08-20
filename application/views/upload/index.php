@@ -414,6 +414,42 @@ foreach ($points as $point) {
 
     box-shadow: 0 4px 20px rgba(0,0,0,.045);
 }
+/* =========================================================
+   POINT SELESAI - HIJAU LEBIH TERANG
+========================================================= */
+
+.point-card.completed {
+    background: #e8f8ee;
+    border-color: #7dd3a5;
+    box-shadow: 0 4px 20px rgba(25, 135, 84, .10);
+}
+
+.point-card.completed .point-header {
+    background: #e8f8ee;
+}
+
+.point-card.completed .point-number {
+    background: #baf0cf;
+    color: #087f42;
+}
+
+.point-card.completed .point-title {
+    color: #087f42;
+}
+
+/* tombol ceklis */
+
+.point-check.checked {
+    background: #20c875;
+    border-color: #20c875;
+    color: #fff;
+    box-shadow: 0 3px 8px rgba(32, 200, 117, .25);
+}
+
+.point-check.checked:hover {
+    background: #16b567;
+    border-color: #16b567;
+}
 
 .point-header {
     display: flex;
@@ -1355,7 +1391,7 @@ foreach ($points as $point) {
             ================================================== -->
 
            <div
-    class="point-card collapsed"
+    class="point-card collapsed <?= !empty($point->selesai) ? 'completed' : '' ?>"
     id="point-<?= $point_id ?>"
     data-point="<?= $point_id ?>"
 >
@@ -1409,31 +1445,54 @@ foreach ($points as $point) {
                     <div class="point-actions">
 
 
-                        <button
-                            type="button"
-                            class="point-btn point-toggle"
-                            title="Perkecil / Perbesar"
-                            aria-expanded="true"
-                        >
-
-                            <i class="fas fa-chevron-down"></i>
-
-                        </button>
+    <button
+        type="button"
+        class="point-btn point-toggle"
+        title="Perkecil / Perbesar"
+        aria-expanded="true"
+    >
+        <i class="fas fa-chevron-down"></i>
+    </button>
 
 
-                        <?php if ($isAdmin): ?>
+    <!-- CEKLIS SELESAI -->
 
-                            <a
-                                href="<?= site_url(
-                                    'upload/edit_point/' . $point_id
-                                ) ?>"
-                                class="point-btn"
-                                title="Edit Point"
-                            >
+    <form
+        method="post"
+        action="<?= site_url(
+            'upload/toggle_selesai/' . $point_id
+        ) ?>"
+        style="margin:0;"
+    >
 
-                                <i class="fas fa-edit"></i>
+        <button
+            type="submit"
+            class="point-check <?= !empty($point->selesai) ? 'checked' : '' ?>"
+            title="<?= !empty($point->selesai)
+                ? 'Batalkan selesai'
+                : 'Tandai selesai' ?>"
+        >
 
-                            </a>
+            <i class="fas fa-check"></i>
+
+        </button>
+
+    </form>
+
+
+    <?php if ($isAdmin): ?>
+
+        <a
+            href="<?= site_url(
+                'upload/edit_point/' . $point_id
+            ) ?>"
+            class="point-btn"
+            title="Edit Point"
+        >
+
+            <i class="fas fa-edit"></i>
+
+        </a>
 
 
                             <!-- <a

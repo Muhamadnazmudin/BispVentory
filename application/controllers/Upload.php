@@ -1110,6 +1110,44 @@ public function preview($id)
     }
 
 
+    /**
+ * =========================================================
+ * TOGGLE STATUS SELESAI POINT
+ * =========================================================
+ */
+public function toggle_selesai($id)
+{
+    $id = (int) $id;
+
+    $point = $this->Upload_model->get_point($id);
+
+    if (!$point) {
+        show_404();
+    }
+
+    if (!$this->Upload_model->toggle_selesai($id)) {
+
+        $this->session->set_flashdata(
+            'error',
+            'Status point gagal diperbarui.'
+        );
+
+        redirect('upload#point-' . $id);
+        return;
+    }
+
+    $status = ((int) $point->selesai === 1)
+        ? 'belum selesai'
+        : 'selesai';
+
+    $this->session->set_flashdata(
+        'success',
+        'Point berhasil ditandai ' . $status . '.'
+    );
+
+    redirect('upload#point-' . $id);
+}
+
     /* =========================================================
        DELETE POINT
     ========================================================= */

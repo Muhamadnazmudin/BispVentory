@@ -379,4 +379,30 @@ class Upload_model extends CI_Model
         ->get()
         ->result();
 }
+
+public function toggle_selesai($id)
+{
+    $point = $this->db
+        ->select('selesai')
+        ->where('id', (int) $id)
+        ->get($this->table_point)
+        ->row();
+
+    if (!$point) {
+        return false;
+    }
+
+    $status = ((int) $point->selesai === 1) ? 0 : 1;
+
+    return $this->db
+        ->where('id', (int) $id)
+        ->update(
+            $this->table_point,
+            array(
+                'selesai'    => $status,
+                'updated_at' => date('Y-m-d H:i:s')
+            )
+        );
+}
+
 }
