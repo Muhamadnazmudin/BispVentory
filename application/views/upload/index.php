@@ -404,32 +404,63 @@ foreach ($points as $point) {
 
 .point-card {
     overflow: hidden;
-
-    margin-bottom: 18px;
+    margin-bottom: 14px;
 
     background: #fff;
 
-    border: 1px solid #edf0f5;
-    border-radius: 18px;
+    border: 1px solid #e5e9f0;
+    border-radius: 16px;
 
-    box-shadow: 0 4px 20px rgba(0,0,0,.045);
+    box-shadow: 0 3px 14px rgba(31, 41, 55, .035);
+
+    transition:
+        border-color .2s ease,
+        background .2s ease,
+        box-shadow .2s ease;
 }
+
+
 /* =========================================================
-   POINT SELESAI - HIJAU LEBIH TERANG
+   BELUM SELESAI
+========================================================= */
+
+.point-card:not(.completed) {
+    background: #fffafa;
+    border-color: #ffb8b8;
+}
+
+.point-card:not(.completed) .point-header {
+    background: #fffafa;
+}
+
+.point-card:not(.completed) .point-number {
+    background: #ffe7e7;
+    color: #dc3545;
+}
+
+.point-card:not(.completed) .point-title {
+    color: #172033;
+}
+
+
+/* =========================================================
+   SELESAI
 ========================================================= */
 
 .point-card.completed {
-    background: #e8f8ee;
-    border-color: #7dd3a5;
-    box-shadow: 0 4px 20px rgba(25, 135, 84, .10);
+    background: #f1fbf5;
+    border-color: #8edbb0;
+
+    box-shadow:
+        0 3px 14px rgba(25, 135, 84, .07);
 }
 
 .point-card.completed .point-header {
-    background: #e8f8ee;
+    background: #f1fbf5;
 }
 
 .point-card.completed .point-number {
-    background: #baf0cf;
+    background: #c9f3da;
     color: #087f42;
 }
 
@@ -437,15 +468,160 @@ foreach ($points as $point) {
     color: #087f42;
 }
 
+
 /* =========================================================
-   CHECK SELESAI
+   HEADER
 ========================================================= */
 
-.point-check {
-    width: 37px;
-    height: 37px;
+.point-header {
+    display: flex;
+    align-items: center;
 
-    flex: 0 0 37px;
+    gap: 14px;
+
+    min-height: 92px;
+
+    padding: 16px 18px;
+
+    background: #fff;
+}
+
+
+/* =========================================================
+   NOMOR
+========================================================= */
+
+.point-number {
+    width: 52px;
+    height: 52px;
+
+    flex: 0 0 52px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 14px;
+
+    background: #eef2ff;
+    color: #4e73df;
+
+    font-size: .88rem;
+    font-weight: 800;
+
+    transition: .2s ease;
+}
+
+
+/* =========================================================
+   INFO
+========================================================= */
+
+.point-info {
+    flex: 1;
+    min-width: 0;
+}
+
+
+/* =========================================================
+   STATUS
+========================================================= */
+
+.point-status-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+
+    margin-bottom: 4px;
+
+    font-size: .63rem;
+    font-weight: 700;
+
+    letter-spacing: .02em;
+
+    line-height: 1;
+}
+
+.point-status-label i {
+    font-size: .58rem;
+}
+
+
+/* BELUM */
+
+.pending-status {
+    color: #c24141;
+}
+
+.pending-status i {
+    color: #e05252;
+}
+
+
+/* SELESAI */
+
+.completed-status {
+    color: #16834b;
+}
+
+.completed-status i {
+    color: #20b96f;
+}
+
+
+/* =========================================================
+   JUDUL
+========================================================= */
+
+.point-title {
+    margin: 0;
+
+    color: #202936;
+
+    font-size: .88rem;
+    font-weight: 800;
+
+    line-height: 1.4;
+}
+
+
+/* =========================================================
+   KETERANGAN
+========================================================= */
+
+.point-description {
+    margin-top: 5px;
+
+    color: #8a93a2;
+
+    font-size: .67rem;
+    line-height: 1.45;
+}
+
+
+/* =========================================================
+   ACTIONS
+========================================================= */
+
+.point-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    flex: 0 0 auto;
+}
+
+
+/* =========================================================
+   TOMBOL UMUM
+========================================================= */
+
+.point-btn,
+.point-check {
+    width: 36px;
+    height: 36px;
+
+    flex: 0 0 36px;
 
     display: inline-flex;
     align-items: center;
@@ -454,13 +630,9 @@ foreach ($points as $point) {
     padding: 0;
     margin: 0;
 
-    border: 1px solid #dfe5ec;
     border-radius: 10px;
 
-    background: #fff;
-    color: #a0a8b5;
-
-    font-size: .78rem;
+    font-size: .72rem;
 
     cursor: pointer;
 
@@ -472,6 +644,42 @@ foreach ($points as $point) {
         box-shadow .18s ease;
 }
 
+
+/* =========================================================
+   TOMBOL PANAH + EDIT
+========================================================= */
+
+.point-btn {
+    border: 1px solid #dfe5ed;
+
+    background: #fff;
+    color: #64748b;
+
+    text-decoration: none;
+}
+
+.point-btn:hover {
+    background: #f4f7ff;
+    border-color: #cbd5ff;
+    color: #4e73df;
+
+    text-decoration: none;
+
+    transform: translateY(-1px);
+}
+
+
+/* =========================================================
+   CEKLIS
+========================================================= */
+
+.point-check {
+    border: 1px solid #dfe5ed;
+
+    background: #fff;
+    color: #a0a8b5;
+}
+
 .point-check:hover {
     background: #f0fff5;
     border-color: #20c875;
@@ -480,22 +688,19 @@ foreach ($points as $point) {
     transform: translateY(-1px);
 }
 
-.point-check:active {
-    transform: scale(.94);
-}
-
 
 /* =========================================================
-   CHECK SUDAH SELESAI
+   CEKLIS SELESAI
 ========================================================= */
 
 .point-check.checked {
     background: #20c875;
     border-color: #20c875;
+
     color: #fff;
 
     box-shadow:
-        0 4px 10px rgba(32, 200, 117, .22);
+        0 4px 9px rgba(32, 200, 117, .20);
 }
 
 .point-check.checked:hover {
@@ -506,130 +711,8 @@ foreach ($points as $point) {
 
 
 /* =========================================================
-   LABEL SELESAI
+   PANAH
 ========================================================= */
-
-.point-completed-label {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-
-    margin-bottom: 4px;
-
-    color: #16a05a;
-
-    font-size: .62rem;
-    font-weight: 800;
-    letter-spacing: .03em;
-    line-height: 1;
-}
-
-.point-completed-label i {
-    font-size: .58rem;
-}
-
-
-/* =========================================================
-   JUDUL SAAT SELESAI
-========================================================= */
-
-.point-card.completed .point-title {
-    color: #087f42;
-}
-.point-header {
-    display: flex;
-    align-items: center;
-
-    gap: 15px;
-
-    min-height: 105px;
-
-    padding: 20px 24px;
-
-    background: #fff;
-}
-
-.point-number {
-    width: 56px;
-    height: 56px;
-
-    flex: 0 0 56px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    border-radius: 16px;
-
-    background: #eef2ff;
-    color: #4e73df;
-
-    font-size: .95rem;
-    font-weight: 800;
-}
-
-.point-info {
-    flex: 1;
-    min-width: 0;
-}
-
-.point-title {
-    margin: 0;
-
-    color: #202936;
-
-    font-size: .94rem;
-    font-weight: 800;
-    line-height: 1.5;
-}
-
-.point-description {
-    margin-top: 5px;
-
-    color: #8a93a2;
-
-    font-size: .68rem;
-    line-height: 1.5;
-}
-
-.point-actions {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.point-btn {
-    width: 37px;
-    height: 37px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    border: 1px solid #e0e5ed;
-    border-radius: 10px;
-
-    background: #fff;
-    color: #6f7785;
-
-    font-size: .73rem;
-
-    cursor: pointer;
-    text-decoration: none;
-}
-
-.point-btn:hover {
-    background: #eef2ff;
-    border-color: #cbd5ff;
-    color: #4e73df;
-    text-decoration: none;
-}
-
-.point-btn.danger:hover {
-    background: #fff0f0;
-    border-color: #f5c2c0;
-    color: #e74a3b;
-}
 
 .point-toggle i {
     transition: transform .2s ease;
@@ -639,13 +722,90 @@ foreach ($points as $point) {
     transform: rotate(-90deg);
 }
 
+
+/* =========================================================
+   BODY
+========================================================= */
+
 .point-body {
-    padding: 0 24px 24px;
-    border-top: 1px solid #f0f2f6;
+    padding: 0 18px 20px;
+
+    border-top: 1px solid rgba(0,0,0,.045);
 }
 
 .point-card.collapsed .point-body {
     display: none;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 767px) {
+
+    .point-header {
+        min-height: 84px;
+        padding: 14px;
+        gap: 11px;
+    }
+
+    .point-body {
+        padding: 0 14px 18px;
+    }
+
+    .point-number {
+        width: 46px;
+        height: 46px;
+        flex-basis: 46px;
+
+        border-radius: 13px;
+    }
+
+    .point-title {
+        font-size: .8rem;
+    }
+
+}
+
+
+@media (max-width: 576px) {
+
+    .point-header {
+        align-items: flex-start;
+    }
+
+    .point-number {
+        width: 42px;
+        height: 42px;
+        flex-basis: 42px;
+
+        border-radius: 12px;
+
+        font-size: .78rem;
+    }
+
+    .point-title {
+        font-size: .76rem;
+    }
+
+    .point-status-label {
+        font-size: .58rem;
+    }
+
+    .point-actions {
+        gap: 4px;
+    }
+
+    .point-btn,
+    .point-check {
+        width: 32px;
+        height: 32px;
+        flex-basis: 32px;
+
+        border-radius: 9px;
+    }
+
 }
 
 
@@ -1500,12 +1660,19 @@ foreach ($points as $point) {
 
     <?php if (!empty($point->selesai)): ?>
 
-        <div class="point-completed-label">
-            <i class="fas fa-check-circle"></i>
-            SELESAI
-        </div>
+    <div class="point-status-label completed-status">
+        <i class="fas fa-check-circle"></i>
+        SELESAI
+    </div>
 
-    <?php endif; ?>
+<?php else: ?>
+
+    <div class="point-status-label pending-status">
+        <i class="fas fa-circle"></i>
+        BELUM SELESAI
+    </div>
+
+<?php endif; ?>
 
 
     <h2 class="point-title">
