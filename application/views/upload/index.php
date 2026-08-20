@@ -1,119 +1,299 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
-?>
-
-<style>
-
-/* =========================================================
-   UPLOAD PAGE
-========================================================= */
-
-.upload-page {
-    padding-bottom: 50px;
-}
 
 
 /* =========================================================
-   HEADER
+   HELPER
 ========================================================= */
 
-.upload-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+if (!function_exists('upload_view_icon')) {
 
-    gap: 20px;
+    function upload_view_icon($ext)
+    {
+        $ext = strtolower(trim($ext));
 
-    margin-bottom: 25px;
+        switch ($ext) {
+
+            case 'pdf':
+                return array('pdf', 'fa-file-pdf');
+
+            case 'xls':
+            case 'xlsx':
+                return array('excel', 'fa-file-excel');
+
+            case 'doc':
+            case 'docx':
+                return array('word', 'fa-file-word');
+
+            case 'ppt':
+            case 'pptx':
+                return array('powerpoint', 'fa-file-powerpoint');
+
+            case 'jpg':
+            case 'jpeg':
+            case 'png':
+            case 'gif':
+            case 'webp':
+                return array('image', 'fa-file-image');
+
+            case 'zip':
+            case 'rar':
+                return array('archive', 'fa-file-archive');
+
+            default:
+                return array('default', 'fa-file');
+        }
+    }
 }
 
-.upload-title-wrap {
-    min-width: 0;
+
+if (!function_exists('upload_view_size')) {
+
+    function upload_view_size($bytes)
+    {
+        $bytes = (int) $bytes;
+
+        if ($bytes <= 0) {
+            return '0 KB';
+        }
+
+        if ($bytes >= 1048576) {
+
+            return number_format(
+                $bytes / 1048576,
+                2,
+                ',',
+                '.'
+            ) . ' MB';
+        }
+
+        return number_format(
+            $bytes / 1024,
+            1,
+            ',',
+            '.'
+        ) . ' KB';
+    }
 }
 
-.upload-title {
-    margin: 0;
 
-    color: #343a40;
+if (!function_exists('upload_view_can_preview')) {
 
-    font-size: 1.35rem;
-
-    font-weight: 700;
+    function upload_view_can_preview($ext)
+    {
+        return in_array(
+            strtolower(trim($ext)),
+            array(
+                'pdf',
+                'jpg',
+                'jpeg',
+                'png',
+                'gif',
+                'webp',
+                'xls',
+                'xlsx',
+                'doc',
+                'docx'
+            ),
+            true
+        );
+    }
 }
 
-.upload-subtitle {
-    margin: 5px 0 0;
 
-    color: #858796;
+/* =========================================================
+   ROLE
+========================================================= */
 
-    font-size: .78rem;
-}
+$role_id   = (int) $this->session->userdata('role_id');
+$role      = strtolower(trim((string) $this->session->userdata('role')));
+$role_name = strtolower(trim((string) $this->session->userdata('role_name')));
+
+$isAdmin =
+    $role_id === 1 ||
+    $role === 'admin' ||
+    $role === 'administrator' ||
+    $role_name === 'admin' ||
+    $role_name === 'administrator';
+
+
+/* =========================================================
+   FLASH MESSAGE
+========================================================= */
+
+$flash_success = $this->session->flashdata('success');
+$flash_error   = $this->session->flashdata('error');
 
 
 /* =========================================================
    STATISTIK
 ========================================================= */
 
-.upload-stats {
+$total_point = is_array($points)
+    ? count($points)
+    : 0;
+
+$total_file = 0;
+$total_bosp = 0;
+$total_bopd = 0;
+
+
+foreach ($points as $point) {
+
+    $groups = array(
+        'files_2025_bosp',
+        'files_2025_bopd',
+        'files_2026_bosp',
+        'files_2026_bopd'
+    );
+
+    foreach ($groups as $group) {
+
+        if (
+            isset($point->{$group}) &&
+            is_array($point->{$group})
+        ) {
+
+            $jumlah = count($point->{$group});
+
+            $total_file += $jumlah;
+
+            if (strpos($group, '_bosp') !== false) {
+                $total_bosp += $jumlah;
+            }
+
+            if (strpos($group, '_bopd') !== false) {
+                $total_bopd += $jumlah;
+            }
+        }
+    }
+}
+
+?>
+
+
+<style>
+
+/* =========================================================
+   PAGE
+========================================================= */
+
+.upload-page {
+    padding-bottom: 70px;
+}
+
+.upload-heading {
+    margin-bottom: 20px;
+}
+
+.upload-heading h1 {
+    margin: 0;
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: #263238;
+}
+
+.upload-heading p {
+    margin: 5px 0 0;
+    color: #858796;
+    font-size: .75rem;
+}
+
+
+/* =========================================================
+   ALERT
+========================================================= */
+
+.upload-alert {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+
+    margin-bottom: 18px;
+    padding: 13px 16px;
+
+    border-radius: 12px;
+
+    font-size: .75rem;
+}
+
+.upload-alert i {
+    margin-top: 2px;
+    font-size: 1rem;
+}
+
+.upload-alert.success {
+    background: #eaf8f0;
+    border: 1px solid #bce3cc;
+    color: #146c43;
+}
+
+.upload-alert.error {
+    background: #fff0f0;
+    border: 1px solid #f3c2c2;
+    color: #b42318;
+}
+
+.upload-alert strong {
+    display: block;
+    margin-bottom: 2px;
+}
+
+
+/* =========================================================
+   STATISTIC
+========================================================= */
+
+.upload-stat-grid {
     display: grid;
-
-    grid-template-columns:
-        repeat(3, minmax(0, 1fr));
-
+    grid-template-columns: repeat(4, 1fr);
     gap: 14px;
-
-    margin-bottom: 25px;
+    margin-bottom: 20px;
 }
 
 .upload-stat {
     display: flex;
-
     align-items: center;
 
-    padding: 15px 17px;
-
-    border-radius: 12px;
+    padding: 16px;
 
     background: #fff;
+    border: 1px solid #edf0f5;
+    border-radius: 15px;
 
-    box-shadow:
-        0 3px 14px rgba(0,0,0,.05);
+    box-shadow: 0 4px 18px rgba(0,0,0,.04);
 }
 
 .upload-stat-icon {
-    width: 42px;
-    height: 42px;
+    width: 43px;
+    height: 43px;
+
+    flex: 0 0 43px;
 
     display: flex;
-
     align-items: center;
     justify-content: center;
 
     margin-right: 12px;
 
-    border-radius: 10px;
+    border-radius: 12px;
 
     background: #eef2ff;
-
     color: #4e73df;
 }
 
 .upload-stat-value {
-    color: #343a40;
-
+    color: #263238;
     font-size: 1.1rem;
-
-    font-weight: 700;
-
-    line-height: 1;
+    font-weight: 800;
+    line-height: 1.1;
 }
 
 .upload-stat-label {
     margin-top: 4px;
-
-    color: #858796;
-
-    font-size: .68rem;
+    color: #8a93a2;
+    font-size: .62rem;
+    font-weight: 700;
 }
 
 
@@ -123,92 +303,98 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 .upload-toolbar {
     display: flex;
-
     align-items: center;
-
     justify-content: space-between;
-
     gap: 15px;
 
-    padding: 15px 17px;
-
-    margin-bottom: 25px;
-
-    border-radius: 12px;
+    padding: 14px;
+    margin-bottom: 20px;
 
     background: #fff;
+    border: 1px solid #edf0f5;
+    border-radius: 14px;
 
-    box-shadow:
-        0 3px 14px rgba(0,0,0,.05);
+    box-shadow: 0 4px 18px rgba(0,0,0,.04);
 }
 
 .upload-search {
     position: relative;
-
     flex: 1;
-
-    max-width: 500px;
+    max-width: 520px;
 }
 
 .upload-search i {
     position: absolute;
 
     left: 14px;
-
     top: 50%;
 
     transform: translateY(-50%);
 
     color: #9aa3b2;
-
-    font-size: .8rem;
 }
 
 .upload-search input {
     width: 100%;
-
     height: 40px;
 
-    padding-left: 38px;
+    padding: 0 15px 0 38px;
 
-    border: 1px solid #e0e4eb;
-
+    border: 1px solid #e1e5ec;
     border-radius: 9px;
 
     background: #f9fafc;
 
-    font-size: .78rem;
-
+    font-size: .76rem;
     outline: none;
 }
 
 .upload-search input:focus {
     background: #fff;
-
     border-color: #4e73df;
-
-    box-shadow:
-        0 0 0 3px rgba(78,115,223,.10);
+    box-shadow: 0 0 0 3px rgba(78,115,223,.1);
 }
 
-.upload-filter {
+.upload-toolbar-right {
     display: flex;
-
     align-items: center;
-
     gap: 8px;
 }
 
-.upload-filter select {
+.upload-toolbar-right select {
     height: 40px;
+    min-width: 100px;
 
-    min-width: 110px;
-
-    border: 1px solid #e0e4eb;
-
+    border: 1px solid #e1e5ec;
     border-radius: 9px;
 
-    font-size: .78rem;
+    font-size: .75rem;
+}
+
+.btn-add-point {
+    height: 40px;
+
+    display: inline-flex;
+    align-items: center;
+
+    padding: 0 14px;
+
+    border: 0;
+    border-radius: 9px;
+
+    background: #4e73df;
+    color: #fff;
+
+    font-size: .72rem;
+    font-weight: 700;
+
+    text-decoration: none;
+}
+
+.btn-add-point:hover {
+    background: #3d5fc4;
+    color: #fff;
+    text-decoration: none;
 }
 
 
@@ -217,310 +403,303 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 ========================================================= */
 
 .point-card {
-    margin-bottom: 20px;
+    overflow: hidden;
 
-    border: 0;
-
-    border-radius: 16px;
+    margin-bottom: 18px;
 
     background: #fff;
 
-    overflow: hidden;
+    border: 1px solid #edf0f5;
+    border-radius: 18px;
 
-    box-shadow:
-        0 4px 18px rgba(0,0,0,.055);
+    box-shadow: 0 4px 20px rgba(0,0,0,.045);
 }
 
 .point-header {
     display: flex;
-
-    align-items: flex-start;
+    align-items: center;
 
     gap: 15px;
 
-    padding: 19px 20px;
+    min-height: 105px;
 
-    border-bottom: 1px solid #edf0f5;
+    padding: 20px 24px;
+
+    background: #fff;
 }
 
 .point-number {
-    width: 44px;
-    height: 44px;
+    width: 56px;
+    height: 56px;
 
-    flex: 0 0 44px;
+    flex: 0 0 56px;
 
     display: flex;
-
     align-items: center;
     justify-content: center;
 
-    border-radius: 12px;
+    border-radius: 16px;
 
     background: #eef2ff;
-
     color: #4e73df;
 
-    font-size: .9rem;
-
+    font-size: .95rem;
     font-weight: 800;
 }
 
-.point-content {
-    min-width: 0;
-
+.point-info {
     flex: 1;
+    min-width: 0;
 }
 
-.point-name {
+.point-title {
     margin: 0;
 
-    color: #263238;
+    color: #202936;
 
-    font-size: .92rem;
-
+    font-size: .94rem;
+    font-weight: 800;
     line-height: 1.5;
-
-    font-weight: 700;
 }
 
 .point-description {
     margin-top: 5px;
 
-    color: #858796;
+    color: #8a93a2;
 
-    font-size: .73rem;
-
+    font-size: .68rem;
     line-height: 1.5;
 }
 
 .point-actions {
     display: flex;
-
     align-items: center;
-
-    gap: 7px;
+    gap: 6px;
 }
 
-.point-edit {
-    width: 34px;
-    height: 34px;
+.point-btn {
+    width: 37px;
+    height: 37px;
 
     display: flex;
-
     align-items: center;
     justify-content: center;
 
-    border-radius: 8px;
+    border: 1px solid #e0e5ed;
+    border-radius: 10px;
 
-    color: #858796;
+    background: #fff;
+    color: #6f7785;
 
-    background: #f7f8fb;
+    font-size: .73rem;
 
-    font-size: .75rem;
+    cursor: pointer;
+    text-decoration: none;
 }
 
-.point-edit:hover {
-    color: #4e73df;
-
+.point-btn:hover {
     background: #eef2ff;
+    border-color: #cbd5ff;
+    color: #4e73df;
+    text-decoration: none;
+}
+
+.point-btn.danger:hover {
+    background: #fff0f0;
+    border-color: #f5c2c0;
+    color: #e74a3b;
+}
+
+.point-toggle i {
+    transition: transform .2s ease;
+}
+
+.point-card.collapsed .point-toggle i {
+    transform: rotate(-90deg);
+}
+
+.point-body {
+    padding: 0 24px 24px;
+    border-top: 1px solid #f0f2f6;
+}
+
+.point-card.collapsed .point-body {
+    display: none;
 }
 
 
 /* =========================================================
-   YEAR GRID
+   YEAR
 ========================================================= */
 
-.year-grid {
-    display: grid;
-
-    grid-template-columns:
-        repeat(2, minmax(0, 1fr));
-
-    gap: 15px;
-
-    padding: 16px 20px 20px;
+.year-section {
+    padding-top: 20px;
 }
 
-
-/* =========================================================
-   YEAR CARD
-========================================================= */
-
-.year-card {
-    border: 1px solid #e4e8f0;
-
-    border-radius: 13px;
-
-    background: #fafbfe;
-
-    overflow: hidden;
+.year-section + .year-section {
+    margin-top: 8px;
+    border-top: 1px dashed #e4e7ed;
 }
 
 .year-header {
     display: flex;
-
     align-items: center;
-
-    justify-content: space-between;
-
-    gap: 10px;
-
-    padding: 13px 15px;
-
-    border-bottom: 1px solid #e5e8ef;
-
-    background: #f8f9fc;
-}
-
-.year-title {
-    display: flex;
-
-    align-items: center;
-
-    color: #343a40;
-
-    font-size: .8rem;
-
-    font-weight: 700;
+    margin-bottom: 12px;
 }
 
 .year-icon {
-    width: 34px;
-    height: 34px;
+    width: 35px;
+    height: 35px;
 
     display: flex;
-
     align-items: center;
     justify-content: center;
 
     margin-right: 9px;
 
-    border-radius: 9px;
-
-    background: #e9efff;
-
-    color: #4e73df;
-
-    font-size: .75rem;
-}
-
-.year-count {
-    padding: 5px 9px;
-
-    border-radius: 20px;
+    border-radius: 10px;
 
     background: #eef2ff;
-
     color: #4e73df;
+}
 
-    font-size: .65rem;
-
-    font-weight: 700;
+.year-title {
+    color: #343a40;
+    font-size: .82rem;
+    font-weight: 800;
 }
 
 
 /* =========================================================
-   UPLOAD BUTTON
+   FUND
 ========================================================= */
+
+.fund-grid {
+    display: grid;
+
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    gap: 13px;
+}
+
+.fund-card {
+    overflow: hidden;
+
+    border: 1px solid #e1e6ef;
+    border-radius: 13px;
+
+    background: #fafbfe;
+}
+
+.fund-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 10px;
+
+    padding: 12px 13px;
+
+    background: #f7f9fc;
+    border-bottom: 1px solid #e5e8ee;
+}
+
+.fund-name {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    color: #263238;
+
+    font-size: .75rem;
+    font-weight: 800;
+}
+
+.fund-badge {
+    padding: 4px 9px;
+
+    border-radius: 20px;
+
+    background: #eaf0ff;
+    color: #4e73df;
+
+    font-size: .6rem;
+    font-weight: 800;
+}
+
+.fund-badge.bopd {
+    background: #e8f7ef;
+    color: #198754;
+}
 
 .btn-upload {
     display: inline-flex;
-
     align-items: center;
+    gap: 5px;
 
-    gap: 6px;
-
-    padding: 8px 12px;
+    padding: 7px 11px;
 
     border: 0;
-
-    border-radius: 9px;
+    border-radius: 8px;
 
     background: #4e73df;
-
     color: #fff;
 
-    font-size: .7rem;
-
+    font-size: .62rem;
     font-weight: 700;
-
-    text-decoration: none;
 
     cursor: pointer;
 }
 
 .btn-upload:hover {
-    color: #fff;
-
     background: #3d5fc4;
+    color: #fff;
+}
 
-    text-decoration: none;
+.btn-upload.bopd {
+    background: #198754;
+}
+
+.btn-upload.bopd:hover {
+    background: #157347;
 }
 
 
 /* =========================================================
-   FILE LIST
+   FILE
 ========================================================= */
 
 .file-list {
-    padding: 14px;
+    padding: 12px;
 }
-
-
-/* =========================================================
-   FILE ITEM
-========================================================= */
 
 .file-item {
     display: flex;
-
     align-items: flex-start;
+    gap: 10px;
 
-    gap: 12px;
-
-    padding: 12px;
-
-    border: 1px solid #e1e5ec;
-
-    border-radius: 11px;
+    padding: 10px;
 
     background: #fff;
-
-    transition:
-        border-color .15s ease,
-        box-shadow .15s ease;
-}
-
-.file-item:hover {
-    border-color: #cbd5ee;
-
-    box-shadow:
-        0 3px 12px rgba(0,0,0,.045);
+    border: 1px solid #e1e5ec;
+    border-radius: 10px;
 }
 
 .file-item + .file-item {
-    margin-top: 9px;
+    margin-top: 8px;
 }
 
-
-/* =========================================================
-   FILE ICON
-========================================================= */
-
 .file-icon {
-    width: 45px;
-    height: 45px;
+    width: 40px;
+    height: 40px;
 
-    flex: 0 0 45px;
+    flex: 0 0 40px;
 
     display: flex;
-
     align-items: center;
     justify-content: center;
 
-    border-radius: 11px;
-
-    font-size: 1.05rem;
+    border-radius: 10px;
 }
 
 .file-icon.pdf {
@@ -538,14 +717,14 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     color: #0d6efd;
 }
 
-.file-icon.image {
-    background: #fff8e7;
-    color: #d89b00;
-}
-
 .file-icon.powerpoint {
     background: #fff2eb;
     color: #e85d04;
+}
+
+.file-icon.image {
+    background: #fff8e7;
+    color: #d89b00;
 }
 
 .file-icon.archive {
@@ -558,70 +737,44 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     color: #6c757d;
 }
 
-
-/* =========================================================
-   FILE INFO
-========================================================= */
-
 .file-info {
-    min-width: 0;
-
     flex: 1;
+    min-width: 0;
 }
 
 .file-name {
-    max-width: 100%;
-
     overflow: hidden;
 
     text-overflow: ellipsis;
-
     white-space: nowrap;
 
     color: #263238;
 
-    font-size: .79rem;
-
-    font-weight: 700;
-
-    line-height: 1.4;
+    font-size: .72rem;
+    font-weight: 800;
 }
 
 .file-meta {
     display: flex;
-
+    flex-wrap: wrap;
     align-items: center;
 
-    flex-wrap: wrap;
-
-    gap: 6px;
+    gap: 5px;
 
     margin-top: 3px;
 
     color: #9aa3b2;
 
-    font-size: .65rem;
+    font-size: .6rem;
 }
-
-.meta-dot {
-    color: #c5cad3;
-}
-
-
-/* =========================================================
-   KETERANGAN FILE
-========================================================= */
 
 .file-description {
     display: flex;
-
     align-items: flex-start;
+    gap: 6px;
 
-    gap: 7px;
-
-    margin-top: 9px;
-
-    padding: 8px 10px;
+    margin-top: 8px;
+    padding: 7px 9px;
 
     border-radius: 8px;
 
@@ -629,100 +782,63 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
     color: #667085;
 
-    font-size: .68rem;
-
-    line-height: 1.55;
+    font-size: .63rem;
+    line-height: 1.5;
 }
 
 .file-description i {
-    flex: 0 0 auto;
-
     margin-top: 2px;
-
     color: #4e73df;
-
-    font-size: .68rem;
 }
-
-.file-description span {
-    min-width: 0;
-
-    word-break: break-word;
-}
-
-
-/* =========================================================
-   FILE ACTION
-========================================================= */
 
 .file-actions {
     display: flex;
-
-    align-items: center;
-
-    gap: 5px;
-
-    flex: 0 0 auto;
+    gap: 4px;
 }
 
 .file-action {
-    width: 35px;
-    height: 35px;
+    width: 31px;
+    height: 31px;
 
     display: flex;
-
     align-items: center;
     justify-content: center;
-
-    border: 1px solid transparent;
 
     border-radius: 8px;
 
     background: #fff;
 
-    font-size: .8rem;
-
-    cursor: pointer;
-
-    transition:
-        background .15s ease,
-        color .15s ease,
-        border-color .15s ease;
+    font-size: .7rem;
+    text-decoration: none;
 }
 
 .file-action.view {
-    border-color: #36b9cc;
-
+    border: 1px solid #36b9cc;
     color: #36b9cc;
 }
 
 .file-action.view:hover {
     background: #36b9cc;
-
     color: #fff;
 }
 
 .file-action.download {
-    border-color: #4e73df;
-
+    border: 1px solid #4e73df;
     color: #4e73df;
 }
 
 .file-action.download:hover {
     background: #4e73df;
-
     color: #fff;
 }
 
 .file-action.delete {
-    border-color: #e74a3b;
-
+    border: 1px solid #e74a3b;
     color: #e74a3b;
 }
 
 .file-action.delete:hover {
     background: #e74a3b;
-
     color: #fff;
 }
 
@@ -732,52 +848,46 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 ========================================================= */
 
 .empty-file {
-    padding: 25px 15px;
+    padding: 22px 10px;
 
     text-align: center;
 
     color: #a0a7b4;
 
-    font-size: .7rem;
+    font-size: .64rem;
 }
 
 .empty-file i {
     display: block;
 
-    margin-bottom: 7px;
+    margin-bottom: 6px;
 
-    color: #c9ced8;
+    color: #c8ced9;
 
-    font-size: 1.4rem;
+    font-size: 1.25rem;
 }
 
 
 /* =========================================================
-   MODAL UPLOAD
+   MODAL
 ========================================================= */
 
 .upload-modal .modal-content {
-    border: 0;
-
-    border-radius: 16px;
-
     overflow: hidden;
+
+    border: 0;
+    border-radius: 16px;
 }
 
 .upload-modal .modal-header {
-    padding: 17px 20px;
-
+    padding: 16px 20px;
     border-bottom: 1px solid #edf0f5;
-
-    background: #fff;
 }
 
 .upload-modal .modal-title {
-    color: #343a40;
-
-    font-size: .95rem;
-
-    font-weight: 700;
+    color: #263238;
+    font-size: .9rem;
+    font-weight: 800;
 }
 
 .upload-modal .modal-body {
@@ -786,25 +896,50 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 .upload-modal label {
     color: #5a5c69;
-
-    font-size: .73rem;
-
+    font-size: .7rem;
     font-weight: 700;
 }
 
 .upload-modal .form-control {
     border-radius: 9px;
-
-    border-color: #dfe3eb;
-
-    font-size: .78rem;
+    font-size: .75rem;
 }
 
-.upload-modal .form-control:focus {
-    border-color: #4e73df;
+.upload-context {
+    display: flex;
+    align-items: center;
+    gap: 8px;
 
-    box-shadow:
-        0 0 0 3px rgba(78,115,223,.10);
+    margin-bottom: 16px;
+    padding: 11px 12px;
+
+    border-radius: 10px;
+
+    background: #f5f8ff;
+    border: 1px solid #dfe7ff;
+}
+
+.upload-context-badge {
+    padding: 5px 9px;
+
+    border-radius: 20px;
+
+    background: #4e73df;
+
+    color: #fff;
+
+    font-size: .6rem;
+    font-weight: 800;
+}
+
+.upload-context-badge.bopd {
+    background: #198754;
+}
+
+.upload-context-text {
+    color: #344054;
+    font-size: .68rem;
+    font-weight: 700;
 }
 
 .upload-help {
@@ -812,8 +947,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
     color: #9299a7;
 
-    font-size: .65rem;
-
+    font-size: .61rem;
     line-height: 1.5;
 }
 
@@ -822,19 +956,15 @@ defined('BASEPATH') OR exit('No direct script access allowed');
    RESPONSIVE
 ========================================================= */
 
-@media (max-width: 991px) {
+@media (max-width: 1100px) {
 
-    .year-grid {
-        grid-template-columns: 1fr;
+    .upload-stat-grid {
+        grid-template-columns: repeat(2, 1fr);
     }
 
 }
 
 @media (max-width: 767px) {
-
-    .upload-stats {
-        grid-template-columns: 1fr;
-    }
 
     .upload-toolbar {
         display: block;
@@ -842,98 +972,62 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
     .upload-search {
         max-width: none;
-
         margin-bottom: 10px;
     }
 
-    .upload-filter {
-        justify-content: space-between;
+    .upload-toolbar-right {
+        justify-content: flex-end;
+    }
+
+    .fund-grid {
+        grid-template-columns: 1fr;
     }
 
     .point-header {
-        padding: 15px;
+        padding: 17px;
     }
 
-    .point-actions {
-        flex: 0 0 auto;
-    }
-
-    .year-grid {
-        padding: 12px;
+    .point-body {
+        padding: 0 17px 18px;
     }
 
 }
 
 @media (max-width: 576px) {
 
-    .upload-header {
-        display: block;
-    }
-
-    .upload-title {
-        font-size: 1.15rem;
+    .upload-stat-grid {
+        grid-template-columns: 1fr;
     }
 
     .point-header {
-        gap: 10px;
+        gap: 9px;
     }
 
     .point-number {
-        width: 38px;
-        height: 38px;
-
-        flex-basis: 38px;
-
-        border-radius: 10px;
-
-        font-size: .75rem;
+        width: 44px;
+        height: 44px;
+        flex-basis: 44px;
     }
 
-    .point-name {
-        font-size: .8rem;
+    .point-title {
+        font-size: .78rem;
     }
 
     .point-actions {
-        gap: 4px;
-    }
-
-    .point-edit {
-        width: 30px;
-        height: 30px;
-    }
-
-    .file-item {
-        gap: 9px;
-
-        padding: 10px;
-    }
-
-    .file-icon {
-        width: 38px;
-        height: 38px;
-
-        flex-basis: 38px;
-
-        font-size: .9rem;
-    }
-
-    .file-name {
-        font-size: .72rem;
-    }
-
-    .file-actions {
         gap: 3px;
     }
 
-    .file-action {
+    .point-btn {
         width: 31px;
         height: 31px;
-
-        font-size: .7rem;
     }
 
-    .file-description {
-        font-size: .62rem;
+    .file-item {
+        flex-wrap: wrap;
+    }
+
+    .file-actions {
+        margin-left: 50px;
     }
 
 }
@@ -948,92 +1042,87 @@ defined('BASEPATH') OR exit('No direct script access allowed');
          HEADER
     ====================================================== -->
 
-    <div class="upload-header">
+    <div class="upload-heading">
 
-        <div class="upload-title-wrap">
+        <h1>
+            <i class="fas fa-folder-open text-primary mr-2"></i>
+            <?= html_escape($title) ?>
+        </h1>
 
-            <h1 class="upload-title">
+        <p>
+            Kelola dokumen Inspektorat berdasarkan point,
+            tahun, dan sumber dana BOSP/BOPD.
+        </p>
 
-                <i class="fas fa-folder-open text-primary mr-2"></i>
+    </div>
 
-                <?= html_escape($title) ?>
 
-            </h1>
+    <!-- =====================================================
+         FLASH SUCCESS
+    ====================================================== -->
 
-            <p class="upload-subtitle">
+    <?php if (!empty($flash_success)): ?>
 
-                Kelola dokumen permintaan Inspektorat berdasarkan
-                point dan tahun dokumen.
+        <div class="upload-alert success">
 
-            </p>
+            <i class="fas fa-check-circle"></i>
+
+            <div>
+
+                <strong>Berhasil</strong>
+
+                <?= html_escape($flash_success) ?>
+
+            </div>
 
         </div>
 
-    </div>
+    <?php endif; ?>
+
+
+    <!-- =====================================================
+         FLASH ERROR
+    ====================================================== -->
+
+    <?php if (!empty($flash_error)): ?>
+
+        <div class="upload-alert error">
+
+            <i class="fas fa-exclamation-triangle"></i>
+
+            <div>
+
+                <strong>Upload Gagal</strong>
+
+                <?= html_escape($flash_error) ?>
+
+            </div>
+
+        </div>
+
+    <?php endif; ?>
 
 
     <!-- =====================================================
          STATISTIK
     ====================================================== -->
 
-    <?php
-
-    $total_point = is_array($points)
-        ? count($points)
-        : 0;
-
-    $total_file_2025 = 0;
-    $total_file_2026 = 0;
-
-    foreach ($points as $p) {
-
-        if (
-            isset($p->files_2025) &&
-            is_array($p->files_2025)
-        ) {
-            $total_file_2025 +=
-                count($p->files_2025);
-        }
-
-        if (
-            isset($p->files_2026) &&
-            is_array($p->files_2026)
-        ) {
-            $total_file_2026 +=
-                count($p->files_2026);
-        }
-    }
-
-    $total_file =
-        $total_file_2025 +
-        $total_file_2026;
-
-    ?>
-
-
-    <div class="upload-stats">
-
+    <div class="upload-stat-grid">
 
         <div class="upload-stat">
 
             <div class="upload-stat-icon">
-
                 <i class="fas fa-list-ol"></i>
-
             </div>
 
             <div>
 
                 <div class="upload-stat-value">
-
                     <?= number_format($total_point) ?>
-
                 </div>
 
                 <div class="upload-stat-label">
-
-                    Total Point
-
+                    TOTAL POINT
                 </div>
 
             </div>
@@ -1044,23 +1133,17 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         <div class="upload-stat">
 
             <div class="upload-stat-icon">
-
                 <i class="fas fa-file-alt"></i>
-
             </div>
 
             <div>
 
                 <div class="upload-stat-value">
-
                     <?= number_format($total_file) ?>
-
                 </div>
 
                 <div class="upload-stat-label">
-
-                    Total Berkas
-
+                    TOTAL BERKAS
                 </div>
 
             </div>
@@ -1071,37 +1154,43 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         <div class="upload-stat">
 
             <div class="upload-stat-icon">
-
-                <i class="fas fa-calendar-alt"></i>
-
+                <i class="fas fa-wallet"></i>
             </div>
 
             <div>
 
                 <div class="upload-stat-value">
-
-                    <?= number_format(
-                        $total_file_2025
-                    ) ?>
-
-                    <small style="font-size:.65rem;color:#858796;">
-                        / <?= number_format(
-                            $total_file_2026
-                        ) ?>
-                    </small>
-
+                    <?= number_format($total_bosp) ?>
                 </div>
 
                 <div class="upload-stat-label">
-
-                    Berkas 2025 / 2026
-
+                    BERKAS BOSP
                 </div>
 
             </div>
 
         </div>
 
+
+        <div class="upload-stat">
+
+            <div class="upload-stat-icon">
+                <i class="fas fa-landmark"></i>
+            </div>
+
+            <div>
+
+                <div class="upload-stat-value">
+                    <?= number_format($total_bopd) ?>
+                </div>
+
+                <div class="upload-stat-label">
+                    BERKAS BOPD
+                </div>
+
+            </div>
+
+        </div>
 
     </div>
 
@@ -1111,7 +1200,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     ====================================================== -->
 
     <div class="upload-toolbar">
-
 
         <form
             method="get"
@@ -1132,11 +1220,11 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         </form>
 
 
-        <div class="upload-filter">
+        <div class="upload-toolbar-right">
 
             <span
                 class="text-muted"
-                style="font-size:.72rem;"
+                style="font-size:.7rem;"
             >
                 Tahun
             </span>
@@ -1155,13 +1243,13 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
                 <select
                     name="tahun"
-                    class="form-control form-control-sm"
+                    class="form-control"
                     onchange="this.form.submit()"
                 >
 
                     <option
                         value="2025"
-                        <?= ((int) $tahun === 2025)
+                        <?= ((int)$tahun === 2025)
                             ? 'selected'
                             : '' ?>
                     >
@@ -1170,7 +1258,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
                     <option
                         value="2026"
-                        <?= ((int) $tahun === 2026)
+                        <?= ((int)$tahun === 2026)
                             ? 'selected'
                             : '' ?>
                     >
@@ -1182,24 +1270,20 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             </form>
 
 
-            <?php if (
-                $this->session->userdata('role_id') == 1
-            ): ?>
+            <?php if ($isAdmin): ?>
 
                 <a
                     href="<?= site_url('upload/tambah_point') ?>"
-                    class="btn btn-primary btn-sm"
-                    style="border-radius:9px;"
+                    class="btn-add-point"
                 >
 
                     <i class="fas fa-plus mr-1"></i>
 
-                    Point
+                    Tambah Point
 
                 </a>
 
             <?php endif; ?>
-
 
         </div>
 
@@ -1207,7 +1291,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 
     <!-- =====================================================
-         POINT
+         POINT LIST
     ====================================================== -->
 
     <?php if (!empty($points)): ?>
@@ -1215,36 +1299,61 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
         <?php foreach ($points as $point): ?>
 
-
             <?php
 
-            $files_2025 =
-                isset($point->files_2025)
-                    ? $point->files_2025
-                    : array();
+            $point_id = (int) $point->id;
 
-            $files_2026 =
-                isset($point->files_2026)
-                    ? $point->files_2026
-                    : array();
+            $files = array(
+
+                2025 => array(
+
+                    'BOSP' =>
+                        isset($point->files_2025_bosp)
+                            ? $point->files_2025_bosp
+                            : array(),
+
+                    'BOPD' =>
+                        isset($point->files_2025_bopd)
+                            ? $point->files_2025_bopd
+                            : array()
+
+                ),
+
+                2026 => array(
+
+                    'BOSP' =>
+                        isset($point->files_2026_bosp)
+                            ? $point->files_2026_bosp
+                            : array(),
+
+                    'BOPD' =>
+                        isset($point->files_2026_bopd)
+                            ? $point->files_2026_bopd
+                            : array()
+
+                )
+
+            );
 
             ?>
 
 
-            <div class="point-card">
+            <!-- =================================================
+                 POINT CARD
+            ================================================== -->
 
+            <div
+                class="point-card"
+                data-point="<?= $point_id ?>"
+            >
 
-                <!-- =================================================
-                     POINT HEADER
-                ================================================== -->
 
                 <div class="point-header">
-
 
                     <div class="point-number">
 
                         <?= str_pad(
-                            (int) $point->nomor,
+                            (int)$point->nomor,
                             2,
                             '0',
                             STR_PAD_LEFT
@@ -1253,10 +1362,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     </div>
 
 
-                    <div class="point-content">
+                    <div class="point-info">
 
-
-                        <h2 class="point-name">
+                        <h2 class="point-title">
 
                             <?= html_escape(
                                 $point->nama_point
@@ -1282,23 +1390,32 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
                         <?php endif; ?>
 
-
                     </div>
 
 
-                    <?php if (
-                        $this->session->userdata('role_id') == 1
-                    ): ?>
+                    <div class="point-actions">
 
-                        <div class="point-actions">
+
+                        <button
+                            type="button"
+                            class="point-btn point-toggle"
+                            title="Perkecil / Perbesar"
+                            aria-expanded="true"
+                        >
+
+                            <i class="fas fa-chevron-down"></i>
+
+                        </button>
+
+
+                        <?php if ($isAdmin): ?>
 
                             <a
                                 href="<?= site_url(
-                                    'upload/edit_point/' .
-                                    (int) $point->id
+                                    'upload/edit_point/' . $point_id
                                 ) ?>"
-                                class="point-edit"
-                                title="Edit point"
+                                class="point-btn"
+                                title="Edit Point"
                             >
 
                                 <i class="fas fa-edit"></i>
@@ -1308,11 +1425,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
                             <a
                                 href="<?= site_url(
-                                    'upload/delete_point/' .
-                                    (int) $point->id
+                                    'upload/delete_point/' . $point_id
                                 ) ?>"
-                                class="point-edit text-danger"
-                                title="Hapus point"
+                                class="point-btn danger"
+                                title="Hapus Point"
                                 onclick="
                                     return confirm(
                                         'Hapus point beserta seluruh berkas di dalamnya?'
@@ -1324,33 +1440,23 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
                             </a>
 
-                        </div>
+                        <?php endif; ?>
 
-                    <?php endif; ?>
-
+                    </div>
 
                 </div>
 
 
-
-                <!-- =================================================
-                     YEAR
-                ================================================== -->
-
-                <div class="year-grid">
+                <div class="point-body">
 
 
-                    <!-- =================================================
-                         2025
-                    ================================================== -->
-
-                    <div class="year-card">
+                    <?php foreach ($files as $year => $funds): ?>
 
 
-                        <div class="year-header">
+                        <div class="year-section">
 
 
-                            <div class="year-title">
+                            <div class="year-header">
 
                                 <div class="year-icon">
 
@@ -1358,380 +1464,277 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
                                 </div>
 
-                                Tahun 2025
+                                <div class="year-title">
+                                    Tahun <?= $year ?>
+                                </div>
 
                             </div>
 
 
-                            <div class="d-flex align-items-center gap-1">
+                            <div class="fund-grid">
 
 
-                                <span class="year-count">
-
-                                    <?= count($files_2025) ?>
-                                    berkas
-
-                                </span>
-
-
-                                <button
-                                    type="button"
-                                    class="btn-upload"
-                                    data-toggle="modal"
-                                    data-target="#uploadModal<?= (int) $point->id ?>2025"
-                                >
-
-                                    <i class="fas fa-cloud-upload-alt"></i>
-
-                                    Upload
-
-                                </button>
-
-
-                            </div>
-
-
-                        </div>
-
-
-                        <div class="file-list">
-
-
-                            <?php if (!empty($files_2025)): ?>
-
-
-                                <?php foreach ($files_2025 as $file): ?>
-
+                                <?php foreach ($funds as $fund => $file_list): ?>
 
                                     <?php
 
-                                    $ext =
-                                        strtolower(
-                                            trim(
-                                                $file->ekstensi
-                                            )
-                                        );
+                                    $isBopd =
+                                        ($fund === 'BOPD');
 
-
-                                    /*
-                                     * Icon
-                                     */
-
-                                    $icon_class =
-                                        'default';
-
-                                    $icon =
-                                        'fa-file';
-
-
-                                    if (
-                                        in_array(
-                                            $ext,
-                                            array(
-                                                'pdf'
-                                            ),
-                                            true
-                                        )
-                                    ) {
-
-                                        $icon_class =
-                                            'pdf';
-
-                                        $icon =
-                                            'fa-file-pdf';
-
-                                    } elseif (
-                                        in_array(
-                                            $ext,
-                                            array(
-                                                'xls',
-                                                'xlsx'
-                                            ),
-                                            true
-                                        )
-                                    ) {
-
-                                        $icon_class =
-                                            'excel';
-
-                                        $icon =
-                                            'fa-file-excel';
-
-                                    } elseif (
-                                        in_array(
-                                            $ext,
-                                            array(
-                                                'doc',
-                                                'docx'
-                                            ),
-                                            true
-                                        )
-                                    ) {
-
-                                        $icon_class =
-                                            'word';
-
-                                        $icon =
-                                            'fa-file-word';
-
-                                    } elseif (
-                                        in_array(
-                                            $ext,
-                                            array(
-                                                'jpg',
-                                                'jpeg',
-                                                'png',
-                                                'gif',
-                                                'webp'
-                                            ),
-                                            true
-                                        )
-                                    ) {
-
-                                        $icon_class =
-                                            'image';
-
-                                        $icon =
-                                            'fa-file-image';
-
-                                    } elseif (
-                                        in_array(
-                                            $ext,
-                                            array(
-                                                'ppt',
-                                                'pptx'
-                                            ),
-                                            true
-                                        )
-                                    ) {
-
-                                        $icon_class =
-                                            'powerpoint';
-
-                                        $icon =
-                                            'fa-file-powerpoint';
-
-                                    } elseif (
-                                        in_array(
-                                            $ext,
-                                            array(
-                                                'zip',
-                                                'rar'
-                                            ),
-                                            true
-                                        )
-                                    ) {
-
-                                        $icon_class =
-                                            'archive';
-
-                                        $icon =
-                                            'fa-file-archive';
-
-                                    }
-
-
-                                    /*
-                                     * Preview support
-                                     */
-
-                                    $previewable =
-                                        in_array(
-                                            $ext,
-                                            array(
-                                                'pdf',
-                                                'jpg',
-                                                'jpeg',
-                                                'png',
-                                                'gif',
-                                                'webp',
-                                                'xls',
-                                                'xlsx',
-                                                'docx'
-                                            ),
-                                            true
-                                        );
-
-
-                                    /*
-                                     * Ukuran
-                                     */
-
-                                    $size =
-                                        isset(
-                                            $file->ukuran_file
-                                        )
-                                            ? (int)
-                                                $file->ukuran_file
-                                            : 0;
-
-
-                                    if ($size >= 1048576) {
-
-                                        $size_text =
-                                            number_format(
-                                                $size / 1048576,
-                                                2
-                                            ) . ' MB';
-
-                                    } else {
-
-                                        $size_text =
-                                            number_format(
-                                                $size / 1024,
-                                                1
-                                            ) . ' KB';
-
-                                    }
+                                    $badge_class =
+                                        $isBopd
+                                            ? 'bopd'
+                                            : '';
 
                                     ?>
 
 
-                                    <div class="file-item">
+                                    <div class="fund-card">
 
 
-                                        <!-- ICON -->
+                                        <div class="fund-header">
 
-                                        <div
-                                            class="file-icon <?= $icon_class ?>"
-                                        >
 
-                                            <i
-                                                class="fas <?= $icon ?>"
-                                            ></i>
+                                            <div class="fund-name">
+
+                                                <span
+                                                    class="fund-badge <?= $badge_class ?>"
+                                                >
+                                                    <?= $fund ?>
+                                                </span>
+
+                                                <span>
+                                                    <?= $year ?>
+                                                </span>
+
+                                            </div>
+
+
+                                            <!--
+                                                PENTING:
+                                                sumber dana langsung disimpan
+                                                di data attribute.
+                                            -->
+
+                                            <button
+                                                type="button"
+                                                class="btn-upload <?= $badge_class ?>"
+                                                data-toggle="modal"
+                                                data-target="#uploadModal<?= $point_id ?>"
+                                                data-point="<?= $point_id ?>"
+                                                data-point-name="<?= html_escape(
+                                                    $point->nomor .
+                                                    '. ' .
+                                                    $point->nama_point
+                                                ) ?>"
+                                                data-tahun="<?= $year ?>"
+                                                data-sumber-dana="<?= $fund ?>"
+                                            >
+
+                                                <i class="fas fa-cloud-upload-alt"></i>
+
+                                                Upload
+
+                                            </button>
 
                                         </div>
 
 
-                                        <!-- INFO -->
-
-                                        <div class="file-info">
+                                        <div class="file-list">
 
 
-                                            <div
-                                                class="file-name"
-                                                title="<?= html_escape(
-                                                    $file->nama_file_asli
-                                                ) ?>"
-                                            >
-
-                                                <?= html_escape(
-                                                    $file->nama_file_asli
-                                                ) ?>
-
-                                            </div>
+                                            <?php if (!empty($file_list)): ?>
 
 
-                                            <div class="file-meta">
+                                                <?php foreach ($file_list as $file): ?>
 
-                                                <span>
-                                                    <?= $size_text ?>
-                                                </span>
+                                                    <?php
 
-                                                <span class="meta-dot">
-                                                    •
-                                                </span>
-
-                                                <span>
-                                                    <?= date(
-                                                        'd/m/Y H:i',
-                                                        strtotime(
-                                                            $file->uploaded_at
-                                                        )
-                                                    ) ?>
-                                                </span>
-
-                                            </div>
-
-
-                                            <?php if (
-                                                isset(
-                                                    $file->keterangan
-                                                ) &&
-                                                trim(
-                                                    $file->keterangan
-                                                ) !== ''
-                                            ): ?>
-
-                                                <div
-                                                    class="file-description"
-                                                >
-
-                                                    <i class="fas fa-info-circle"></i>
-
-                                                    <span>
-
-                                                        <?= nl2br(
-                                                            html_escape(
-                                                                $file->keterangan
+                                                    $ext =
+                                                        strtolower(
+                                                            trim(
+                                                                $file->ekstensi
                                                             )
-                                                        ) ?>
+                                                        );
 
-                                                    </span>
+                                                    $icon =
+                                                        upload_view_icon(
+                                                            $ext
+                                                        );
+
+                                                    $can_preview =
+                                                        upload_view_can_preview(
+                                                            $ext
+                                                        );
+
+                                                    $size =
+                                                        upload_view_size(
+                                                            isset(
+                                                                $file->ukuran_file
+                                                            )
+                                                                ? $file->ukuran_file
+                                                                : 0
+                                                        );
+
+                                                    ?>
+
+
+                                                    <div class="file-item">
+
+
+                                                        <div
+                                                            class="file-icon <?= $icon[0] ?>"
+                                                        >
+
+                                                            <i
+                                                                class="fas <?= $icon[1] ?>"
+                                                            ></i>
+
+                                                        </div>
+
+
+                                                        <div class="file-info">
+
+
+                                                            <div
+                                                                class="file-name"
+                                                                title="<?= html_escape(
+                                                                    $file->nama_file_asli
+                                                                ) ?>"
+                                                            >
+
+                                                                <?= html_escape(
+                                                                    $file->nama_file_asli
+                                                                ) ?>
+
+                                                            </div>
+
+
+                                                            <div class="file-meta">
+
+                                                                <span>
+                                                                    <?= $size ?>
+                                                                </span>
+
+                                                                <span>•</span>
+
+                                                                <span>
+
+                                                                    <?= date(
+                                                                        'd/m/Y H:i',
+                                                                        strtotime(
+                                                                            $file->uploaded_at
+                                                                        )
+                                                                    ) ?>
+
+                                                                </span>
+
+                                                            </div>
+
+
+                                                            <?php if (
+                                                                isset($file->keterangan) &&
+                                                                trim($file->keterangan) !== ''
+                                                            ): ?>
+
+                                                                <div class="file-description">
+
+                                                                    <i class="fas fa-info-circle"></i>
+
+                                                                    <span>
+
+                                                                        <?= nl2br(
+                                                                            html_escape(
+                                                                                $file->keterangan
+                                                                            )
+                                                                        ) ?>
+
+                                                                    </span>
+
+                                                                </div>
+
+                                                            <?php endif; ?>
+
+
+                                                        </div>
+
+
+                                                        <div class="file-actions">
+
+
+                                                            <?php if ($can_preview): ?>
+
+                                                                <a
+                                                                    href="<?= site_url(
+                                                                        'upload/preview/' .
+                                                                        (int)$file->id
+                                                                    ) ?>"
+                                                                    target="_blank"
+                                                                    class="file-action view"
+                                                                    title="Lihat"
+                                                                >
+
+                                                                    <i class="fas fa-eye"></i>
+
+                                                                </a>
+
+                                                            <?php endif; ?>
+
+
+                                                            <a
+                                                                href="<?= site_url(
+                                                                    'upload/download/' .
+                                                                    (int)$file->id
+                                                                ) ?>"
+                                                                class="file-action download"
+                                                                title="Download"
+                                                            >
+
+                                                                <i class="fas fa-download"></i>
+
+                                                            </a>
+
+
+                                                            <a
+                                                                href="<?= site_url(
+                                                                    'upload/delete_file/' .
+                                                                    (int)$file->id
+                                                                ) ?>"
+                                                                class="file-action delete"
+                                                                title="Hapus"
+                                                                onclick="
+                                                                    return confirm(
+                                                                        'Yakin ingin menghapus berkas ini?'
+                                                                    );
+                                                                "
+                                                            >
+
+                                                                <i class="fas fa-trash"></i>
+
+                                                            </a>
+
+
+                                                        </div>
+
+
+                                                    </div>
+
+
+                                                <?php endforeach; ?>
+
+
+                                            <?php else: ?>
+
+
+                                                <div class="empty-file">
+
+                                                    <i class="fas fa-folder-open"></i>
+
+                                                    Belum ada berkas <?= $fund ?>.
 
                                                 </div>
 
                                             <?php endif; ?>
-
-
-                                        </div>
-
-
-                                        <!-- ACTION -->
-
-                                        <div class="file-actions">
-
-
-                                            <?php if ($previewable): ?>
-
-                                                <a
-                                                    href="<?= site_url(
-                                                        'upload/preview/' .
-                                                        (int) $file->id
-                                                    ) ?>"
-                                                    target="_blank"
-                                                    class="file-action view"
-                                                    title="Lihat berkas"
-                                                >
-
-                                                    <i class="fas fa-eye"></i>
-
-                                                </a>
-
-                                            <?php endif; ?>
-
-
-                                            <a
-                                                href="<?= site_url(
-                                                    'upload/download/' .
-                                                    (int) $file->id
-                                                ) ?>"
-                                                class="file-action download"
-                                                title="Download"
-                                            >
-
-                                                <i class="fas fa-download"></i>
-
-                                            </a>
-
-
-                                            <a
-                                                href="<?= site_url(
-                                                    'upload/delete_file/' .
-                                                    (int) $file->id
-                                                ) ?>"
-                                                class="file-action delete"
-                                                title="Hapus"
-                                                onclick="
-                                                    return confirm(
-                                                        'Yakin ingin menghapus berkas ini?'
-                                                    );
-                                                "
-                                            >
-
-                                                <i class="fas fa-trash"></i>
-
-                                            </a>
 
 
                                         </div>
@@ -1743,426 +1746,13 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                 <?php endforeach; ?>
 
 
-                            <?php else: ?>
-
-
-                                <div class="empty-file">
-
-                                    <i class="fas fa-folder-open"></i>
-
-                                    Belum ada berkas untuk tahun 2025.
-
-                                </div>
-
-
-                            <?php endif; ?>
-
-
-                        </div>
-
-
-                    </div>
-
-
-
-                    <!-- =================================================
-                         2026
-                    ================================================== -->
-
-                    <div class="year-card">
-
-
-                        <div class="year-header">
-
-
-                            <div class="year-title">
-
-                                <div class="year-icon">
-
-                                    <i class="fas fa-calendar-alt"></i>
-
-                                </div>
-
-                                Tahun 2026
-
-                            </div>
-
-
-                            <div class="d-flex align-items-center">
-
-
-                                <span class="year-count mr-1">
-
-                                    <?= count($files_2026) ?>
-                                    berkas
-
-                                </span>
-
-
-                                <button
-                                    type="button"
-                                    class="btn-upload"
-                                    data-toggle="modal"
-                                    data-target="#uploadModal<?= (int) $point->id ?>2026"
-                                >
-
-                                    <i class="fas fa-cloud-upload-alt"></i>
-
-                                    Upload
-
-                                </button>
-
-
                             </div>
 
 
                         </div>
 
 
-                        <div class="file-list">
-
-
-                            <?php if (!empty($files_2026)): ?>
-
-
-                                <?php foreach ($files_2026 as $file): ?>
-
-
-                                    <?php
-
-                                    $ext =
-                                        strtolower(
-                                            trim(
-                                                $file->ekstensi
-                                            )
-                                        );
-
-
-                                    $icon_class =
-                                        'default';
-
-                                    $icon =
-                                        'fa-file';
-
-
-                                    if (
-                                        $ext === 'pdf'
-                                    ) {
-
-                                        $icon_class =
-                                            'pdf';
-
-                                        $icon =
-                                            'fa-file-pdf';
-
-                                    } elseif (
-                                        in_array(
-                                            $ext,
-                                            array(
-                                                'xls',
-                                                'xlsx'
-                                            ),
-                                            true
-                                        )
-                                    ) {
-
-                                        $icon_class =
-                                            'excel';
-
-                                        $icon =
-                                            'fa-file-excel';
-
-                                    } elseif (
-                                        in_array(
-                                            $ext,
-                                            array(
-                                                'doc',
-                                                'docx'
-                                            ),
-                                            true
-                                        )
-                                    ) {
-
-                                        $icon_class =
-                                            'word';
-
-                                        $icon =
-                                            'fa-file-word';
-
-                                    } elseif (
-                                        in_array(
-                                            $ext,
-                                            array(
-                                                'jpg',
-                                                'jpeg',
-                                                'png',
-                                                'gif',
-                                                'webp'
-                                            ),
-                                            true
-                                        )
-                                    ) {
-
-                                        $icon_class =
-                                            'image';
-
-                                        $icon =
-                                            'fa-file-image';
-
-                                    } elseif (
-                                        in_array(
-                                            $ext,
-                                            array(
-                                                'ppt',
-                                                'pptx'
-                                            ),
-                                            true
-                                        )
-                                    ) {
-
-                                        $icon_class =
-                                            'powerpoint';
-
-                                        $icon =
-                                            'fa-file-powerpoint';
-
-                                    } elseif (
-                                        in_array(
-                                            $ext,
-                                            array(
-                                                'zip',
-                                                'rar'
-                                            ),
-                                            true
-                                        )
-                                    ) {
-
-                                        $icon_class =
-                                            'archive';
-
-                                        $icon =
-                                            'fa-file-archive';
-
-                                    }
-
-
-                                    $previewable =
-                                        in_array(
-                                            $ext,
-                                            array(
-                                                'pdf',
-                                                'jpg',
-                                                'jpeg',
-                                                'png',
-                                                'gif',
-                                                'webp',
-                                                'xls',
-                                                'xlsx',
-                                                'docx'
-                                            ),
-                                            true
-                                        );
-
-
-                                    $size =
-                                        isset(
-                                            $file->ukuran_file
-                                        )
-                                            ? (int)
-                                                $file->ukuran_file
-                                            : 0;
-
-
-                                    if ($size >= 1048576) {
-
-                                        $size_text =
-                                            number_format(
-                                                $size / 1048576,
-                                                2
-                                            ) . ' MB';
-
-                                    } else {
-
-                                        $size_text =
-                                            number_format(
-                                                $size / 1024,
-                                                1
-                                            ) . ' KB';
-
-                                    }
-
-                                    ?>
-
-
-                                    <div class="file-item">
-
-
-                                        <div
-                                            class="file-icon <?= $icon_class ?>"
-                                        >
-
-                                            <i
-                                                class="fas <?= $icon ?>"
-                                            ></i>
-
-                                        </div>
-
-
-                                        <div class="file-info">
-
-
-                                            <div
-                                                class="file-name"
-                                                title="<?= html_escape(
-                                                    $file->nama_file_asli
-                                                ) ?>"
-                                            >
-
-                                                <?= html_escape(
-                                                    $file->nama_file_asli
-                                                ) ?>
-
-                                            </div>
-
-
-                                            <div class="file-meta">
-
-                                                <span>
-                                                    <?= $size_text ?>
-                                                </span>
-
-                                                <span class="meta-dot">
-                                                    •
-                                                </span>
-
-                                                <span>
-                                                    <?= date(
-                                                        'd/m/Y H:i',
-                                                        strtotime(
-                                                            $file->uploaded_at
-                                                        )
-                                                    ) ?>
-                                                </span>
-
-                                            </div>
-
-
-                                            <?php if (
-                                                isset(
-                                                    $file->keterangan
-                                                ) &&
-                                                trim(
-                                                    $file->keterangan
-                                                ) !== ''
-                                            ): ?>
-
-                                                <div
-                                                    class="file-description"
-                                                >
-
-                                                    <i class="fas fa-info-circle"></i>
-
-                                                    <span>
-
-                                                        <?= nl2br(
-                                                            html_escape(
-                                                                $file->keterangan
-                                                            )
-                                                        ) ?>
-
-                                                    </span>
-
-                                                </div>
-
-                                            <?php endif; ?>
-
-
-                                        </div>
-
-
-                                        <div class="file-actions">
-
-
-                                            <?php if ($previewable): ?>
-
-                                                <a
-                                                    href="<?= site_url(
-                                                        'upload/preview/' .
-                                                        (int) $file->id
-                                                    ) ?>"
-                                                    target="_blank"
-                                                    class="file-action view"
-                                                    title="Lihat berkas"
-                                                >
-
-                                                    <i class="fas fa-eye"></i>
-
-                                                </a>
-
-                                            <?php endif; ?>
-
-
-                                            <a
-                                                href="<?= site_url(
-                                                    'upload/download/' .
-                                                    (int) $file->id
-                                                ) ?>"
-                                                class="file-action download"
-                                                title="Download"
-                                            >
-
-                                                <i class="fas fa-download"></i>
-
-                                            </a>
-
-
-                                            <a
-                                                href="<?= site_url(
-                                                    'upload/delete_file/' .
-                                                    (int) $file->id
-                                                ) ?>"
-                                                class="file-action delete"
-                                                title="Hapus"
-                                                onclick="
-                                                    return confirm(
-                                                        'Yakin ingin menghapus berkas ini?'
-                                                    );
-                                                "
-                                            >
-
-                                                <i class="fas fa-trash"></i>
-
-                                            </a>
-
-
-                                        </div>
-
-
-                                    </div>
-
-
-                                <?php endforeach; ?>
-
-
-                            <?php else: ?>
-
-
-                                <div class="empty-file">
-
-                                    <i class="fas fa-folder-open"></i>
-
-                                    Belum ada berkas untuk tahun 2026.
-
-                                </div>
-
-
-                            <?php endif; ?>
-
-
-                        </div>
-
-
-                    </div>
+                    <?php endforeach; ?>
 
 
                 </div>
@@ -2171,13 +1761,13 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             </div>
 
 
-            <!-- =====================================================
-                 MODAL UPLOAD 2025
-            ====================================================== -->
+            <!-- =================================================
+                 MODAL
+            ================================================== -->
 
             <div
                 class="modal fade upload-modal"
-                id="uploadModal<?= (int) $point->id ?>2025"
+                id="uploadModal<?= $point_id ?>"
                 tabindex="-1"
                 role="dialog"
                 aria-hidden="true"
@@ -2206,9 +1796,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                 class="close"
                                 data-dismiss="modal"
                             >
-
                                 <span>&times;</span>
-
                             </button>
 
                         </div>
@@ -2218,13 +1806,34 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             method="post"
                             action="<?= site_url(
                                 'upload/upload_file/' .
-                                (int) $point->id
+                                $point_id
                             ) ?>"
                             enctype="multipart/form-data"
                         >
 
 
                             <div class="modal-body">
+
+
+                                <!-- KONTEKS UPLOAD -->
+
+                                <div class="upload-context">
+
+                                    <span
+                                        class="upload-context-badge"
+                                        id="upload_badge_<?= $point_id ?>"
+                                    >
+                                        -
+                                    </span>
+
+                                    <span
+                                        class="upload-context-text"
+                                        id="upload_context_<?= $point_id ?>"
+                                    >
+                                        Pilih sumber dana
+                                    </span>
+
+                                </div>
 
 
                                 <div class="form-group">
@@ -2235,36 +1844,68 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
                                     <input
                                         type="text"
+                                        id="upload_point_<?= $point_id ?>"
                                         class="form-control"
-                                        value="<?= html_escape(
-                                            $point->nomor .
-                                            '. ' .
-                                            $point->nama_point
-                                        ) ?>"
                                         readonly
                                     >
 
                                 </div>
 
 
-                                <div class="form-group">
+                                <div class="row">
 
-                                    <label>
-                                        Tahun
-                                    </label>
 
-                                    <input
-                                        type="text"
-                                        class="form-control"
-                                        value="2025"
-                                        readonly
-                                    >
+                                    <div class="col-md-6">
 
-                                    <input
-                                        type="hidden"
-                                        name="tahun"
-                                        value="2025"
-                                    >
+                                        <div class="form-group">
+
+                                            <label>
+                                                Tahun
+                                            </label>
+
+                                            <input
+                                                type="text"
+                                                id="upload_tahun_<?= $point_id ?>"
+                                                class="form-control"
+                                                readonly
+                                            >
+
+                                            <input
+                                                type="hidden"
+                                                name="tahun"
+                                                id="upload_tahun_hidden_<?= $point_id ?>"
+                                            >
+
+                                        </div>
+
+                                    </div>
+
+
+                                    <div class="col-md-6">
+
+                                        <div class="form-group">
+
+                                            <label>
+                                                Sumber Dana
+                                            </label>
+
+                                            <input
+                                                type="text"
+                                                id="upload_sumber_<?= $point_id ?>"
+                                                class="form-control"
+                                                readonly
+                                            >
+
+                                            <input
+                                                type="hidden"
+                                                name="sumber_dana"
+                                                id="upload_sumber_hidden_<?= $point_id ?>"
+                                            >
+
+                                        </div>
+
+                                    </div>
+
 
                                 </div>
 
@@ -2280,7 +1921,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                         name="berkas"
                                         class="form-control"
                                         required
-                                        accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png,.gif,.zip,.rar"
+                                        accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png,.gif,.webp,.zip,.rar"
                                     >
 
                                     <div class="upload-help">
@@ -2304,7 +1945,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                         name="keterangan"
                                         class="form-control"
                                         rows="4"
-                                        placeholder="Contoh: BKU Semester II 2025, dokumen asli, PDF hasil scan, dan sebagainya."
+                                        placeholder="Contoh: BKU Semester II 2025, dokumen asli, hasil scan, dan sebagainya."
                                     ></textarea>
 
                                 </div>
@@ -2320,9 +1961,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                     class="btn btn-light btn-sm"
                                     data-dismiss="modal"
                                 >
-
                                     Batal
-
                                 </button>
 
 
@@ -2342,184 +1981,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
                         </form>
 
-                    </div>
-
-                </div>
-
-            </div>
-
-
-
-            <!-- =====================================================
-                 MODAL UPLOAD 2026
-            ====================================================== -->
-
-            <div
-                class="modal fade upload-modal"
-                id="uploadModal<?= (int) $point->id ?>2026"
-                tabindex="-1"
-                role="dialog"
-                aria-hidden="true"
-            >
-
-                <div
-                    class="modal-dialog modal-dialog-centered"
-                    role="document"
-                >
-
-                    <div class="modal-content">
-
-
-                        <div class="modal-header">
-
-                            <h5 class="modal-title">
-
-                                <i class="fas fa-cloud-upload-alt text-primary mr-2"></i>
-
-                                Upload Berkas
-
-                            </h5>
-
-                            <button
-                                type="button"
-                                class="close"
-                                data-dismiss="modal"
-                            >
-
-                                <span>&times;</span>
-
-                            </button>
-
-                        </div>
-
-
-                        <form
-                            method="post"
-                            action="<?= site_url(
-                                'upload/upload_file/' .
-                                (int) $point->id
-                            ) ?>"
-                            enctype="multipart/form-data"
-                        >
-
-
-                            <div class="modal-body">
-
-
-                                <div class="form-group">
-
-                                    <label>
-                                        Point
-                                    </label>
-
-                                    <input
-                                        type="text"
-                                        class="form-control"
-                                        value="<?= html_escape(
-                                            $point->nomor .
-                                            '. ' .
-                                            $point->nama_point
-                                        ) ?>"
-                                        readonly
-                                    >
-
-                                </div>
-
-
-                                <div class="form-group">
-
-                                    <label>
-                                        Tahun
-                                    </label>
-
-                                    <input
-                                        type="text"
-                                        class="form-control"
-                                        value="2026"
-                                        readonly
-                                    >
-
-                                    <input
-                                        type="hidden"
-                                        name="tahun"
-                                        value="2026"
-                                    >
-
-                                </div>
-
-
-                                <div class="form-group">
-
-                                    <label>
-                                        Berkas
-                                    </label>
-
-                                    <input
-                                        type="file"
-                                        name="berkas"
-                                        class="form-control"
-                                        required
-                                        accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png,.gif,.zip,.rar"
-                                    >
-
-                                    <div class="upload-help">
-
-                                        PDF, Word, Excel, PowerPoint,
-                                        gambar, ZIP/RAR.
-                                        Maksimal 50 MB.
-
-                                    </div>
-
-                                </div>
-
-
-                                <div class="form-group">
-
-                                    <label>
-                                        Keterangan
-                                    </label>
-
-                                    <textarea
-                                        name="keterangan"
-                                        class="form-control"
-                                        rows="4"
-                                        placeholder="Contoh: BKU Semester I 2026, dokumen asli, PDF hasil scan, dan sebagainya."
-                                    ></textarea>
-
-                                </div>
-
-
-                            </div>
-
-
-                            <div class="modal-footer">
-
-                                <button
-                                    type="button"
-                                    class="btn btn-light btn-sm"
-                                    data-dismiss="modal"
-                                >
-
-                                    Batal
-
-                                </button>
-
-
-                                <button
-                                    type="submit"
-                                    class="btn btn-primary btn-sm"
-                                >
-
-                                    <i class="fas fa-upload mr-1"></i>
-
-                                    Upload Berkas
-
-                                </button>
-
-                            </div>
-
-
-                        </form>
 
                     </div>
 
@@ -2534,36 +1995,400 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <?php else: ?>
 
 
-        <!-- =====================================================
-             EMPTY SEARCH
-        ====================================================== -->
-
         <div class="card border-0 shadow-sm">
 
             <div class="card-body text-center py-5">
 
-                <i
-                    class="fas fa-search fa-3x text-gray-300 mb-3"
-                ></i>
+                <i class="fas fa-folder-open fa-3x text-gray-300 mb-3"></i>
 
                 <h5 class="text-gray-700">
-
-                    Point dokumen tidak ditemukan.
-
+                    Belum ada point dokumen.
                 </h5>
 
-                <p class="text-muted small mb-0">
 
-                    Coba gunakan kata kunci pencarian yang berbeda.
+                <?php if ($isAdmin): ?>
 
-                </p>
+                    <a
+                        href="<?= site_url('upload/tambah_point') ?>"
+                        class="btn btn-primary btn-sm mt-2"
+                    >
+
+                        <i class="fas fa-plus mr-1"></i>
+
+                        Tambah Point
+
+                    </a>
+
+                <?php endif; ?>
 
             </div>
 
         </div>
 
-
     <?php endif; ?>
 
 
 </div>
+
+
+<script>
+
+document.addEventListener('DOMContentLoaded', function () {
+
+
+    /* =====================================================
+       TOGGLE POINT
+    ===================================================== */
+
+    document.querySelectorAll('.point-toggle').forEach(function (button) {
+
+        button.addEventListener('click', function (event) {
+
+            event.preventDefault();
+            event.stopPropagation();
+
+            var card =
+                button.closest('.point-card');
+
+            if (!card) {
+                return;
+            }
+
+            var collapsed =
+                card.classList.toggle('collapsed');
+
+            button.setAttribute(
+                'aria-expanded',
+                collapsed ? 'false' : 'true'
+            );
+
+        });
+
+    });
+
+
+    /* =====================================================
+       UPLOAD BUTTON
+       
+       PENTING:
+       data-sumber-dana dibaca dengan:
+       getAttribute('data-sumber-dana')
+    ===================================================== */
+
+    document.querySelectorAll('.btn-upload').forEach(function (button) {
+
+        button.addEventListener('click', function () {
+
+
+            var pointId =
+                button.getAttribute('data-point');
+
+
+            var pointName =
+                button.getAttribute('data-point-name');
+
+
+            var tahun =
+                button.getAttribute('data-tahun');
+
+
+            var sumberDana =
+                button.getAttribute('data-sumber-dana');
+
+
+            /*
+             * Normalisasi
+             */
+
+            tahun =
+                tahun
+                    ? tahun.trim()
+                    : '';
+
+
+            sumberDana =
+                sumberDana
+                    ? sumberDana.trim().toUpperCase()
+                    : '';
+
+
+            console.log(
+                '[UPLOAD]',
+                {
+                    point: pointId,
+                    tahun: tahun,
+                    sumber_dana: sumberDana
+                }
+            );
+
+
+            /* =================================================
+               ELEMENT
+            ================================================= */
+
+            var pointInput =
+                document.getElementById(
+                    'upload_point_' + pointId
+                );
+
+
+            var tahunInput =
+                document.getElementById(
+                    'upload_tahun_' + pointId
+                );
+
+
+            var tahunHidden =
+                document.getElementById(
+                    'upload_tahun_hidden_' + pointId
+                );
+
+
+            var sumberInput =
+                document.getElementById(
+                    'upload_sumber_' + pointId
+                );
+
+
+            var sumberHidden =
+                document.getElementById(
+                    'upload_sumber_hidden_' + pointId
+                );
+
+
+            var badge =
+                document.getElementById(
+                    'upload_badge_' + pointId
+                );
+
+
+            var context =
+                document.getElementById(
+                    'upload_context_' + pointId
+                );
+
+
+            /* =================================================
+               VALIDASI CLIENT
+            ================================================= */
+
+            if (
+                tahun !== '2025' &&
+                tahun !== '2026'
+            ) {
+
+                alert(
+                    'Tahun upload tidak valid.'
+                );
+
+                return;
+            }
+
+
+            if (
+                sumberDana !== 'BOSP' &&
+                sumberDana !== 'BOPD'
+            ) {
+
+                alert(
+                    'Sumber dana tidak valid: ' +
+                    sumberDana
+                );
+
+                console.error(
+                    'Sumber dana tidak valid',
+                    sumberDana
+                );
+
+                return;
+            }
+
+
+            /* =================================================
+               SET VALUE
+            ================================================= */
+
+            if (pointInput) {
+                pointInput.value =
+                    pointName || '';
+            }
+
+
+            if (tahunInput) {
+                tahunInput.value =
+                    tahun;
+            }
+
+
+            if (tahunHidden) {
+                tahunHidden.value =
+                    tahun;
+            }
+
+
+            if (sumberInput) {
+                sumberInput.value =
+                    sumberDana;
+            }
+
+
+            if (sumberHidden) {
+                sumberHidden.value =
+                    sumberDana;
+            }
+
+
+            /* =================================================
+               CONTEXT
+            ================================================= */
+
+            if (badge) {
+
+                badge.textContent =
+                    sumberDana;
+
+                badge.classList.toggle(
+                    'bopd',
+                    sumberDana === 'BOPD'
+                );
+            }
+
+
+            if (context) {
+
+                context.textContent =
+                    'Upload dokumen ' +
+                    sumberDana +
+                    ' Tahun ' +
+                    tahun;
+            }
+
+
+            /*
+             * DEBUG
+             */
+
+            console.log(
+                '[UPLOAD FORM SET]',
+                {
+                    tahun:
+                        tahunHidden
+                            ? tahunHidden.value
+                            : null,
+
+                    sumber_dana:
+                        sumberHidden
+                            ? sumberHidden.value
+                            : null
+                }
+            );
+
+        });
+
+    });
+
+
+    /* =====================================================
+       FORM SUBMIT DEBUG
+    ===================================================== */
+
+    document.querySelectorAll(
+        '.upload-modal form'
+    ).forEach(function (form) {
+
+        form.addEventListener(
+            'submit',
+            function () {
+
+                var tahun =
+                    form.querySelector(
+                        'input[name="tahun"]'
+                    );
+
+                var sumber =
+                    form.querySelector(
+                        'input[name="sumber_dana"]'
+                    );
+
+
+                console.log(
+                    '[SUBMIT UPLOAD]',
+                    {
+                        tahun:
+                            tahun
+                                ? tahun.value
+                                : null,
+
+                        sumber_dana:
+                            sumber
+                                ? sumber.value
+                                : null
+                    }
+                );
+
+
+                /*
+                 * Jangan izinkan submit kalau
+                 * sumber dana kosong.
+                 */
+
+                if (
+                    !sumber ||
+                    (
+                        sumber.value !== 'BOSP' &&
+                        sumber.value !== 'BOPD'
+                    )
+                ) {
+
+                    alert(
+                        'Sumber dana belum valid. ' +
+                        'Silakan tutup modal dan klik tombol BOSP/BOPD lagi.'
+                    );
+
+                    return false;
+                }
+
+            }
+        );
+
+    });
+
+
+    /* =====================================================
+       RESET MODAL
+    ===================================================== */
+
+    document.querySelectorAll(
+        '.upload-modal'
+    ).forEach(function (modal) {
+
+        /*
+         * Bootstrap event tetap dipakai
+         * kalau Bootstrap tersedia.
+         */
+
+        if (
+            typeof window.jQuery !== 'undefined'
+        ) {
+
+            window.jQuery(modal).on(
+                'hidden.bs.modal',
+                function () {
+
+                    var form =
+                        modal.querySelector('form');
+
+                    if (form) {
+                        form.reset();
+                    }
+
+                }
+            );
+
+        }
+
+    });
+
+});
+
+</script>
