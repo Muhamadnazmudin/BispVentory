@@ -133,12 +133,30 @@ $total_point = is_array($points)
     ? count($points)
     : 0;
 
+$total_selesai = 0;
+$total_belum_selesai = 0;
+
 $total_file = 0;
 $total_bosp = 0;
 $total_bopd = 0;
 
 
 foreach ($points as $point) {
+
+    /* =========================
+       STATUS POINT
+    ========================= */
+
+    if (!empty($point->selesai)) {
+        $total_selesai++;
+    } else {
+        $total_belum_selesai++;
+    }
+
+
+    /* =========================
+       FILE
+    ========================= */
 
     $groups = array(
         'files_2025_bosp',
@@ -246,8 +264,8 @@ foreach ($points as $point) {
 
 .upload-stat-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 14px;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 12px;
     margin-bottom: 20px;
 }
 
@@ -295,7 +313,38 @@ foreach ($points as $point) {
     font-size: .62rem;
     font-weight: 700;
 }
+/* =========================================================
+   STAT STATUS POINT
+========================================================= */
 
+.upload-stat.status-selesai {
+    border-color: #b8e6ca;
+    background: #f1fbf5;
+}
+
+.upload-stat.status-selesai .upload-stat-icon {
+    background: #c9f3da;
+    color: #16a05a;
+}
+
+.upload-stat.status-selesai .upload-stat-value {
+    color: #087f42;
+}
+
+
+.upload-stat.status-belum {
+    border-color: #ffc4c4;
+    background: #fff7f7;
+}
+
+.upload-stat.status-belum .upload-stat-icon {
+    background: #ffe0e0;
+    color: #dc3545;
+}
+
+.upload-stat.status-belum .upload-stat-value {
+    color: #c53030;
+}
 
 /* =========================================================
    TOOLBAR
@@ -1385,95 +1434,149 @@ foreach ($points as $point) {
 
 
     <!-- =====================================================
-         STATISTIK
-    ====================================================== -->
+     STATISTIK
+====================================================== -->
 
-    <div class="upload-stat-grid">
+<div class="upload-stat-grid">
 
-        <div class="upload-stat">
+    <!-- TOTAL POINT -->
 
-            <div class="upload-stat-icon">
-                <i class="fas fa-list-ol"></i>
-            </div>
+    <div class="upload-stat">
 
-            <div>
-
-                <div class="upload-stat-value">
-                    <?= number_format($total_point) ?>
-                </div>
-
-                <div class="upload-stat-label">
-                    TOTAL POINT
-                </div>
-
-            </div>
-
+        <div class="upload-stat-icon">
+            <i class="fas fa-list-ol"></i>
         </div>
 
+        <div>
 
-        <div class="upload-stat">
-
-            <div class="upload-stat-icon">
-                <i class="fas fa-file-alt"></i>
+            <div class="upload-stat-value">
+                <?= number_format($total_point) ?>
             </div>
 
-            <div>
-
-                <div class="upload-stat-value">
-                    <?= number_format($total_file) ?>
-                </div>
-
-                <div class="upload-stat-label">
-                    TOTAL BERKAS
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <div class="upload-stat">
-
-            <div class="upload-stat-icon">
-                <i class="fas fa-wallet"></i>
-            </div>
-
-            <div>
-
-                <div class="upload-stat-value">
-                    <?= number_format($total_bosp) ?>
-                </div>
-
-                <div class="upload-stat-label">
-                    BERKAS BOSP
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <div class="upload-stat">
-
-            <div class="upload-stat-icon">
-                <i class="fas fa-landmark"></i>
-            </div>
-
-            <div>
-
-                <div class="upload-stat-value">
-                    <?= number_format($total_bopd) ?>
-                </div>
-
-                <div class="upload-stat-label">
-                    BERKAS BOPD
-                </div>
-
+            <div class="upload-stat-label">
+                TOTAL POINT
             </div>
 
         </div>
 
     </div>
+
+
+    <!-- TOTAL BERKAS -->
+
+    <div class="upload-stat">
+
+        <div class="upload-stat-icon">
+            <i class="fas fa-file-alt"></i>
+        </div>
+
+        <div>
+
+            <div class="upload-stat-value">
+                <?= number_format($total_file) ?>
+            </div>
+
+            <div class="upload-stat-label">
+                TOTAL BERKAS
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- BOSP -->
+
+    <div class="upload-stat">
+
+        <div class="upload-stat-icon">
+            <i class="fas fa-wallet"></i>
+        </div>
+
+        <div>
+
+            <div class="upload-stat-value">
+                <?= number_format($total_bosp) ?>
+            </div>
+
+            <div class="upload-stat-label">
+                BERKAS BOSP
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- BOPD -->
+
+    <div class="upload-stat">
+
+        <div class="upload-stat-icon">
+            <i class="fas fa-landmark"></i>
+        </div>
+
+        <div>
+
+            <div class="upload-stat-value">
+                <?= number_format($total_bopd) ?>
+            </div>
+
+            <div class="upload-stat-label">
+                BERKAS BOPD
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- SELESAI -->
+
+    <div class="upload-stat status-selesai">
+
+        <div class="upload-stat-icon">
+            <i class="fas fa-check"></i>
+        </div>
+
+        <div>
+
+            <div class="upload-stat-value">
+                <?= number_format($total_selesai) ?>
+            </div>
+
+            <div class="upload-stat-label">
+                POINT SELESAI
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- BELUM SELESAI -->
+
+    <div class="upload-stat status-belum">
+
+        <div class="upload-stat-icon">
+            <i class="fas fa-circle"></i>
+        </div>
+
+        <div>
+
+            <div class="upload-stat-value">
+                <?= number_format($total_belum_selesai) ?>
+            </div>
+
+            <div class="upload-stat-label">
+                BELUM SELESAI
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
 
 
     <!-- =====================================================
