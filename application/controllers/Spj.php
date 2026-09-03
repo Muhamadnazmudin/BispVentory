@@ -1478,4 +1478,1077 @@ public function edit_bast_internal($id)
         'layouts/footer'
     );
 }
+
+public function download_template_kebutuhan()
+{
+    /*
+    |--------------------------------------------------------------------------
+    | LOAD PHP SPREADSHEET
+    |--------------------------------------------------------------------------
+    */
+
+    require_once FCPATH . 'vendor/autoload.php';
+
+    $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+
+    /*
+    |--------------------------------------------------------------------------
+    | SHEET 1
+    |--------------------------------------------------------------------------
+    */
+
+    $sheet = $spreadsheet->getActiveSheet();
+
+    $sheet->setTitle('Sheet1');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | DATA HEADER
+    |--------------------------------------------------------------------------
+    */
+
+    $sheet->setCellValue('A2', 'nomor surat');
+    $sheet->setCellValue('A3', 'tanggal');
+    $sheet->setCellValue('A4', 'perihal');
+    $sheet->setCellValue('A5', 'kegiatan');
+    $sheet->setCellValue('A6', 'keterangan');
+    $sheet->setCellValue('A7', 'Kodering');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | HEADER DETAIL
+    |--------------------------------------------------------------------------
+    */
+
+    $sheet->setCellValue('A9', 'no');
+    $sheet->setCellValue('B9', 'nama barang/jasa');
+    $sheet->setCellValue('C9', 'jumlah');
+    $sheet->setCellValue('D9', 'satuan');
+    $sheet->setCellValue('E9', 'keterangan');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | AMBIL REFERENSI KODERING
+    |--------------------------------------------------------------------------
+    */
+
+    $kategori = $this->Spj_model->get_kategori();
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | SHEET REFERENSI
+    |--------------------------------------------------------------------------
+    */
+
+    $referensi = $spreadsheet->createSheet();
+
+    $referensi->setTitle('Referensi_kodering');
+
+
+    $referensi->setCellValue('A1', 'Kodering');
+    $referensi->setCellValue('B1', 'Nama Kodering');
+
+
+    $baris = 2;
+
+    foreach ($kategori as $row) {
+
+        $referensi->setCellValue(
+            'A' . $baris,
+            $row->kodering
+        );
+
+        $referensi->setCellValue(
+            'B' . $baris,
+            $row->nama_kategori
+        );
+
+        $baris++;
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | DROPDOWN KODERING
+    |--------------------------------------------------------------------------
+    |
+    | Dropdown ditampilkan menggunakan NAMA KODERING.
+    |
+    */
+
+    if (!empty($kategori)) {
+
+        $jumlah_kategori = count($kategori);
+
+        $validation =
+            $sheet->getCell('B7')
+            ->getDataValidation();
+
+        $validation->setType(
+            \PhpOffice\PhpSpreadsheet\Cell\DataValidation::TYPE_LIST
+        );
+
+        $validation->setErrorStyle(
+            \PhpOffice\PhpSpreadsheet\Cell\DataValidation::STYLE_STOP
+        );
+
+        $validation->setAllowBlank(false);
+
+        $validation->setShowInputMessage(true);
+
+        $validation->setShowErrorMessage(true);
+
+        $validation->setShowDropDown(true);
+
+        $validation->setErrorTitle(
+            'Kodering tidak valid'
+        );
+
+        $validation->setError(
+            'Silakan pilih kodering dari daftar.'
+        );
+
+        $validation->setPromptTitle(
+            'Pilih Kodering'
+        );
+
+        $validation->setPrompt(
+            'Pilih nama kodering dari daftar.'
+        );
+
+        $validation->setFormula1(
+            "'Referensi_kodering'!\$B\$2:\$B\$" .
+            ($jumlah_kategori + 1)
+        );
+
+        $sheet
+            ->getCell('B7')
+            ->setDataValidation($validation);
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | NOMOR URUT DETAIL
+    |--------------------------------------------------------------------------
+    */
+
+    for ($i = 10; $i <= 109; $i++) {
+
+        $sheet->setCellValue(
+            'A' . $i,
+            $i - 9
+        );
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | STYLE SHEET1
+    |--------------------------------------------------------------------------
+    */
+
+    $sheet->getStyle('A2:A7')->getFont()->setBold(true);
+
+    $sheet->getStyle('A9:E9')->getFont()->setBold(true);
+
+    $sheet->getStyle('A9:E9')
+        ->getAlignment()
+        ->setHorizontal(
+            \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER
+        );
+
+    $sheet->getStyle('A9:E9')
+        ->getFill()
+        ->setFillType(
+            \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID
+        )
+        ->getStartColor()
+        ->setARGB('D9EAF7');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | BORDER DETAIL
+    |--------------------------------------------------------------------------
+    */
+
+    $sheet
+        ->getStyle('A9:E109')
+        ->getBorders()
+        ->getAllBorders()
+        ->setBorderStyle(
+            \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN
+        );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | BORDER REFERENSI
+    |--------------------------------------------------------------------------
+    */
+
+    if (!empty($kategori)) {
+
+        $referensi
+            ->getStyle(
+                'A1:B' . ($jumlah_kategori + 1)
+            )
+            ->getBorders()
+            ->getAllBorders()
+            ->setBorderStyle(
+                \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN
+            );
+
+        $referensi
+            ->getStyle('A1:B1')
+            ->getFont()
+            ->setBold(true);
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | WIDTH SHEET1
+    |--------------------------------------------------------------------------
+    */
+
+    $sheet->getColumnDimension('A')->setWidth(18);
+    $sheet->getColumnDimension('B')->setWidth(35);
+    $sheet->getColumnDimension('C')->setWidth(12);
+    $sheet->getColumnDimension('D')->setWidth(15);
+    $sheet->getColumnDimension('E')->setWidth(30);
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | WIDTH REFERENSI
+    |--------------------------------------------------------------------------
+    */
+
+    $referensi->getColumnDimension('A')->setWidth(25);
+    $referensi->getColumnDimension('B')->setWidth(40);
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | FORMAT TANGGAL
+    |--------------------------------------------------------------------------
+    */
+
+    $sheet
+        ->getStyle('B3')
+        ->getNumberFormat()
+        ->setFormatCode('dd-mm-yyyy');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | FREEZE HEADER
+    |--------------------------------------------------------------------------
+    */
+
+    $sheet->freezePane('A10');
+
+    $referensi->freezePane('A2');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | AKTIFKAN SHEET1
+    |--------------------------------------------------------------------------
+    */
+
+    $spreadsheet->setActiveSheetIndex(0);
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | DOWNLOAD
+    |--------------------------------------------------------------------------
+    */
+
+    $filename =
+        'Template_Input_Kebutuhan_' .
+        date('Ymd_His') .
+        '.xlsx';
+
+
+    $writer =
+        new \PhpOffice\PhpSpreadsheet\Writer\Xlsx(
+            $spreadsheet
+        );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | HEADER DOWNLOAD
+    |--------------------------------------------------------------------------
+    */
+
+    while (ob_get_level()) {
+        ob_end_clean();
+    }
+
+    header(
+        'Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    );
+
+    header(
+        'Content-Disposition: attachment; filename="' .
+        $filename .
+        '"'
+    );
+
+    header(
+        'Cache-Control: max-age=0'
+    );
+
+
+    $writer->save('php://output');
+
+    exit;
+}
+public function import_kebutuhan()
+{
+    /*
+    |--------------------------------------------------------------------------
+    | FORM IMPORT
+    |--------------------------------------------------------------------------
+    */
+
+    if ($this->input->method() !== 'post') {
+
+        $data = array(
+            'title' => 'Import Kebutuhan'
+        );
+
+        $this->load->view('layouts/header');
+        $this->load->view('layouts/sidebar');
+        $this->load->view('layouts/topbar');
+        $this->load->view('spj/import_kebutuhan', $data);
+        $this->load->view('layouts/footer');
+
+        return;
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | CEK FILE
+    |--------------------------------------------------------------------------
+    */
+
+    if (
+        empty($_FILES['file_excel']) ||
+        empty($_FILES['file_excel']['name'])
+    ) {
+
+        $this->session->set_flashdata(
+            'error',
+            'Silakan pilih file Excel terlebih dahulu.'
+        );
+
+        redirect('spj/import_kebutuhan');
+
+        return;
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | FOLDER TEMPORARY
+    |--------------------------------------------------------------------------
+    */
+
+    $upload_path = FCPATH . 'uploads/import_spj/';
+
+    if (!is_dir($upload_path)) {
+
+        mkdir(
+            $upload_path,
+            0755,
+            true
+        );
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | CONFIG UPLOAD
+    |--------------------------------------------------------------------------
+    */
+
+    $config = array(
+        'upload_path'   => $upload_path,
+        'allowed_types' => 'xlsx|xls',
+        'max_size'      => 10240,
+        'encrypt_name'  => true
+    );
+
+    $this->load->library('upload', $config);
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | UPLOAD FILE
+    |--------------------------------------------------------------------------
+    */
+
+    if (!$this->upload->do_upload('file_excel')) {
+
+        $error = strip_tags(
+            $this->upload->display_errors('', '')
+        );
+
+        $this->session->set_flashdata(
+            'error',
+            'File Excel gagal diupload: ' . $error
+        );
+
+        redirect('spj/import_kebutuhan');
+
+        return;
+    }
+
+
+    $upload = $this->upload->data();
+
+    $file_path = $upload['full_path'];
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | PHP SPREADSHEET
+    |--------------------------------------------------------------------------
+    */
+
+    require_once FCPATH . 'vendor/autoload.php';
+
+
+    try {
+
+        $spreadsheet =
+            \PhpOffice\PhpSpreadsheet\IOFactory::load(
+                $file_path
+            );
+
+    } catch (\Throwable $e) {
+
+        @unlink($file_path);
+
+        $this->session->set_flashdata(
+            'error',
+            'File Excel tidak dapat dibaca.'
+        );
+
+        redirect('spj/import_kebutuhan');
+
+        return;
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | SHEET PERTAMA
+    |--------------------------------------------------------------------------
+    */
+
+    $sheet = $spreadsheet->getSheet(0);
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | HEADER
+    |--------------------------------------------------------------------------
+    */
+
+    $nomor_surat = trim(
+        (string) $sheet
+            ->getCell('B2')
+            ->getFormattedValue()
+    );
+
+
+    $tanggal_raw =
+        $sheet
+            ->getCell('B3')
+            ->getValue();
+
+
+    $perihal = trim(
+        (string) $sheet
+            ->getCell('B4')
+            ->getFormattedValue()
+    );
+
+
+    $kegiatan = trim(
+        (string) $sheet
+            ->getCell('B5')
+            ->getFormattedValue()
+    );
+
+
+    $keterangan = trim(
+        (string) $sheet
+            ->getCell('B6')
+            ->getFormattedValue()
+    );
+
+
+    $nama_kodering = trim(
+        (string) $sheet
+            ->getCell('B7')
+            ->getFormattedValue()
+    );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | VALIDASI HEADER
+    |--------------------------------------------------------------------------
+    */
+
+    $errors = array();
+
+
+    if ($nomor_surat === '') {
+
+        $errors[] =
+            'Nomor surat belum diisi.';
+    }
+
+
+    if ($perihal === '') {
+
+        $errors[] =
+            'Perihal belum diisi.';
+    }
+
+
+    if ($nama_kodering === '') {
+
+        $errors[] =
+            'Kodering belum dipilih.';
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | NORMALISASI TANGGAL
+    |--------------------------------------------------------------------------
+    */
+
+    $tanggal =
+        $this->_normalisasi_tanggal_excel(
+            $tanggal_raw
+        );
+
+
+    if (!$tanggal) {
+
+        $errors[] =
+            'Tanggal tidak valid. Gunakan format tanggal yang benar.';
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | CARI KODERING
+    |--------------------------------------------------------------------------
+    */
+
+    $kategori =
+        $this->Spj_model->get_kategori();
+
+
+    $kategori_ditemukan = null;
+
+
+    foreach ($kategori as $row) {
+
+        /*
+        |--------------------------------------------------------------
+        | Cocokkan berdasarkan NAMA KODERING
+        |--------------------------------------------------------------
+        */
+
+        if (
+            strtolower(trim($row->nama_kategori))
+            ===
+            strtolower(trim($nama_kodering))
+        ) {
+
+            $kategori_ditemukan = $row;
+
+            break;
+        }
+    }
+
+
+    if (!$kategori_ditemukan) {
+
+        $errors[] =
+            'Kodering "' .
+            $nama_kodering .
+            '" tidak ditemukan di database.';
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | DETAIL BARANG
+    |--------------------------------------------------------------------------
+    */
+
+    $details = array();
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | TENTUKAN BARIS TERAKHIR
+    |--------------------------------------------------------------------------
+    |
+    | Kita tidak lagi memaksa sampai baris 1000.
+    | PhpSpreadsheet hanya mengambil area yang memang digunakan.
+    |
+    */
+
+    $highest_row =
+        $sheet->getHighestDataRow();
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | MINIMAL DATA BARANG DIMULAI BARIS 10
+    |--------------------------------------------------------------------------
+    */
+
+    if ($highest_row < 10) {
+
+        $highest_row = 9;
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | BACA BARANG
+    |--------------------------------------------------------------------------
+    */
+
+    for ($baris = 10; $baris <= $highest_row; $baris++) {
+
+        /*
+        |--------------------------------------------------------------
+        | NAMA BARANG
+        |--------------------------------------------------------------
+        */
+
+        $nama_barang = trim(
+            (string) $sheet
+                ->getCell('B' . $baris)
+                ->getFormattedValue()
+        );
+
+
+        /*
+        |--------------------------------------------------------------
+        | JUMLAH
+        |--------------------------------------------------------------
+        */
+
+        $jumlah_raw =
+            $sheet
+                ->getCell('C' . $baris)
+                ->getValue();
+
+
+        /*
+        |--------------------------------------------------------------
+        | SATUAN
+        |--------------------------------------------------------------
+        */
+
+        $satuan = trim(
+            (string) $sheet
+                ->getCell('D' . $baris)
+                ->getFormattedValue()
+        );
+
+
+        /*
+        |--------------------------------------------------------------
+        | KETERANGAN
+        |--------------------------------------------------------------
+        */
+
+        $ket_detail = trim(
+            (string) $sheet
+                ->getCell('E' . $baris)
+                ->getFormattedValue()
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | BARIS KOSONG
+        |--------------------------------------------------------------------------
+        |
+        | INI BAGIAN PENTING.
+        |
+        | Nama barang adalah indikator utama.
+        |
+        | Kalau kolom B kosong, baris dianggap bukan data barang.
+        |
+        | Jadi dropdown/formula/format di kolom lain tidak akan
+        | menyebabkan baris dianggap sebagai data.
+        |
+        */
+
+        if ($nama_barang === '') {
+
+            continue;
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | VALIDASI JUMLAH
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            $jumlah_raw === '' ||
+            $jumlah_raw === null ||
+            !is_numeric($jumlah_raw) ||
+            (float) $jumlah_raw <= 0
+        ) {
+
+            $errors[] =
+                'Baris ' .
+                $baris .
+                ': jumlah harus berupa angka lebih dari 0.';
+
+            continue;
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | VALIDASI SATUAN
+        |--------------------------------------------------------------------------
+        */
+
+        if ($satuan === '') {
+
+            $errors[] =
+                'Baris ' .
+                $baris .
+                ': satuan belum diisi.';
+
+            continue;
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | SIMPAN DETAIL
+        |--------------------------------------------------------------------------
+        */
+
+        $details[] = array(
+
+            'id_kategori' =>
+                $kategori_ditemukan->id_kategori,
+
+            'kodering' =>
+                $kategori_ditemukan->kodering,
+
+            'nama_barang' =>
+                $nama_barang,
+
+            'jumlah' =>
+                (float) $jumlah_raw,
+
+            'satuan' =>
+                $satuan,
+
+            'keterangan' =>
+                $ket_detail !== ''
+                    ? $ket_detail
+                    : null
+
+        );
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | HARUS ADA BARANG
+    |--------------------------------------------------------------------------
+    */
+
+    if (empty($details)) {
+
+        $errors[] =
+            'Tidak ada data barang/jasa yang ditemukan. Silakan isi minimal satu barang.';
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | JIKA ADA ERROR
+    |--------------------------------------------------------------------------
+    */
+
+    if (!empty($errors)) {
+
+        @unlink($file_path);
+
+
+        $pesan =
+            '<strong>Import gagal.</strong><br><ul>';
+
+
+        foreach ($errors as $error) {
+
+            $pesan .=
+                '<li>' .
+                html_escape($error) .
+                '</li>';
+        }
+
+
+        $pesan .= '</ul>';
+
+
+        $this->session->set_flashdata(
+            'error',
+            $pesan
+        );
+
+
+        redirect(
+            'spj/import_kebutuhan'
+        );
+
+        return;
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | HEADER DATABASE
+    |--------------------------------------------------------------------------
+    */
+
+    $header = array(
+
+        'nomor_surat' =>
+            $nomor_surat,
+
+        'perihal' =>
+            $perihal,
+
+        'kegiatan' =>
+            $kegiatan !== ''
+                ? $kegiatan
+                : null,
+
+        'tanggal' =>
+            $tanggal,
+
+        'keterangan' =>
+            $keterangan !== ''
+                ? $keterangan
+                : null,
+
+        'created_by' =>
+            $this->session->userdata('id_user')
+
+    );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | SIMPAN KE DATABASE
+    |--------------------------------------------------------------------------
+    */
+
+    $id_kebutuhan =
+        $this->Spj_model->insert_kebutuhan(
+            $header,
+            $details
+        );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | HAPUS FILE TEMPORARY
+    |--------------------------------------------------------------------------
+    */
+
+    @unlink($file_path);
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | GAGAL SIMPAN
+    |--------------------------------------------------------------------------
+    */
+
+    if (!$id_kebutuhan) {
+
+        $this->session->set_flashdata(
+            'error',
+            'Gagal menyimpan data hasil import ke database.'
+        );
+
+        redirect(
+            'spj/import_kebutuhan'
+        );
+
+        return;
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | BERHASIL
+    |--------------------------------------------------------------------------
+    */
+
+    $this->session->set_flashdata(
+        'success',
+        'Import berhasil. ' .
+        count($details) .
+        ' item kebutuhan berhasil disimpan.'
+    );
+
+
+    redirect(
+        'spj/input_kebutuhan'
+    );
+}
+private function _normalisasi_tanggal_excel($value)
+{
+    if (
+        $value === null ||
+        $value === ''
+    ) {
+
+        return false;
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | EXCEL SERIAL DATE
+    |--------------------------------------------------------------------------
+    */
+
+    if (
+        is_numeric($value) &&
+        (float) $value > 0
+    ) {
+
+        try {
+
+            $date =
+                \PhpOffice\PhpSpreadsheet\Shared\Date
+                    ::excelToDateTimeObject(
+                        $value
+                    );
+
+            return $date->format('Y-m-d');
+
+        } catch (\Throwable $e) {
+
+            return false;
+        }
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | STRING DATE
+    |--------------------------------------------------------------------------
+    */
+
+    $value =
+        trim(
+            (string) $value
+        );
+
+
+    $format_list = array(
+        'Y-m-d',
+        'd-m-Y',
+        'd/m/Y',
+        'm/d/Y',
+        'Y/m/d'
+    );
+
+
+    foreach ($format_list as $format) {
+
+        $date =
+            DateTime::createFromFormat(
+                $format,
+                $value
+            );
+
+
+        if (
+            $date &&
+            $date->format($format) === $value
+        ) {
+
+            return $date->format('Y-m-d');
+        }
+    }
+
+
+    return false;
+}
+public function detail_bast_internal($id)
+{
+    $this->load->model('Spj_model');
+
+    $kebutuhan = $this->Spj_model->get_kebutuhan($id);
+
+    if (!$kebutuhan) {
+
+        $this->session->set_flashdata(
+            'error',
+            'Data kebutuhan tidak ditemukan.'
+        );
+
+        redirect('spj/bast_internal');
+
+        return;
+    }
+
+
+    $detail = $this->Spj_model->get_detail($id);
+
+
+    $data = array(
+        'title'     => 'Detail BAST Internal',
+        'kebutuhan' => $kebutuhan,
+        'detail'    => $detail
+    );
+
+
+    $this->load->view('layouts/header', $data);
+    $this->load->view('layouts/sidebar', $data);
+    $this->load->view('layouts/topbar', $data);
+    $this->load->view('spj/bast_internal/detail', $data);
+    $this->load->view('layouts/footer', $data);
+}
 }

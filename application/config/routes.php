@@ -65,3 +65,9 @@ $route['spj/bast_internal'] = 'spj/bast_internal';
 $route['spj/cetak_bast_internal/(:num)'] = 'spj/cetak_bast_internal/$1';
 $route['spj/edit_bast_internal/(:num)'] =
     'spj/edit_bast_internal/$1';
+
+    $route['spj/download_template_kebutuhan'] = 'spj/download_template_kebutuhan';
+    $route['spj/import_kebutuhan'] = 'spj/import_kebutuhan';
+
+    $route['spj/detail_bast_internal/(:num)'] =
+    'spj/detail_bast_internal/$1';
