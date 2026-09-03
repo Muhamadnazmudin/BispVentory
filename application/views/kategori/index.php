@@ -43,37 +43,76 @@
 </div>
 
 <div class="card shadow mb-4">
-<div class="card-body">
-<table class="table table-bordered">
-<thead>
-<tr>
-<th width="5%">No</th>
-<th>Nama Kategori</th>
-<th>Keterangan</th>
-<th width="15%">Aksi</th>
-</tr>
-</thead>
-<tbody>
-<?php $no=1; foreach($kategori as $k): ?>
-<tr>
-<td><?= $no++ ?></td>
-<td><?= $k->nama_kategori ?></td>
-<td><?= $k->keterangan ?></td>
-<td>
-<a href="<?= base_url('kategori/edit/'.$k->id_kategori) ?>" class="btn btn-warning btn-sm">
-<i class="fas fa-edit"></i>
-</a>
-<a href="<?= base_url('kategori/hapus/'.$k->id_kategori) ?>"
-   class="btn btn-danger btn-sm"
-   onclick="return confirm('Hapus data ini?')">
-<i class="fas fa-trash"></i>
-</a>
-</td>
-</tr>
-<?php endforeach; ?>
-</tbody>
-</table>
-</div>
+    <div class="card-body">
+
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th width="5%">No</th>
+                        <th width="15%">Kode Rekening</th>
+                        <th>Nama Kategori</th>
+                        <th>Keterangan</th>
+                        <th width="15%">Aksi</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                <?php if (!empty($kategori)): ?>
+
+                    <?php $no = 1; foreach ($kategori as $k): ?>
+
+                    <tr>
+                        <td><?= $no++ ?></td>
+
+                        <td>
+                            <span class="badge badge-info">
+                                <?= htmlspecialchars($k->kodering ?? '-') ?>
+                            </span>
+                        </td>
+
+                        <td>
+                            <?= htmlspecialchars($k->nama_kategori) ?>
+                        </td>
+
+                        <td>
+                            <?= htmlspecialchars($k->keterangan ?? '-') ?>
+                        </td>
+
+                        <td>
+                            <a href="<?= base_url('kategori/edit/'.$k->id_kategori) ?>"
+                               class="btn btn-warning btn-sm"
+                               title="Edit">
+                                <i class="fas fa-edit"></i>
+                            </a>
+
+                            <a href="<?= base_url('kategori/hapus/'.$k->id_kategori) ?>"
+                               class="btn btn-danger btn-sm"
+                               title="Hapus"
+                               onclick="return confirm('Hapus data ini?')">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+
+                    <?php endforeach; ?>
+
+                <?php else: ?>
+
+                    <tr>
+                        <td colspan="5" class="text-center text-muted">
+                            Belum ada data kategori.
+                        </td>
+                    </tr>
+
+                <?php endif; ?>
+
+                </tbody>
+            </table>
+        </div>
+
+    </div>
 </div>
 
 </div>

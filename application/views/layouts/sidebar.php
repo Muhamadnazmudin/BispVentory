@@ -104,9 +104,7 @@
 
 .sidebar-brand-title {
     font-size: 13px;
-
     font-weight: 800;
-
     letter-spacing: .2px;
 }
 
@@ -116,7 +114,6 @@
     color: rgba(255,255,255,.65);
 
     font-size: 10px;
-
     font-weight: 600;
 }
 
@@ -142,7 +139,6 @@
     color: rgba(255,255,255,.48) !important;
 
     font-size: 9px !important;
-
     font-weight: 800 !important;
 
     letter-spacing: 1px;
@@ -163,7 +159,6 @@
     min-height: 41px;
 
     display: flex !important;
-
     align-items: center;
 
     padding: 9px 11px !important;
@@ -173,7 +168,6 @@
     color: rgba(255,255,255,.78) !important;
 
     font-size: 12px;
-
     font-weight: 600;
 
     transition:
@@ -219,7 +213,7 @@
 
 
 /* =========================================================
-   ACTIVE
+   ACTIVE MENU UTAMA
 ========================================================= */
 
 .sidebar .nav-item.active > .nav-link {
@@ -313,7 +307,6 @@
     color: #5a5c69 !important;
 
     font-size: 11px;
-
     font-weight: 600;
 
     transition: .15s ease;
@@ -359,10 +352,10 @@
 
 
 /* =========================================================
-   SPECIAL UPLOAD MENU
+   SPJ
 ========================================================= */
 
-.sidebar .collapse-item.upload-menu {
+.sidebar .spj-item {
     color: #4e73df !important;
 
     background: #f3f6ff;
@@ -370,19 +363,21 @@
     margin-top: 2px;
 }
 
-.sidebar .collapse-item.upload-menu i {
+.sidebar .spj-item i {
     color: #4e73df;
 }
 
-.sidebar .collapse-item.upload-menu:hover,
-.sidebar .collapse-item.upload-menu.active {
+.sidebar .spj-item:hover,
+.sidebar .spj-item.active {
     color: #fff !important;
 
     background: #4e73df;
+
+    transform: translateX(1px);
 }
 
-.sidebar .collapse-item.upload-menu:hover i,
-.sidebar .collapse-item.upload-menu.active i {
+.sidebar .spj-item:hover i,
+.sidebar .spj-item.active i {
     color: #fff;
 }
 
@@ -509,17 +504,31 @@ body.dark-mode .sidebar .collapse-header {
     color: #9ca3af;
 }
 
-body.dark-mode .sidebar .collapse-item.upload-menu {
+
+/* =========================================================
+   DARK MODE - SPJ
+========================================================= */
+
+body.dark-mode .sidebar .spj-item {
     color: #c7d7ff !important;
 
     background: #25345d;
 }
 
-body.dark-mode .sidebar .collapse-item.upload-menu:hover,
-body.dark-mode .sidebar .collapse-item.upload-menu.active {
+body.dark-mode .sidebar .spj-item i {
+    color: #c7d7ff;
+}
+
+body.dark-mode .sidebar .spj-item:hover,
+body.dark-mode .sidebar .spj-item.active {
     color: #fff !important;
 
     background: #4e73df;
+}
+
+body.dark-mode .sidebar .spj-item:hover i,
+body.dark-mode .sidebar .spj-item.active i {
+    color: #fff;
 }
 
 
@@ -550,19 +559,17 @@ body.dark-mode .sidebar .collapse-item.upload-menu.active {
 
 <?php
 
+/* =========================================================
+   URL SEGMENT
+========================================================= */
+
 $segment1 = $this->uri->segment(1);
 $segment2 = $this->uri->segment(2);
 
-/*
-|--------------------------------------------------------------------------
-| ROLE USER
-|--------------------------------------------------------------------------
-| BispVentory menggunakan role berbentuk teks:
-| admin
-| operator
-| jurusan
-|--------------------------------------------------------------------------
-*/
+
+/* =========================================================
+   ROLE USER
+========================================================= */
 
 $role = strtolower(
     trim(
@@ -573,7 +580,15 @@ $role = strtolower(
 $is_admin    = ($role === 'admin');
 $is_operator = ($role === 'operator');
 
-$is_upload_page = ($segment1 === 'upload');
+
+/* =========================================================
+   ACTIVE MENU
+========================================================= */
+
+$is_upload_page = (
+    $segment1 === 'upload'
+);
+
 
 $is_master_page = in_array(
     $segment1,
@@ -581,8 +596,10 @@ $is_master_page = in_array(
         'kategori',
         'barang',
         'barang_ruangan'
-    )
+    ),
+    true
 );
+
 
 $is_user_page = in_array(
     $segment1,
@@ -591,10 +608,23 @@ $is_user_page = in_array(
         'user',
         'guru',
         'siswa'
-    )
+    ),
+    true
 );
 
-$is_laporan_page = ($segment1 === 'laporan');
+
+/*
+ * SPJ aktif apabila sedang berada
+ * di controller SPJ.
+ */
+$is_spj_page = (
+    $segment1 === 'spj'
+);
+
+
+$is_laporan_page = (
+    $segment1 === 'laporan'
+);
 
 ?>
 
@@ -689,13 +719,10 @@ $is_laporan_page = ($segment1 === 'laporan');
 
             <div class="collapse-inner rounded">
 
-
                 <h6 class="collapse-header">
                     Inventaris
                 </h6>
 
-
-                <!-- KATEGORI -->
 
                 <a class="collapse-item <?= $segment1 === 'kategori' ? 'active' : '' ?>"
                    href="<?= base_url('kategori') ?>">
@@ -707,8 +734,6 @@ $is_laporan_page = ($segment1 === 'laporan');
                 </a>
 
 
-                <!-- BARANG -->
-
                 <a class="collapse-item <?= $segment1 === 'barang' ? 'active' : '' ?>"
                    href="<?= base_url('barang') ?>">
 
@@ -719,8 +744,6 @@ $is_laporan_page = ($segment1 === 'laporan');
                 </a>
 
 
-                <!-- BARANG RUANGAN -->
-
                 <a class="collapse-item <?= $segment1 === 'barang_ruangan' ? 'active' : '' ?>"
                    href="<?= base_url('barang_ruangan') ?>">
 
@@ -729,7 +752,6 @@ $is_laporan_page = ($segment1 === 'laporan');
                     Barang Ruangan
 
                 </a>
-
 
             </div>
 
@@ -762,13 +784,10 @@ $is_laporan_page = ($segment1 === 'laporan');
 
             <div class="collapse-inner rounded">
 
-
                 <h6 class="collapse-header">
                     Pengguna Sistem
                 </h6>
 
-
-                <!-- ADMIN -->
 
                 <a class="collapse-item <?= $segment1 === 'admin' ? 'active' : '' ?>"
                    href="<?= base_url('admin') ?>">
@@ -780,8 +799,6 @@ $is_laporan_page = ($segment1 === 'laporan');
                 </a>
 
 
-                <!-- GURU -->
-
                 <a class="collapse-item <?= $segment1 === 'guru' ? 'active' : '' ?>"
                    href="<?= base_url('guru') ?>">
 
@@ -792,8 +809,6 @@ $is_laporan_page = ($segment1 === 'laporan');
                 </a>
 
 
-                <!-- SISWA -->
-
                 <a class="collapse-item <?= $segment1 === 'siswa' ? 'active' : '' ?>"
                    href="<?= base_url('siswa') ?>">
 
@@ -803,7 +818,6 @@ $is_laporan_page = ($segment1 === 'laporan');
 
                 </a>
 
-
             </div>
 
         </div>
@@ -812,7 +826,7 @@ $is_laporan_page = ($segment1 === 'laporan');
 
 
     <!-- =====================================================
-         ADMINISTRASI DOKUMEN
+         ADMINISTRASI
     ====================================================== -->
 
     <?php if ($is_admin || $is_operator): ?>
@@ -842,122 +856,83 @@ $is_laporan_page = ($segment1 === 'laporan');
 
 
     <!-- =====================================================
-         TRANSAKSI
+         SPJ
     ====================================================== -->
 
     <div class="sidebar-heading">
-        Transaksi
+        SPJ
     </div>
 
 
-    <!-- BARANG MASUK -->
+    <li class="nav-item <?= $is_spj_page ? 'active' : '' ?>">
 
-    <li class="nav-item <?= $segment1 === 'barang_masuk' ? 'active' : '' ?>">
+        <a class="nav-link <?= !$is_spj_page ? 'collapsed' : '' ?>"
+           href="#"
+           data-toggle="collapse"
+           data-target="#menuSPJ"
+           aria-expanded="<?= $is_spj_page ? 'true' : 'false' ?>">
 
-        <a class="nav-link"
-           href="<?= base_url('barang_masuk') ?>">
+            <i class="fas fa-fw fa-file-invoice"></i>
 
-            <i class="fas fa-fw fa-arrow-down"></i>
-
-            <span>Barang Masuk</span>
-
-        </a>
-
-    </li>
-
-
-    <!-- STOK -->
-
-    <li class="nav-item <?= $segment1 === 'stock' ? 'active' : '' ?>">
-
-        <a class="nav-link"
-           href="<?= base_url('stock') ?>">
-
-            <i class="fas fa-fw fa-boxes"></i>
-
-            <span>Stok Barang</span>
+            <span>SPJ</span>
 
         </a>
 
-    </li>
+
+        <div id="menuSPJ"
+             class="collapse <?= $is_spj_page ? 'show' : '' ?>">
+
+            <div class="collapse-inner rounded">
+
+                <h6 class="collapse-header">
+                    Surat Pertanggungjawaban
+                </h6>
 
 
-    <!-- PERMOHONAN -->
+                <!-- =================================================
+                     INPUT KEBUTUHAN
+                ================================================== -->
 
-    <li class="nav-item <?= $segment1 === 'permohonan' ? 'active' : '' ?>">
+                <a class="collapse-item spj-item <?= $segment2 === 'input_kebutuhan' ? 'active' : '' ?>"
+                   href="<?= base_url('spj/input_kebutuhan') ?>">
 
-        <a class="nav-link"
-           href="<?= base_url('permohonan') ?>">
+                    <i class="fas fa-edit"></i>
 
-            <i class="fas fa-fw fa-file-signature"></i>
+                    Input Kebutuhan
 
-            <span>Permohonan Barang</span>
-
-        </a>
-
-    </li>
+                </a>
 
 
-    <!-- BARANG KELUAR -->
+                <!-- =================================================
+                     BAST INTERNAL
+                ================================================== -->
 
-    <li class="nav-item <?= $segment1 === 'barang_keluar' ? 'active' : '' ?>">
+                <a class="collapse-item spj-item <?= $segment2 === 'bast_internal' ? 'active' : '' ?>"
+                   href="<?= base_url('spj/bast_internal') ?>">
 
-        <a class="nav-link"
-           href="<?= base_url('barang_keluar') ?>">
+                    <i class="fas fa-file-signature"></i>
 
-            <i class="fas fa-fw fa-arrow-up"></i>
+                    BAST Internal
 
-            <span>Barang Keluar</span>
-
-        </a>
-
-    </li>
+                </a>
 
 
-    <!-- PEMINJAMAN -->
+                <!-- =================================================
+                     BAST PEMERIKSAAN
+                ================================================== -->
 
-    <li class="nav-item <?= $segment1 === 'peminjaman' ? 'active' : '' ?>">
+                <a class="collapse-item spj-item <?= $segment2 === 'bast_pemeriksaan' ? 'active' : '' ?>"
+                   href="<?= base_url('spj/bast_pemeriksaan') ?>">
 
-        <a class="nav-link"
-           href="<?= base_url('peminjaman') ?>">
+                    <i class="fas fa-clipboard-check"></i>
 
-            <i class="fas fa-fw fa-handshake"></i>
+                    BAST Pemeriksaan
 
-            <span>Peminjaman</span>
+                </a>
 
-        </a>
+            </div>
 
-    </li>
-
-
-    <!-- BARANG RUSAK -->
-
-    <li class="nav-item <?= $segment1 === 'barang_rusak' ? 'active' : '' ?>">
-
-        <a class="nav-link"
-           href="<?= base_url('barang_rusak') ?>">
-
-            <i class="fas fa-fw fa-tools"></i>
-
-            <span>Barang Rusak</span>
-
-        </a>
-
-    </li>
-
-
-    <!-- BARANG RUSAK RUANGAN -->
-
-    <li class="nav-item <?= $segment1 === 'barang_rusak_ruangan' ? 'active' : '' ?>">
-
-        <a class="nav-link"
-           href="<?= base_url('barang_rusak_ruangan') ?>">
-
-            <i class="fas fa-fw fa-exclamation-triangle"></i>
-
-            <span>Barang Rusak Ruangan</span>
-
-        </a>
+        </div>
 
     </li>
 
@@ -994,13 +969,10 @@ $is_laporan_page = ($segment1 === 'laporan');
 
             <div class="collapse-inner rounded">
 
-
                 <h6 class="collapse-header">
                     Laporan Inventaris
                 </h6>
 
-
-                <!-- BARANG MASUK -->
 
                 <a class="collapse-item <?= $segment2 === 'masuk' ? 'active' : '' ?>"
                    href="<?= base_url('laporan/masuk') ?>">
@@ -1012,8 +984,6 @@ $is_laporan_page = ($segment1 === 'laporan');
                 </a>
 
 
-                <!-- BARANG KELUAR -->
-
                 <a class="collapse-item <?= $segment2 === 'keluar' ? 'active' : '' ?>"
                    href="<?= base_url('laporan/keluar') ?>">
 
@@ -1023,8 +993,6 @@ $is_laporan_page = ($segment1 === 'laporan');
 
                 </a>
 
-
-                <!-- STOK -->
 
                 <a class="collapse-item <?= $segment2 === 'stok' ? 'active' : '' ?>"
                    href="<?= base_url('laporan/stok') ?>">
@@ -1036,8 +1004,6 @@ $is_laporan_page = ($segment1 === 'laporan');
                 </a>
 
 
-                <!-- KARTU PERSEDIAAN -->
-
                 <a class="collapse-item <?= $segment2 === 'buku_besar' ? 'active' : '' ?>"
                    href="<?= base_url('laporan/buku_besar') ?>">
 
@@ -1047,8 +1013,6 @@ $is_laporan_page = ($segment1 === 'laporan');
 
                 </a>
 
-
-                <!-- MUTASI -->
 
                 <a class="collapse-item <?= $segment2 === 'mutasi' ? 'active' : '' ?>"
                    href="<?= base_url('laporan/mutasi') ?>">
@@ -1060,8 +1024,6 @@ $is_laporan_page = ($segment1 === 'laporan');
                 </a>
 
 
-                <!-- REKAP KENDALI -->
-
                 <a class="collapse-item <?= $segment2 === 'rekap_kendali' ? 'active' : '' ?>"
                    href="<?= base_url('laporan/rekap_kendali') ?>">
 
@@ -1070,7 +1032,6 @@ $is_laporan_page = ($segment1 === 'laporan');
                     Rekap Kendali
 
                 </a>
-
 
             </div>
 
@@ -1083,7 +1044,7 @@ $is_laporan_page = ($segment1 === 'laporan');
 
 
     <!-- =====================================================
-         TOGGLE
+         TOGGLE SIDEBAR
     ====================================================== -->
 
     <div class="sidebar-toggle-wrapper text-center d-none d-md-block">
@@ -1107,21 +1068,16 @@ $is_laporan_page = ($segment1 === 'laporan');
 
 $(document).ready(function () {
 
-    /*
-    |--------------------------------------------------------------------------
-    | Ubah icon toggle saat sidebar mengecil
-    |--------------------------------------------------------------------------
-    */
+    /* =====================================================
+       SIDEBAR TOGGLE ICON
+    ===================================================== */
 
     $('#sidebarToggle').on('click', function () {
 
         setTimeout(function () {
 
-            var sidebar =
-                $('#accordionSidebar');
-
-            var icon =
-                $('#sidebarToggle i');
+            var sidebar = $('#accordionSidebar');
+            var icon = $('#sidebarToggle i');
 
             if (sidebar.hasClass('toggled')) {
 

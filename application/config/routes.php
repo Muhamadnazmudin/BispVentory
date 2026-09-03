@@ -53,3 +53,11 @@ $route['default_controller'] = 'dashboard';
 $route['kategori'] = 'kategori';
 $route['404_override'] = '';
 $route['translate_uri_dashes'] = FALSE;
+
+
+$route['spj/input_kebutuhan'] = 'spj/input_kebutuhan';
+$route['spj/tambah_kebutuhan'] = 'spj/tambah_kebutuhan';
+$route['spj/detail_kebutuhan/(:num)'] = 'spj/detail_kebutuhan/$1';
+$route['spj/hapus_kebutuhan/(:num)'] = 'spj/hapus_kebutuhan/$1';
+
+$route['spj/bast_internal/(:num)'] = 'spj/bast_internal/$1';
