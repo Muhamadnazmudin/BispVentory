@@ -1073,4 +1073,409 @@ public function update_kebutuhan($id)
         'spj/edit_kebutuhan/' . $id
     );
 }
+public function bast_internal()
+{
+    $data['title'] = 'BAST Internal';
+    $data['kebutuhan'] = $this->Spj_model->get_all_kebutuhan();
+
+    $this->load->view('layouts/header');
+    $this->load->view('layouts/sidebar');
+    $this->load->view('layouts/topbar');
+    $this->load->view('spj/bast_internal/index', $data);
+    $this->load->view('layouts/footer');
+}
+public function cetak_bast_internal($id)
+{
+    /*
+    |--------------------------------------------------------------------------
+    | LOAD DOMPDF
+    |--------------------------------------------------------------------------
+    */
+
+    if (!class_exists('\Dompdf\Dompdf')) {
+
+        /*
+        | Composer
+        */
+        $composer_autoload = FCPATH . 'vendor/autoload.php';
+
+        if (file_exists($composer_autoload)) {
+            require_once $composer_autoload;
+        }
+    }
+
+
+    /*
+    | Jika masih belum tersedia, coba third_party Dompdf
+    */
+
+    if (!class_exists('\Dompdf\Dompdf')) {
+
+        $dompdf_autoload =
+            APPPATH . 'third_party/dompdf/autoload.inc.php';
+
+        if (file_exists($dompdf_autoload)) {
+            require_once $dompdf_autoload;
+        }
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | CEK DOMPDF
+    |--------------------------------------------------------------------------
+    */
+
+    if (!class_exists('\Dompdf\Dompdf')) {
+
+        show_error(
+            'Dompdf belum tersedia. Pastikan library Dompdf sudah terpasang.'
+        );
+
+        return;
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | AMBIL DATA KEBUTUHAN
+    |--------------------------------------------------------------------------
+    */
+
+    $kebutuhan =
+        $this->Spj_model->get_kebutuhan($id);
+
+    if (!$kebutuhan) {
+        show_404();
+        return;
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | AMBIL DETAIL KEBUTUHAN
+    |--------------------------------------------------------------------------
+    */
+
+    $detail =
+        $this->Spj_model->get_detail($id);
+
+    if (empty($detail)) {
+
+        show_error(
+            'Rincian kebutuhan tidak ditemukan.'
+        );
+
+        return;
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | DATA BAST INTERNAL
+    |--------------------------------------------------------------------------
+    */
+
+    $data = array(
+
+        'kebutuhan' => $kebutuhan,
+
+        'detail' => $detail,
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | DATA SEKOLAH
+        |--------------------------------------------------------------------------
+        */
+
+        'nama_sekolah' =>
+            'SMK NEGERI 1 CILIMUS',
+
+        'alamat' =>
+            'Jalan Baru Lingkar Caracas Cilimus',
+
+        'telepon' =>
+            '(0232) 8910145',
+
+        'email' =>
+            'smkn_1cilimus@yahoo.com',
+
+        'kabupaten' =>
+            'Kabupaten Kuningan 45556',
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | PEMERIKSA
+        |--------------------------------------------------------------------------
+        */
+
+        'pemeriksa_nama' =>
+            'YOSI TAZU SOBIRIN',
+
+        'pemeriksa_jabatan' =>
+            'Petugas/Tim Pemeriksa',
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | PIHAK MENYERAHKAN
+        |--------------------------------------------------------------------------
+        */
+
+        'penyerah_nama' =>
+            'Drs. ROSIDIN',
+
+        'penyerah_jabatan' =>
+            'Kepala Sekolah SMKN 1 Cilimus',
+
+        'penyerah_nip' =>
+            'NIP. 196707061994031014',
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | PIHAK MENERIMA
+        |--------------------------------------------------------------------------
+        */
+
+        'penerima_nama' =>
+            'YOSI TAZU SOBIRIN',
+
+        'penerima_jabatan' =>
+            'Kepala SMK Negeri 1 Cilimus',
+
+        'penerima_nip' =>
+            'NIP. 199503272025211117'
+    );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | LOAD VIEW
+    |--------------------------------------------------------------------------
+    */
+
+    $html =
+        $this->load->view(
+            'spj/cetak_bast_internal',
+            $data,
+            true
+        );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | DOMPDF OPTIONS
+    |--------------------------------------------------------------------------
+    */
+
+    $options =
+        new \Dompdf\Options();
+
+    $options->set(
+        'isHtml5ParserEnabled',
+        true
+    );
+
+    $options->set(
+        'isRemoteEnabled',
+        true
+    );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | GENERATE PDF
+    |--------------------------------------------------------------------------
+    */
+
+    $dompdf =
+        new \Dompdf\Dompdf($options);
+
+    $dompdf->loadHtml($html);
+
+    $dompdf->setPaper(
+        'A4',
+        'portrait'
+    );
+
+    $dompdf->render();
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | TAMPILKAN PDF DI BROWSER
+    |--------------------------------------------------------------------------
+    */
+
+    $nama_file =
+        'BAST-Internal-' .
+        preg_replace(
+            '/[^A-Za-z0-9\-_]/',
+            '-',
+            $kebutuhan->nomor_surat
+        ) .
+        '.pdf';
+
+
+    $dompdf->stream(
+        $nama_file,
+        array(
+            'Attachment' => false
+        )
+    );
+}
+public function edit_bast_internal($id)
+{
+    /*
+    |--------------------------------------------------------------------------
+    | AMBIL DATA KEBUTUHAN
+    |--------------------------------------------------------------------------
+    */
+
+    $kebutuhan =
+        $this->Spj_model->get_kebutuhan($id);
+
+    if (!$kebutuhan) {
+        show_404();
+        return;
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | SIMPAN DATA BAST
+    |--------------------------------------------------------------------------
+    */
+
+    if ($this->input->method() === 'post') {
+
+        $nomor_bast =
+            trim(
+                $this->input->post(
+                    'nomor_bast_internal',
+                    true
+                )
+            );
+
+        $tanggal_bast =
+            $this->input->post(
+                'tanggal_bast_internal',
+                true
+            );
+
+
+        /*
+        |----------------------------------------------------------------------
+        | VALIDASI
+        |----------------------------------------------------------------------
+        */
+
+        if (empty($nomor_bast) || empty($tanggal_bast)) {
+
+            $this->session->set_flashdata(
+                'error',
+                'Nomor BAST dan tanggal BAST wajib diisi.'
+            );
+
+            redirect(
+                'spj/edit_bast_internal/' . $id
+            );
+
+            return;
+        }
+
+
+        /*
+        |----------------------------------------------------------------------
+        | UPDATE
+        |----------------------------------------------------------------------
+        */
+
+        $data = array(
+
+            'nomor_bast_internal' =>
+                $nomor_bast,
+
+            'tanggal_bast_internal' =>
+                $tanggal_bast
+
+        );
+
+
+        $update =
+            $this->Spj_model->update_bast_internal(
+                $id,
+                $data
+            );
+
+
+        if ($update) {
+
+            $this->session->set_flashdata(
+                'success',
+                'Data BAST Internal berhasil disimpan.'
+            );
+
+            redirect(
+                'spj/bast_internal'
+            );
+
+            return;
+        }
+
+
+        $this->session->set_flashdata(
+            'error',
+            'Gagal menyimpan data BAST Internal.'
+        );
+
+        redirect(
+            'spj/edit_bast_internal/' . $id
+        );
+
+        return;
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | FORM
+    |--------------------------------------------------------------------------
+    */
+
+    $data = array(
+
+        'title' =>
+            'Edit BAST Internal',
+
+        'kebutuhan' =>
+            $kebutuhan
+
+    );
+
+
+    $this->load->view(
+        'layouts/header'
+    );
+
+    $this->load->view(
+        'layouts/sidebar'
+    );
+
+    $this->load->view(
+        'layouts/topbar'
+    );
+
+    $this->load->view(
+        'spj/edit_bast_internal',
+        $data
+    );
+
+    $this->load->view(
+        'layouts/footer'
+    );
+}
 }

@@ -77,8 +77,8 @@ public function get_kategori_by_id($id)
     return $this->db
         ->select('
             spj_kebutuhan_detail.*,
-            kategori_barang.kodering,
-            kategori_barang.nama_kategori
+            kategori_barang.nama_kategori,
+            kategori_barang.nama_kodering
         ')
         ->from($this->detail)
         ->join(
@@ -240,5 +240,12 @@ public function get_kategori_by_id($id)
     $this->db->trans_commit();
 
     return true;
+}
+
+public function update_bast_internal($id, $data)
+{
+    return $this->db
+        ->where('id_kebutuhan', $id)
+        ->update($this->table, $data);
 }
 }

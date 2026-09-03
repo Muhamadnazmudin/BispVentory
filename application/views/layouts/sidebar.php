@@ -907,14 +907,14 @@ $is_laporan_page = (
                      BAST INTERNAL
                 ================================================== -->
 
-                <a class="collapse-item spj-item <?= $segment2 === 'bast_internal' ? 'active' : '' ?>"
-                   href="<?= base_url('spj/bast_internal') ?>">
+                <a class="collapse-item spj-menu <?= $segment2 === 'bast_internal' ? 'active' : '' ?>"
+   href="<?= base_url('spj/bast_internal') ?>">
 
-                    <i class="fas fa-file-signature"></i>
+    <i class="fas fa-file-signature"></i>
 
-                    BAST Internal
+    BAST Internal
 
-                </a>
+</a>
 
 
                 <!-- =================================================

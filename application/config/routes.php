@@ -61,3 +61,7 @@ $route['spj/detail_kebutuhan/(:num)'] = 'spj/detail_kebutuhan/$1';
 $route['spj/hapus_kebutuhan/(:num)'] = 'spj/hapus_kebutuhan/$1';
 
 $route['spj/bast_internal/(:num)'] = 'spj/bast_internal/$1';
+$route['spj/bast_internal'] = 'spj/bast_internal';
+$route['spj/cetak_bast_internal/(:num)'] = 'spj/cetak_bast_internal/$1';
+$route['spj/edit_bast_internal/(:num)'] =
+    'spj/edit_bast_internal/$1';
