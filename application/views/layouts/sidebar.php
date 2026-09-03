@@ -885,7 +885,7 @@ $is_laporan_page = (
             <div class="collapse-inner rounded">
 
                 <h6 class="collapse-header">
-                    Surat Pertanggungjawaban
+                    SPJ
                 </h6>
 
 
@@ -901,7 +901,18 @@ $is_laporan_page = (
                     Input Kebutuhan
 
                 </a>
+<!-- =================================================
+                     BAST PEMERIKSAAN
+                ================================================== -->
 
+                <a class="collapse-item spj-item <?= $segment2 === 'bast_pemeriksaan' ? 'active' : '' ?>"
+                   href="<?= base_url('spj/bast_pemeriksaan') ?>">
+
+                    <i class="fas fa-clipboard-check"></i>
+
+                    BAST Pemeriksaan
+
+                </a>
 
                 <!-- =================================================
                      BAST INTERNAL
@@ -917,18 +928,7 @@ $is_laporan_page = (
 </a>
 
 
-                <!-- =================================================
-                     BAST PEMERIKSAAN
-                ================================================== -->
-
-                <a class="collapse-item spj-item <?= $segment2 === 'bast_pemeriksaan' ? 'active' : '' ?>"
-                   href="<?= base_url('spj/bast_pemeriksaan') ?>">
-
-                    <i class="fas fa-clipboard-check"></i>
-
-                    BAST Pemeriksaan
-
-                </a>
+                
 
             </div>
 

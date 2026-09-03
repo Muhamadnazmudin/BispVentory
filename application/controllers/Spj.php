@@ -1404,26 +1404,34 @@ public function cetak_bast_internal($id)
 {
     /*
     |--------------------------------------------------------------------------
+    | VALIDASI ID
+    |--------------------------------------------------------------------------
+    */
+
+    $id = (int) $id;
+
+    if ($id <= 0) {
+        show_404();
+        return;
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
     | LOAD DOMPDF
     |--------------------------------------------------------------------------
     */
 
     if (!class_exists('\Dompdf\Dompdf')) {
 
-        /*
-        | Composer
-        */
-        $composer_autoload = FCPATH . 'vendor/autoload.php';
+        $composer_autoload =
+            FCPATH . 'vendor/autoload.php';
 
         if (file_exists($composer_autoload)) {
             require_once $composer_autoload;
         }
     }
 
-
-    /*
-    | Jika masih belum tersedia, coba third_party Dompdf
-    */
 
     if (!class_exists('\Dompdf\Dompdf')) {
 
@@ -1454,7 +1462,7 @@ public function cetak_bast_internal($id)
 
     /*
     |--------------------------------------------------------------------------
-    | AMBIL DATA KEBUTUHAN
+    | DATA KEBUTUHAN
     |--------------------------------------------------------------------------
     */
 
@@ -1469,7 +1477,7 @@ public function cetak_bast_internal($id)
 
     /*
     |--------------------------------------------------------------------------
-    | AMBIL DETAIL KEBUTUHAN
+    | DETAIL KEBUTUHAN
     |--------------------------------------------------------------------------
     */
 
@@ -1488,21 +1496,58 @@ public function cetak_bast_internal($id)
 
     /*
     |--------------------------------------------------------------------------
-    | DATA BAST INTERNAL
+    | DATA BAST PEMERIKSAAN
+    |--------------------------------------------------------------------------
+    |
+    | Sumber:
+    | spj_bast_pemeriksaan
+    |
+    | Tidak menggunakan tabel spj_bast_internal.
+    |
+    */
+
+    $bast_pemeriksaan =
+        $this->Spj_model
+            ->get_bast_pemeriksaan_by_kebutuhan($id);
+
+    if (!$bast_pemeriksaan) {
+
+        show_error(
+            'BAST Pemeriksaan untuk kebutuhan ini belum ditemukan.'
+        );
+
+        return;
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | DATA VIEW
     |--------------------------------------------------------------------------
     */
 
     $data = array(
 
-        'kebutuhan' => $kebutuhan,
+        /*
+        |----------------------------------------------------------------------
+        | DATA DOKUMEN
+        |----------------------------------------------------------------------
+        */
 
-        'detail' => $detail,
+        'kebutuhan' =>
+            $kebutuhan,
+
+        'detail' =>
+            $detail,
+
+        'bast_pemeriksaan' =>
+            $bast_pemeriksaan,
 
 
         /*
-        |--------------------------------------------------------------------------
+        |----------------------------------------------------------------------
         | DATA SEKOLAH
-        |--------------------------------------------------------------------------
+        |----------------------------------------------------------------------
         */
 
         'nama_sekolah' =>
@@ -1522,9 +1567,9 @@ public function cetak_bast_internal($id)
 
 
         /*
-        |--------------------------------------------------------------------------
+        |----------------------------------------------------------------------
         | PEMERIKSA
-        |--------------------------------------------------------------------------
+        |----------------------------------------------------------------------
         */
 
         'pemeriksa_nama' =>
@@ -1535,32 +1580,32 @@ public function cetak_bast_internal($id)
 
 
         /*
-        |--------------------------------------------------------------------------
+        |----------------------------------------------------------------------
         | PIHAK MENYERAHKAN
-        |--------------------------------------------------------------------------
+        |----------------------------------------------------------------------
         */
 
         'penyerah_nama' =>
-            'Drs. ROSIDIN',
+            'Yosi Tazu Sobirin',
 
         'penyerah_jabatan' =>
-            'Kepala Sekolah SMKN 1 Cilimus',
+            'Petugas/Tim Pemeriksa',
 
         'penyerah_nip' =>
-            'NIP. 196707061994031014',
+            'NIP. 199503272025211117',
 
 
         /*
-        |--------------------------------------------------------------------------
+        |----------------------------------------------------------------------
         | PIHAK MENERIMA
-        |--------------------------------------------------------------------------
+        |----------------------------------------------------------------------
         */
 
         'penerima_nama' =>
-            'YOSI TAZU SOBIRIN',
+            'Drs. Rosidin',
 
         'penerima_jabatan' =>
-            'Kepala SMK Negeri 1 Cilimus',
+            'Kepala SMKN 1 Cilimus',
 
         'penerima_nip' =>
             'NIP. 199503272025211117'
@@ -1569,7 +1614,7 @@ public function cetak_bast_internal($id)
 
     /*
     |--------------------------------------------------------------------------
-    | LOAD VIEW
+    | RENDER VIEW
     |--------------------------------------------------------------------------
     */
 
@@ -1622,19 +1667,30 @@ public function cetak_bast_internal($id)
 
     /*
     |--------------------------------------------------------------------------
-    | TAMPILKAN PDF DI BROWSER
+    | NAMA FILE
     |--------------------------------------------------------------------------
     */
+
+    $nomor_surat =
+        !empty($kebutuhan->nomor_surat)
+            ? $kebutuhan->nomor_surat
+            : 'dokumen';
 
     $nama_file =
         'BAST-Internal-' .
         preg_replace(
             '/[^A-Za-z0-9\-_]/',
             '-',
-            $kebutuhan->nomor_surat
+            $nomor_surat
         ) .
         '.pdf';
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | TAMPILKAN PDF
+    |--------------------------------------------------------------------------
+    */
 
     $dompdf->stream(
         $nama_file,
@@ -3094,5 +3150,1108 @@ public function detail_bast_internal($id)
     $this->load->view('layouts/topbar', $data);
     $this->load->view('spj/bast_internal/detail', $data);
     $this->load->view('layouts/footer', $data);
+}
+public function bast_pemeriksaan()
+{
+    $data['title'] =
+        'BAST Pemeriksaan';
+
+    $data['bast'] =
+        $this->Spj_model
+            ->get_all_bast_pemeriksaan();
+
+
+    $data['kebutuhan'] =
+        $this->Spj_model
+            ->get_all_kebutuhan();
+
+
+    $this->load->view(
+        'layouts/header'
+    );
+
+    $this->load->view(
+        'layouts/sidebar'
+    );
+
+    $this->load->view(
+        'layouts/topbar'
+    );
+
+    $this->load->view(
+        'spj/bast_pemeriksaan/index',
+        $data
+    );
+
+    $this->load->view(
+        'layouts/footer'
+    );
+}
+public function tambah_bast_pemeriksaan($id_kebutuhan)
+{
+    $id_kebutuhan =
+        (int) $id_kebutuhan;
+
+
+    if ($id_kebutuhan <= 0) {
+
+        show_404();
+
+        return;
+    }
+
+
+    $kebutuhan =
+        $this->Spj_model
+            ->get_kebutuhan(
+                $id_kebutuhan
+            );
+
+
+    if (!$kebutuhan) {
+
+        show_404();
+
+        return;
+    }
+
+
+    /*
+     * CEK APAKAH SUDAH ADA BAST
+     */
+
+    $existing =
+        $this->Spj_model
+            ->get_bast_pemeriksaan_by_kebutuhan(
+                $id_kebutuhan
+            );
+
+
+    if ($existing) {
+
+        redirect(
+            'spj/edit_bast_pemeriksaan/' .
+            $existing->id_bast_pemeriksaan
+        );
+
+        return;
+    }
+
+
+    /*
+     * DETAIL KEBUTUHAN
+     */
+
+    $detail =
+        $this->Spj_model
+            ->get_detail(
+                $id_kebutuhan
+            );
+
+
+    if (empty($detail)) {
+
+        $this->session->set_flashdata(
+            'error',
+            'Rincian kebutuhan belum tersedia.'
+        );
+
+        redirect(
+            'spj/bast_pemeriksaan'
+        );
+
+        return;
+    }
+
+
+    /*
+     * SIMPAN
+     */
+
+    if (
+        $this->input->method() === 'post'
+    ) {
+
+        $nomor_bast =
+            trim(
+                (string)
+                $this->input->post(
+                    'nomor_bast',
+                    true
+                )
+            );
+
+
+        $nomor_keputusan =
+            trim(
+                (string)
+                $this->input->post(
+                    'nomor_keputusan',
+                    true
+                )
+            );
+
+
+        if (
+            $nomor_bast === '' ||
+            $nomor_keputusan === ''
+        ) {
+
+            $this->session->set_flashdata(
+                'error',
+                'Nomor BAST dan Nomor Keputusan wajib diisi.'
+            );
+
+            redirect(
+                'spj/tambah_bast_pemeriksaan/' .
+                $id_kebutuhan
+            );
+
+            return;
+        }
+
+
+        /*
+         * HEADER
+         *
+         * Tanggal pemeriksaan otomatis
+         * mengikuti tanggal kebutuhan.
+         */
+
+        $header = array(
+
+            'id_kebutuhan' =>
+                $id_kebutuhan,
+
+            'nomor_bast' =>
+                $nomor_bast,
+
+            'nomor_keputusan' =>
+                $nomor_keputusan,
+
+            'tanggal_pemeriksaan' =>
+                $kebutuhan->tanggal,
+
+            'created_by' =>
+                $this->session
+                    ->userdata('id_user')
+
+        );
+
+
+        /*
+         * SNAPSHOT DETAIL KEBUTUHAN
+         */
+
+        $details = array();
+
+
+        foreach ($detail as $row) {
+
+            $details[] = array(
+
+                'id_kategori' =>
+                    $row->id_kategori,
+
+                'kodering' =>
+                    $row->kodering,
+
+                'nama_barang' =>
+                    $row->nama_barang,
+
+                'jumlah' =>
+                    $row->jumlah,
+
+                'satuan' =>
+                    $row->satuan,
+
+                'keterangan' =>
+                    !empty($row->keterangan)
+                        ? $row->keterangan
+                        : null
+
+            );
+        }
+
+
+        $id =
+            $this->Spj_model
+                ->insert_bast_pemeriksaan(
+                    $header,
+                    $details
+                );
+
+
+        if ($id) {
+
+            $this->session->set_flashdata(
+                'success',
+                'BAST Pemeriksaan berhasil dibuat.'
+            );
+
+            redirect(
+                'spj/bast_pemeriksaan'
+            );
+
+            return;
+        }
+
+
+        $this->session->set_flashdata(
+            'error',
+            'Gagal menyimpan BAST Pemeriksaan.'
+        );
+
+
+        redirect(
+            'spj/tambah_bast_pemeriksaan/' .
+            $id_kebutuhan
+        );
+    }
+
+
+    $data = array(
+
+        'title' =>
+            'Tambah BAST Pemeriksaan',
+
+        'kebutuhan' =>
+            $kebutuhan,
+
+        'detail' =>
+            $detail
+
+    );
+
+
+    $this->load->view(
+        'layouts/header'
+    );
+
+    $this->load->view(
+        'layouts/sidebar'
+    );
+
+    $this->load->view(
+        'layouts/topbar'
+    );
+
+    $this->load->view(
+        'spj/bast_pemeriksaan/form',
+        $data
+    );
+
+    $this->load->view(
+        'layouts/footer'
+    );
+}
+public function edit_bast_pemeriksaan($id)
+{
+    $id = (int) $id;
+
+
+    if ($id <= 0) {
+
+        show_404();
+
+        return;
+    }
+
+
+    $bast =
+        $this->Spj_model
+            ->get_bast_pemeriksaan(
+                $id
+            );
+
+
+    if (!$bast) {
+
+        show_404();
+
+        return;
+    }
+
+
+    if (
+        $this->input->method() === 'post'
+    ) {
+
+        $nomor_bast =
+            trim(
+                (string)
+                $this->input->post(
+                    'nomor_bast',
+                    true
+                )
+            );
+
+
+        $nomor_keputusan =
+            trim(
+                (string)
+                $this->input->post(
+                    'nomor_keputusan',
+                    true
+                )
+            );
+
+
+        if (
+            $nomor_bast === '' ||
+            $nomor_keputusan === ''
+        ) {
+
+            $this->session->set_flashdata(
+                'error',
+                'Nomor BAST dan Nomor Keputusan wajib diisi.'
+            );
+
+            redirect(
+                'spj/edit_bast_pemeriksaan/' .
+                $id
+            );
+
+            return;
+        }
+
+
+        /*
+         * Tanggal pemeriksaan tetap
+         * berasal dari tanggal kebutuhan.
+         */
+
+        $header = array(
+
+            'nomor_bast' =>
+                $nomor_bast,
+
+            'nomor_keputusan' =>
+                $nomor_keputusan,
+
+            'tanggal_pemeriksaan' =>
+                $bast->tanggal_kebutuhan
+
+        );
+
+
+        $detail =
+            $this->Spj_model
+                ->get_bast_pemeriksaan_detail(
+                    $id
+                );
+
+
+        $details = array();
+
+
+        foreach ($detail as $row) {
+
+            $details[] = array(
+
+                'id_kategori' =>
+                    $row->id_kategori,
+
+                'kodering' =>
+                    $row->kodering,
+
+                'nama_barang' =>
+                    $row->nama_barang,
+
+                'jumlah' =>
+                    $row->jumlah,
+
+                'satuan' =>
+                    $row->satuan,
+
+                'keterangan' =>
+                    $row->keterangan
+
+            );
+        }
+
+
+        $hasil =
+            $this->Spj_model
+                ->update_bast_pemeriksaan(
+                    $id,
+                    $header,
+                    $details
+                );
+
+
+        if ($hasil) {
+
+            $this->session->set_flashdata(
+                'success',
+                'BAST Pemeriksaan berhasil diperbarui.'
+            );
+
+            redirect(
+                'spj/bast_pemeriksaan'
+            );
+
+            return;
+        }
+
+
+        $this->session->set_flashdata(
+            'error',
+            'Gagal memperbarui BAST Pemeriksaan.'
+        );
+
+
+        redirect(
+            'spj/edit_bast_pemeriksaan/' .
+            $id
+        );
+
+        return;
+    }
+
+
+    $data = array(
+
+        'title' =>
+            'Edit BAST Pemeriksaan',
+
+        'bast' =>
+            $bast,
+
+        'detail' =>
+            $this->Spj_model
+                ->get_bast_pemeriksaan_detail(
+                    $id
+                )
+
+    );
+
+
+    $this->load->view(
+        'layouts/header'
+    );
+
+    $this->load->view(
+        'layouts/sidebar'
+    );
+
+    $this->load->view(
+        'layouts/topbar'
+    );
+
+    $this->load->view(
+        'spj/bast_pemeriksaan/edit',
+        $data
+    );
+
+    $this->load->view(
+        'layouts/footer'
+    );
+}
+public function hapus_bast_pemeriksaan($id)
+{
+    $id = (int) $id;
+
+
+    if ($id <= 0) {
+
+        show_404();
+
+        return;
+    }
+
+
+    $bast =
+        $this->Spj_model
+            ->get_bast_pemeriksaan(
+                $id
+            );
+
+
+    if (!$bast) {
+
+        show_404();
+
+        return;
+    }
+
+
+    $hasil =
+        $this->Spj_model
+            ->delete_bast_pemeriksaan(
+                $id
+            );
+
+
+    if ($hasil) {
+
+        $this->session->set_flashdata(
+            'success',
+            'BAST Pemeriksaan berhasil dihapus.'
+        );
+
+    } else {
+
+        $this->session->set_flashdata(
+            'error',
+            'BAST Pemeriksaan gagal dihapus.'
+        );
+    }
+
+
+    redirect(
+        'spj/bast_pemeriksaan'
+    );
+}
+public function cetak_bast_pemeriksaan($id)
+{
+    /*
+    |--------------------------------------------------------------------------
+    | VALIDASI ID
+    |--------------------------------------------------------------------------
+    */
+
+    $id = (int) $id;
+
+    if ($id <= 0) {
+        show_404();
+        return;
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | LOAD DOMPDF
+    |--------------------------------------------------------------------------
+    */
+
+    if (!class_exists('\Dompdf\Dompdf')) {
+
+        $dompdf_autoload =
+            APPPATH . 'third_party/dompdf/autoload.inc.php';
+
+        if (file_exists($dompdf_autoload)) {
+            require_once $dompdf_autoload;
+        }
+    }
+
+    if (!class_exists('\Dompdf\Dompdf')) {
+
+        show_error(
+            'Dompdf belum tersedia.'
+        );
+
+        return;
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | AMBIL DATA BAST
+    |--------------------------------------------------------------------------
+    */
+
+    $bast =
+        $this->Spj_model
+            ->get_bast_pemeriksaan($id);
+
+    if (!$bast) {
+        show_404();
+        return;
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | AMBIL DETAIL
+    |--------------------------------------------------------------------------
+    */
+
+    $detail =
+        $this->Spj_model
+            ->get_bast_pemeriksaan_detail($id);
+
+    if (empty($detail)) {
+
+        show_error(
+            'Rincian BAST Pemeriksaan tidak ditemukan.'
+        );
+
+        return;
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | TANGGAL PEMERIKSAAN
+    |--------------------------------------------------------------------------
+    */
+
+    $tanggal_pemeriksaan =
+        !empty($bast->tanggal_pemeriksaan)
+            ? $bast->tanggal_pemeriksaan
+            : date('Y-m-d');
+
+
+    $timestamp =
+        strtotime($tanggal_pemeriksaan);
+
+    if ($timestamp === false) {
+        $timestamp = time();
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | NAMA HARI
+    |--------------------------------------------------------------------------
+    */
+
+    $hari = array(
+        'Sunday'    => 'Minggu',
+        'Monday'    => 'Senin',
+        'Tuesday'   => 'Selasa',
+        'Wednesday' => 'Rabu',
+        'Thursday'  => 'Kamis',
+        'Friday'    => 'Jumat',
+        'Saturday'  => 'Sabtu'
+    );
+
+
+    $nama_hari =
+        isset(
+            $hari[
+                date('l', $timestamp)
+            ]
+        )
+            ? $hari[
+                date('l', $timestamp)
+            ]
+            : '';
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | NAMA BULAN
+    |--------------------------------------------------------------------------
+    */
+
+    $bulan = array(
+        1  => 'Januari',
+        2  => 'Februari',
+        3  => 'Maret',
+        4  => 'April',
+        5  => 'Mei',
+        6  => 'Juni',
+        7  => 'Juli',
+        8  => 'Agustus',
+        9  => 'September',
+        10 => 'Oktober',
+        11 => 'November',
+        12 => 'Desember'
+    );
+
+
+    $nomor_hari =
+        (int) date(
+            'j',
+            $timestamp
+        );
+
+
+    $nomor_bulan =
+        (int) date(
+            'n',
+            $timestamp
+        );
+
+
+    $nama_bulan =
+        isset(
+            $bulan[$nomor_bulan]
+        )
+            ? $bulan[$nomor_bulan]
+            : '';
+
+
+    $tahun =
+        (int) date(
+            'Y',
+            $timestamp
+        );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | TANGGAL ANGKA
+    |--------------------------------------------------------------------------
+    |
+    | Contoh:
+    | 06 Juli 2026
+    |
+    */
+
+    $tanggal_format =
+        date(
+            'd',
+            $timestamp
+        ) .
+        ' ' .
+        $nama_bulan .
+        ' ' .
+        $tahun;
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | ANGKA TERBILANG
+    |--------------------------------------------------------------------------
+    */
+
+    $angka = array(
+        0  => 'Nol',
+        1  => 'Satu',
+        2  => 'Dua',
+        3  => 'Tiga',
+        4  => 'Empat',
+        5  => 'Lima',
+        6  => 'Enam',
+        7  => 'Tujuh',
+        8  => 'Delapan',
+        9  => 'Sembilan',
+        10 => 'Sepuluh',
+        11 => 'Sebelas',
+        12 => 'Dua Belas',
+        13 => 'Tiga Belas',
+        14 => 'Empat Belas',
+        15 => 'Lima Belas',
+        16 => 'Enam Belas',
+        17 => 'Tujuh Belas',
+        18 => 'Delapan Belas',
+        19 => 'Sembilan Belas',
+        20 => 'Dua Puluh',
+        21 => 'Dua Puluh Satu',
+        22 => 'Dua Puluh Dua',
+        23 => 'Dua Puluh Tiga',
+        24 => 'Dua Puluh Empat',
+        25 => 'Dua Puluh Lima',
+        26 => 'Dua Puluh Enam',
+        27 => 'Dua Puluh Tujuh',
+        28 => 'Dua Puluh Delapan',
+        29 => 'Dua Puluh Sembilan',
+        30 => 'Tiga Puluh',
+        31 => 'Tiga Puluh Satu'
+    );
+
+
+    $tanggal_terbilang =
+        isset(
+            $angka[$nomor_hari]
+        )
+            ? $angka[$nomor_hari]
+            : (string) $nomor_hari;
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | TAHUN TERBILANG
+    |--------------------------------------------------------------------------
+    */
+
+    $tahun_terbilang = '';
+
+
+    if ($tahun == 2026) {
+
+        $tahun_terbilang =
+            'Dua Ribu Dua Puluh Enam';
+
+    } elseif ($tahun == 2025) {
+
+        $tahun_terbilang =
+            'Dua Ribu Dua Puluh Lima';
+
+    } elseif ($tahun == 2027) {
+
+        $tahun_terbilang =
+            'Dua Ribu Dua Puluh Tujuh';
+
+    } else {
+
+        $tahun_terbilang =
+            (string) $tahun;
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | LOGO
+    |--------------------------------------------------------------------------
+    |
+    | Lokasi logo:
+    | assets/img/logoprovinsi.png
+    |
+    | Base64 digunakan agar Dompdf dapat menampilkan logo
+    | tanpa bergantung pada akses URL.
+    |
+    */
+
+    $logo_path =
+        FCPATH . 'assets/img/logoprovinsi.png';
+
+
+    $logo_base64 = '';
+
+
+    if (is_file($logo_path)) {
+
+        $logo_data =
+            file_get_contents($logo_path);
+
+        if ($logo_data !== false) {
+
+            $logo_base64 =
+                'data:image/png;base64,' .
+                base64_encode($logo_data);
+        }
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | NOMOR KEPUTUSAN
+    |--------------------------------------------------------------------------
+    |
+    | Jika database menyimpan:
+    | "No 110/PK.02.01/SMKN1 Clms"
+    |
+    | maka prefix "No" dibuang agar view cukup menampilkan:
+    | "No 110/PK.02.01/SMKN1 Clms"
+    |
+    */
+
+    $nomor_keputusan =
+        !empty($bast->nomor_keputusan)
+            ? trim($bast->nomor_keputusan)
+            : '';
+
+
+    $nomor_keputusan =
+        preg_replace(
+            '/^\s*No\.?\s*/i',
+            '',
+            $nomor_keputusan
+        );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | DATA VIEW
+    |--------------------------------------------------------------------------
+    */
+
+    $data = array(
+
+        /*
+        |----------------------------------------------------------------------
+        | DATA BAST
+        |----------------------------------------------------------------------
+        */
+
+        'bast' =>
+            $bast,
+
+        'detail' =>
+            $detail,
+
+
+        /*
+        |----------------------------------------------------------------------
+        | SEKOLAH
+        |----------------------------------------------------------------------
+        */
+
+        'nama_sekolah' =>
+            'SMK NEGERI 1 CILIMUS',
+
+        'alamat' =>
+            'Jalan Eyang Kuwu Sangkan Cilimus',
+
+        'telepon' =>
+            '(0232) 8910145',
+
+        'email' =>
+            'smkn_1cilimus@yahoo.com',
+
+        'kabupaten' =>
+            'Kabupaten Kuningan 45556',
+
+
+        /*
+        |----------------------------------------------------------------------
+        | LOGO
+        |----------------------------------------------------------------------
+        */
+
+        'logo_base64' =>
+            $logo_base64,
+
+
+        /*
+        |----------------------------------------------------------------------
+        | PEMERIKSA
+        |----------------------------------------------------------------------
+        */
+
+        'pemeriksa_nama' =>
+            'Yosi Tazu Sobirin',
+
+        'pemeriksa_jabatan' =>
+            'Tim/Petugas Pemeriksa Barang Modal/Barang dan Jasa',
+
+        'pemeriksa_nip' =>
+            '199503272025211117',
+
+
+        /*
+        |----------------------------------------------------------------------
+        | NOMOR KEPUTUSAN
+        |----------------------------------------------------------------------
+        */
+
+        'nomor_keputusan' =>
+            $nomor_keputusan,
+
+
+        /*
+        |----------------------------------------------------------------------
+        | TANGGAL
+        |----------------------------------------------------------------------
+        */
+
+        'nama_hari' =>
+            $nama_hari,
+
+        'nomor_hari' =>
+            $nomor_hari,
+
+        'tanggal_format' =>
+            $tanggal_format,
+
+        'tanggal_terbilang' =>
+            $tanggal_terbilang,
+
+        'nama_bulan' =>
+            $nama_bulan,
+
+        'tahun' =>
+            $tahun,
+
+        'tahun_terbilang' =>
+            $tahun_terbilang
+
+    );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | LOAD VIEW
+    |--------------------------------------------------------------------------
+    */
+
+    $html =
+        $this->load->view(
+            'spj/cetak_bast_pemeriksaan',
+            $data,
+            true
+        );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | KONFIGURASI DOMPDF
+    |--------------------------------------------------------------------------
+    */
+
+    $options =
+        new \Dompdf\Options();
+
+
+    $options->set(
+        'isHtml5ParserEnabled',
+        true
+    );
+
+
+    $options->set(
+        'isRemoteEnabled',
+        true
+    );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | BUAT DOMPDF
+    |--------------------------------------------------------------------------
+    */
+
+    $dompdf =
+        new \Dompdf\Dompdf(
+            $options
+        );
+
+
+    $dompdf->loadHtml(
+        $html
+    );
+
+
+    $dompdf->setPaper(
+        'A4',
+        'portrait'
+    );
+
+
+    $dompdf->render();
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | NAMA FILE PDF
+    |--------------------------------------------------------------------------
+    */
+
+    $nomor_bast =
+        !empty($bast->nomor_bast)
+            ? trim($bast->nomor_bast)
+            : 'tanpa-nomor';
+
+
+    $nomor_bast =
+        preg_replace(
+            '/[^A-Za-z0-9\-_]/',
+            '-',
+            $nomor_bast
+        );
+
+
+    $nama_file =
+        'BAST-Pemeriksaan-' .
+        $nomor_bast .
+        '.pdf';
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | TAMPILKAN PDF
+    |--------------------------------------------------------------------------
+    */
+
+    $dompdf->stream(
+        $nama_file,
+        array(
+            'Attachment' => false
+        )
+    );
 }
 }

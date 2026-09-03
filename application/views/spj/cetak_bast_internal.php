@@ -95,86 +95,192 @@ function angka_ke_huruf_bast($angka)
 |--------------------------------------------------------------------------
 | DATA BAST INTERNAL
 |--------------------------------------------------------------------------
-| SEMUA tanggal dan nomor BAST diambil dari hasil Edit BAST Internal.
-|--------------------------------------------------------------------------
 */
 
-$nomor_bast = !empty($kebutuhan->nomor_bast_internal)
-    ? trim($kebutuhan->nomor_bast_internal)
-    : '-';
+$nomor_bast_internal =
+    !empty($kebutuhan->nomor_bast_internal)
+        ? trim($kebutuhan->nomor_bast_internal)
+        : '-';
 
 
 /*
 |--------------------------------------------------------------------------
-| TANGGAL BAST
+| TANGGAL BAST INTERNAL
 |--------------------------------------------------------------------------
+|
+| Ini tetap digunakan untuk tanggal dokumen BAST Internal.
+|
 */
 
-$tanggal_bast = !empty($kebutuhan->tanggal_bast_internal)
-    ? strtotime($kebutuhan->tanggal_bast_internal)
-    : false;
+$tanggal_bast_internal =
+    !empty($kebutuhan->tanggal_bast_internal)
+        ? strtotime($kebutuhan->tanggal_bast_internal)
+        : false;
 
 
-/*
-|--------------------------------------------------------------------------
-| KOMPONEN TANGGAL BAST
-|--------------------------------------------------------------------------
-*/
+if ($tanggal_bast_internal !== false) {
 
-if ($tanggal_bast !== false) {
+    $tanggal_internal_hari =
+        date('j', $tanggal_bast_internal);
 
-    $tanggal_bast_hari_angka =
-        date('j', $tanggal_bast);
+    $tanggal_internal_hari_huruf =
+        angka_ke_huruf_bast(
+            $tanggal_internal_hari
+        );
 
-    $tanggal_bast_hari_huruf =
-        angka_ke_huruf_bast($tanggal_bast_hari_angka);
+    $tanggal_internal_bulan =
+        $bulan[
+            (int) date(
+                'n',
+                $tanggal_bast_internal
+            )
+        ];
 
-    $tanggal_bast_bulan =
-        $bulan[(int) date('n', $tanggal_bast)];
+    $tanggal_internal_tahun =
+        date(
+            'Y',
+            $tanggal_bast_internal
+        );
 
-    $tanggal_bast_tahun =
-        date('Y', $tanggal_bast);
-
-    $nama_hari_bast =
-        $hari[date('l', $tanggal_bast)];
+    $nama_hari_internal =
+        $hari[
+            date(
+                'l',
+                $tanggal_bast_internal
+            )
+        ];
 
     $tanggal_lengkap_bast =
-        $tanggal_bast_hari_angka .
+        date(
+            'd',
+            $tanggal_bast_internal
+        ) .
         ' ' .
-        $tanggal_bast_bulan .
+        $tanggal_internal_bulan .
         ' ' .
-        $tanggal_bast_tahun;
+        $tanggal_internal_tahun;
 
 } else {
 
-    $tanggal_bast_hari_angka = '-';
-    $tanggal_bast_hari_huruf = '-';
-    $tanggal_bast_bulan = '-';
-    $tanggal_bast_tahun = '-';
-    $nama_hari_bast = '-';
+    $tanggal_internal_hari = '-';
+    $tanggal_internal_hari_huruf = '-';
+    $tanggal_internal_bulan = '-';
+    $tanggal_internal_tahun = '-';
+    $nama_hari_internal = '-';
     $tanggal_lengkap_bast = '-';
 }
 
 
 /*
 |--------------------------------------------------------------------------
-| KODERING
+| DATA BAST PEMERIKSAAN
+|--------------------------------------------------------------------------
+|
+| Nomor dan tanggal diambil dari BAST Pemeriksaan.
+|
+*/
+
+/*
+|--------------------------------------------------------------------------
+| DATA BAST PEMERIKSAAN
+|--------------------------------------------------------------------------
+|
+| Data langsung dari spj_bast_pemeriksaan.
+|
+*/
+
+$nomor_bast_pemeriksaan =
+    !empty($bast_pemeriksaan->nomor_bast)
+        ? trim($bast_pemeriksaan->nomor_bast)
+        : '-';
+
+
+$tanggal_bast_pemeriksaan =
+    !empty($bast_pemeriksaan->tanggal_pemeriksaan)
+        ? strtotime($bast_pemeriksaan->tanggal_pemeriksaan)
+        : false;
+
+
+/*
+|--------------------------------------------------------------------------
+| TANGGAL BERITA ACARA PEMERIKSAAN
 |--------------------------------------------------------------------------
 */
 
-$kodering = '';
+if ($tanggal_bast_pemeriksaan !== false) {
+
+    $tanggal_pemeriksaan_hari =
+        date(
+            'j',
+            $tanggal_bast_pemeriksaan
+        );
+
+    $tanggal_pemeriksaan_bulan =
+        $bulan[
+            (int) date(
+                'n',
+                $tanggal_bast_pemeriksaan
+            )
+        ];
+
+    $tanggal_pemeriksaan_tahun =
+        date(
+            'Y',
+            $tanggal_bast_pemeriksaan
+        );
+
+    $tanggal_lengkap_pemeriksaan =
+        date(
+            'j',
+            $tanggal_bast_pemeriksaan
+        ) .
+        ' ' .
+        $tanggal_pemeriksaan_bulan .
+        ' ' .
+        $tanggal_pemeriksaan_tahun;
+
+} else {
+
+    $tanggal_pemeriksaan_hari = '-';
+    $tanggal_pemeriksaan_bulan = '-';
+    $tanggal_pemeriksaan_tahun = '-';
+    $tanggal_lengkap_pemeriksaan = '-';
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| NAMA KODERING
+|--------------------------------------------------------------------------
+|
+| Yang ditampilkan adalah nama_kodering,
+| bukan kode/kodering angka.
+|
+*/
+
+$nama_kodering = '';
+
 
 if (!empty($detail)) {
 
     foreach ($detail as $row) {
 
-        if (!empty($row->kodering)) {
+        if (
+            isset($row->nama_kodering) &&
+            trim($row->nama_kodering) !== ''
+        ) {
 
-            $kodering = $row->kodering;
+            $nama_kodering =
+                trim($row->nama_kodering);
 
             break;
         }
     }
+}
+
+
+if ($nama_kodering === '') {
+    $nama_kodering = '-';
 }
 
 
@@ -189,27 +295,22 @@ $logo_path =
 
 $logo_base64 = '';
 
-if (file_exists($logo_path)) {
-
-    $logo_type =
-        pathinfo(
-            $logo_path,
-            PATHINFO_EXTENSION
-        );
+if (is_file($logo_path)) {
 
     $logo_data =
         file_get_contents($logo_path);
 
-    $logo_base64 =
-        'data:image/' .
-        $logo_type .
-        ';base64,' .
-        base64_encode($logo_data);
+    if ($logo_data !== false) {
+
+        $logo_base64 =
+            'data:image/png;base64,' .
+            base64_encode($logo_data);
+    }
 }
 
 ?>
 <!DOCTYPE html>
-<html>
+<html lang="id">
 
 <head>
 
@@ -278,18 +379,25 @@ if (file_exists($logo_path)) {
 
 
         .logo {
-    width: 75px;
-    text-align: center;
-}
 
-.logo img {
-    width: 80px;
-    height: 80px;
-    object-fit: contain;
+            width: 75px;
 
-    position: relative;
-    left: 80px;
-}
+            text-align: center;
+        }
+
+
+        .logo img {
+
+            width: 80px;
+
+            height: 80px;
+
+            object-fit: contain;
+
+            position: relative;
+
+            left: 80px;
+        }
 
 
         .kop-text {
@@ -446,7 +554,7 @@ if (file_exists($logo_path)) {
 
             text-align: justify;
 
-            line-height: 1.2;
+            line-height: 1.25;
         }
 
 
@@ -559,7 +667,7 @@ if (file_exists($logo_path)) {
 
             width: 50%;
 
-            padding: 0;
+            padding: 40;
 
             vertical-align: top;
         }
@@ -591,7 +699,7 @@ if (file_exists($logo_path)) {
 
         .ttd-nama {
 
-            margin-top: 16px;
+            margin-top: 55px;
 
             font-weight: bold;
 
@@ -624,7 +732,7 @@ if (file_exists($logo_path)) {
 
         <td class="logo">
 
-            <?php if ($logo_base64): ?>
+            <?php if (!empty($logo_base64)): ?>
 
                 <img
                     src="<?= $logo_base64 ?>"
@@ -694,13 +802,13 @@ if (file_exists($logo_path)) {
 
 
 <!-- =====================================================
-     NOMOR BAST
+     NOMOR BAST INTERNAL
 ====================================================== -->
 
 <div class="nomor">
 
     NOMOR:
-    <?= html_escape($nomor_bast) ?>
+    <?= html_escape($nomor_bast_internal) ?>
 
 </div>
 
@@ -713,22 +821,22 @@ if (file_exists($logo_path)) {
 
     Pada hari ini
     <strong>
-        <?= html_escape($nama_hari_bast) ?>
+        <?= html_escape($nama_hari_internal) ?>
     </strong>
 
     tanggal
     <strong>
-        <?= html_escape($tanggal_bast_hari_huruf) ?>
+        <?= html_escape($tanggal_internal_hari_huruf) ?>
     </strong>
 
     bulan
     <strong>
-        <?= html_escape($tanggal_bast_bulan) ?>
+        <?= html_escape($tanggal_internal_bulan) ?>
     </strong>
 
     tahun
     <strong>
-        <?= html_escape($tanggal_bast_tahun) ?>
+        <?= html_escape($tanggal_internal_tahun) ?>
     </strong>,
 
     saya yang bertanda tangan dibawah ini :
@@ -847,19 +955,21 @@ if (file_exists($logo_path)) {
     penyedia berupa belanja
 
     <strong>
-        <?= html_escape($kodering) ?>
+        <?= html_escape($nama_kodering) ?>
     </strong>
 
-    sesuai dengan Berita Acara Pemeriksaan
-    Barang tanggal
+    sesuai dengan Berita Acara Pemeriksaan Barang
+    tanggal
 
-    <?= html_escape($tanggal_lengkap_bast) ?>.
+    <strong>
+        <?= html_escape($tanggal_lengkap_pemeriksaan) ?>
+    </strong>.
 
     Nomor
 
-    <u>
-        <?= html_escape($nomor_bast) ?>
-    </u>
+    <strong>
+        <?= html_escape($nomor_bast_pemeriksaan) ?>
+    </strong>
 
     sebagaimana daftar terlampir berikut:
 
