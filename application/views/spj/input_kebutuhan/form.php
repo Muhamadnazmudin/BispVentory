@@ -7,7 +7,6 @@
     <div class="d-flex align-items-center justify-content-between mb-4">
 
         <div>
-
             <h1 class="h3 mb-1 text-gray-800">
                 <?= html_escape($title) ?>
             </h1>
@@ -15,9 +14,7 @@
             <div class="text-muted small">
                 Buat pengajuan kebutuhan barang/jasa
             </div>
-
         </div>
-
 
         <a href="<?= base_url('spj/input_kebutuhan') ?>"
            class="btn btn-secondary">
@@ -40,12 +37,16 @@
 
             <i class="fas fa-exclamation-circle mr-1"></i>
 
-            <?= html_escape($this->session->flashdata('error')) ?>
+            <?= $this->session->flashdata('error') ?>
 
         </div>
 
     <?php endif; ?>
 
+
+    <!-- =====================================================
+         FORM
+    ====================================================== -->
 
     <form method="post"
           action="<?= base_url('spj/tambah_kebutuhan') ?>"
@@ -53,7 +54,7 @@
 
 
         <!-- =================================================
-             DATA SURAT
+             DATA PENGAJUAN
         ================================================== -->
 
         <div class="card shadow mb-4">
@@ -63,7 +64,6 @@
                 <strong class="text-primary">
 
                     <i class="fas fa-file-alt mr-1"></i>
-
                     Data Pengajuan
 
                 </strong>
@@ -75,7 +75,10 @@
 
                 <div class="row">
 
-                    <!-- NOMOR SURAT -->
+
+                    <!-- =================================================
+                         NOMOR SURAT
+                    ================================================== -->
 
                     <div class="col-md-6">
 
@@ -83,12 +86,14 @@
 
                             <label class="font-weight-bold">
                                 Nomor Surat
+                                <span class="text-danger">*</span>
                             </label>
 
                             <input type="text"
                                    name="nomor_surat"
                                    class="form-control"
                                    placeholder="Contoh: 001/PL.01/SMKN 1 Clms"
+                                   autocomplete="off"
                                    required>
 
                         </div>
@@ -96,7 +101,9 @@
                     </div>
 
 
-                    <!-- TANGGAL -->
+                    <!-- =================================================
+                         TANGGAL
+                    ================================================== -->
 
                     <div class="col-md-6">
 
@@ -104,6 +111,7 @@
 
                             <label class="font-weight-bold">
                                 Tanggal
+                                <span class="text-danger">*</span>
                             </label>
 
                             <input type="date"
@@ -117,7 +125,78 @@
                     </div>
 
 
-                    <!-- PERIHAL -->
+                    <!-- =================================================
+                         NOMOR INVOICE
+                    ================================================== -->
+
+                    <div class="col-md-6">
+
+                        <div class="form-group">
+
+                            <label class="font-weight-bold">
+                                Nomor Invoice
+                            </label>
+
+                            <input type="text"
+                                   name="nomor_invoice"
+                                   class="form-control"
+                                   placeholder="Nomor invoice"
+                                   autocomplete="off">
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- =================================================
+                         NOMOR PESANAN
+                    ================================================== -->
+
+                    <div class="col-md-6">
+
+                        <div class="form-group">
+
+                            <label class="font-weight-bold">
+                                Nomor Pesanan
+                            </label>
+
+                            <input type="text"
+                                   name="nomor_pesanan"
+                                   class="form-control"
+                                   placeholder="Nomor pesanan"
+                                   autocomplete="off">
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- =================================================
+                         NAMA CV / PENYEDIA
+                    ================================================== -->
+
+                    <div class="col-md-12">
+
+                        <div class="form-group">
+
+                            <label class="font-weight-bold">
+                                Nama CV/Penyedia
+                            </label>
+
+                            <input type="text"
+                                   name="nama_penyedia"
+                                   class="form-control"
+                                   placeholder="Nama CV atau penyedia barang/jasa"
+                                   autocomplete="off">
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- =================================================
+                         PERIHAL
+                    ================================================== -->
 
                     <div class="col-md-12">
 
@@ -125,6 +204,7 @@
 
                             <label class="font-weight-bold">
                                 Perihal
+                                <span class="text-danger">*</span>
                             </label>
 
                             <input type="text"
@@ -138,7 +218,9 @@
                     </div>
 
 
-                    <!-- KEGIATAN -->
+                    <!-- =================================================
+                         KEGIATAN
+                    ================================================== -->
 
                     <div class="col-md-12">
 
@@ -158,7 +240,9 @@
                     </div>
 
 
-                    <!-- KETERANGAN -->
+                    <!-- =================================================
+                         KETERANGAN
+                    ================================================== -->
 
                     <div class="col-md-12">
 
@@ -184,7 +268,6 @@
         </div>
 
 
-
         <!-- =================================================
              RINCIAN KEBUTUHAN
         ================================================== -->
@@ -198,16 +281,13 @@
                     <strong class="text-primary">
 
                         <i class="fas fa-list mr-1"></i>
-
                         Rincian Kebutuhan
 
                     </strong>
 
                     <div class="small text-muted mt-1">
-
                         Pilih kodering satu kali, kemudian tambahkan
                         barang di dalam kelompok tersebut.
-
                     </div>
 
                 </div>
@@ -218,7 +298,6 @@
                         class="btn btn-primary btn-sm">
 
                     <i class="fas fa-plus mr-1"></i>
-
                     Tambah Kodering
 
                 </button>
@@ -228,21 +307,19 @@
 
             <div class="card-body">
 
-                <!-- =================================================
-                     CONTAINER KELOMPOK KODERING
-                ================================================== -->
-
                 <div id="containerKodering">
 
 
                     <!-- =================================================
-                         KELOMPOK KODERING PERTAMA
+                         KELOMPOK KODERING
                     ================================================== -->
 
                     <div class="kelompok-kodering">
 
 
-                        <!-- HEADER KODERING -->
+                        <!-- =================================================
+                             HEADER KODERING
+                        ================================================== -->
 
                         <div class="kodering-header">
 
@@ -251,11 +328,9 @@
                                 <div class="col-md-9">
 
                                     <label class="font-weight-bold mb-1">
-
                                         Kodering
-
+                                        <span class="text-danger">*</span>
                                     </label>
-
 
                                     <select name="id_kategori[]"
                                             class="form-control kodering-select"
@@ -265,21 +340,24 @@
                                             -- Pilih Kodering --
                                         </option>
 
-                                        <?php foreach ($kategori as $k): ?>
+                                        <?php if (!empty($kategori)): ?>
 
-                                            <option value="<?= $k->id_kategori ?>"
-                                                    data-kodering="<?= html_escape($k->kodering) ?>">
+                                            <?php foreach ($kategori as $k): ?>
 
-                                                <?= html_escape($k->kodering) ?>
-                                                -
-                                                <?= html_escape($k->nama_kategori) ?>
+                                                <option value="<?= (int) $k->id_kategori ?>"
+                                                        data-kodering="<?= html_escape($k->kodering) ?>">
 
-                                            </option>
+                                                    <?= html_escape($k->kodering) ?>
+                                                    -
+                                                    <?= html_escape($k->nama_kategori) ?>
 
-                                        <?php endforeach; ?>
+                                                </option>
+
+                                            <?php endforeach; ?>
+
+                                        <?php endif; ?>
 
                                     </select>
-
 
                                     <div class="kodering-info text-primary small font-weight-bold mt-1"></div>
 
@@ -292,7 +370,6 @@
                                             class="btn btn-outline-danger btn-sm btn-hapus-kodering">
 
                                         <i class="fas fa-trash mr-1"></i>
-
                                         Hapus Kodering
 
                                     </button>
@@ -302,7 +379,6 @@
                             </div>
 
                         </div>
-
 
 
                         <!-- =================================================
@@ -340,6 +416,7 @@
 
                                         <th width="6%"
                                             class="text-center">
+                                            Aksi
                                         </th>
 
                                     </tr>
@@ -355,17 +432,16 @@
                                             1
                                         </td>
 
-
                                         <td>
 
                                             <input type="text"
                                                    name="nama_barang[0][]"
                                                    class="form-control nama-barang"
                                                    placeholder="Nama barang/jasa"
+                                                   autocomplete="off"
                                                    required>
 
                                         </td>
-
 
                                         <td>
 
@@ -379,27 +455,26 @@
 
                                         </td>
 
-
                                         <td>
 
                                             <input type="text"
                                                    name="satuan[0][]"
                                                    class="form-control satuan-barang"
                                                    placeholder="Pcs"
+                                                   autocomplete="off"
                                                    required>
 
                                         </td>
-
 
                                         <td>
 
                                             <input type="text"
                                                    name="keterangan_detail[0][]"
                                                    class="form-control keterangan-barang"
-                                                   placeholder="Opsional">
+                                                   placeholder="Opsional"
+                                                   autocomplete="off">
 
                                         </td>
-
 
                                         <td class="text-center">
 
@@ -422,17 +497,17 @@
                         </div>
 
 
-                        <!-- TAMBAH BARANG -->
+                        <!-- =================================================
+                             TAMBAH BARANG
+                        ================================================== -->
 
                         <button type="button"
                                 class="btn btn-outline-primary btn-sm btn-tambah-barang">
 
                             <i class="fas fa-plus mr-1"></i>
-
                             Tambah Barang
 
                         </button>
-
 
                     </div>
 
@@ -443,9 +518,8 @@
         </div>
 
 
-
         <!-- =================================================
-             SUBMIT
+             TOMBOL SIMPAN
         ================================================== -->
 
         <div class="text-right mb-4">
@@ -457,13 +531,11 @@
 
             </a>
 
-
             <button type="submit"
                     class="btn btn-primary"
                     id="btnSimpan">
 
                 <i class="fas fa-save mr-1"></i>
-
                 Simpan Kebutuhan
 
             </button>
@@ -476,139 +548,71 @@
 </div>
 
 
-
 <!-- =========================================================
-     STYLE FORM
+     STYLE
 ========================================================= -->
 
 <style>
 
-/* =========================================================
-   KELOMPOK KODERING
-========================================================= */
-
 .kelompok-kodering {
-
     border: 1px solid #e3e6f0;
-
     border-radius: 10px;
-
     padding: 16px;
-
     margin-bottom: 20px;
-
     background: #fff;
-
     box-shadow: 0 2px 8px rgba(0,0,0,.04);
-
 }
-
-
-/* =========================================================
-   HEADER KODERING
-========================================================= */
 
 .kodering-header {
-
     padding-bottom: 12px;
-
     border-bottom: 1px solid #eaecf4;
-
 }
 
-
-/* =========================================================
-   TABLE
-========================================================= */
-
 .tabel-barang {
-
     margin-bottom: 0 !important;
-
 }
 
 .tabel-barang th {
-
     font-size: 11px;
-
     font-weight: 700;
-
     vertical-align: middle;
-
 }
 
 .tabel-barang td {
-
     vertical-align: middle;
-
 }
 
 .tabel-barang .form-control {
-
     font-size: 12px;
-
 }
-
-
-/* =========================================================
-   NOMOR
-========================================================= */
 
 .nomor-barang {
-
     font-weight: 700;
-
     color: #858796;
-
 }
-
-
-/* =========================================================
-   KODERING INFO
-========================================================= */
 
 .kodering-info {
-
     min-height: 17px;
-
 }
-
-
-/* =========================================================
-   TAMBAH BARANG
-========================================================= */
 
 .btn-tambah-barang {
-
     border-radius: 7px;
-
 }
-
-
-/* =========================================================
-   MOBILE
-========================================================= */
 
 @media (max-width: 767.98px) {
 
     .kelompok-kodering {
-
         padding: 12px;
-
     }
 
     .kodering-header .text-right {
-
         margin-top: 10px;
-
         text-align: left !important;
-
     }
 
 }
 
 </style>
-
 
 
 <script>
@@ -622,7 +626,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
     /* =====================================================
-       TEMPLATE BARIS BARANG
+       BUAT BARIS BARANG
     ===================================================== */
 
     function buatBarisBarang(indexKelompok) {
@@ -637,17 +641,15 @@ document.addEventListener('DOMContentLoaded', function () {
             </td>
 
             <td>
-
                 <input type="text"
                        name="nama_barang[${indexKelompok}][]"
                        class="form-control nama-barang"
                        placeholder="Nama barang/jasa"
+                       autocomplete="off"
                        required>
-
             </td>
 
             <td>
-
                 <input type="number"
                        name="jumlah[${indexKelompok}][]"
                        class="form-control jumlah-barang"
@@ -655,26 +657,23 @@ document.addEventListener('DOMContentLoaded', function () {
                        step="0.01"
                        placeholder="0"
                        required>
-
             </td>
 
             <td>
-
                 <input type="text"
                        name="satuan[${indexKelompok}][]"
                        class="form-control satuan-barang"
                        placeholder="Pcs"
+                       autocomplete="off"
                        required>
-
             </td>
 
             <td>
-
                 <input type="text"
                        name="keterangan_detail[${indexKelompok}][]"
                        class="form-control keterangan-barang"
-                       placeholder="Opsional">
-
+                       placeholder="Opsional"
+                       autocomplete="off">
             </td>
 
             <td class="text-center">
@@ -700,11 +699,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function updateNomorBarang(kelompok) {
 
-        const rows = kelompok.querySelectorAll('.baris-barang');
+        const rows =
+            kelompok.querySelectorAll('.baris-barang');
 
         rows.forEach(function (row, index) {
 
-            const nomor = row.querySelector('.nomor-barang');
+            const nomor =
+                row.querySelector('.nomor-barang');
 
             if (nomor) {
                 nomor.textContent = index + 1;
@@ -716,15 +717,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
     /* =====================================================
-       UPDATE SEMUA INDEX KELOMPOK
-       
-       Penting supaya:
-       
-       nama_barang[0][]
-       nama_barang[1][]
-       nama_barang[2][]
-       
-       tetap berurutan setelah kelompok dihapus.
+       UPDATE INDEX KELOMPOK
     ===================================================== */
 
     function updateIndexKelompok() {
@@ -737,24 +730,18 @@ document.addEventListener('DOMContentLoaded', function () {
             kelompok.dataset.index = indexKelompok;
 
 
-            /*
-             * Kodering
-             */
-
             const select =
                 kelompok.querySelector('.kodering-select');
 
             if (select) {
 
                 select.name =
-                    'id_kategori[' + indexKelompok + ']';
+                    'id_kategori[' +
+                    indexKelompok +
+                    ']';
 
             }
 
-
-            /*
-             * Semua barang
-             */
 
             const rows =
                 kelompok.querySelectorAll('.baris-barang');
@@ -775,42 +762,34 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
                 if (nama) {
-
                     nama.name =
                         'nama_barang[' +
                         indexKelompok +
                         '][]';
-
                 }
 
 
                 if (jumlah) {
-
                     jumlah.name =
                         'jumlah[' +
                         indexKelompok +
                         '][]';
-
                 }
 
 
                 if (satuan) {
-
                     satuan.name =
                         'satuan[' +
                         indexKelompok +
                         '][]';
-
                 }
 
 
                 if (keterangan) {
-
                     keterangan.name =
                         'keterangan_detail[' +
                         indexKelompok +
                         '][]';
-
                 }
 
             });
@@ -832,7 +811,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const kelompokList =
             container.querySelectorAll('.kelompok-kodering');
 
-        const jumlah =
+        const jumlahKelompok =
             kelompokList.length;
 
 
@@ -846,15 +825,10 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
 
-            if (jumlah <= 1) {
-
-                tombol.style.display = 'none';
-
-            } else {
-
-                tombol.style.display = 'inline-block';
-
-            }
+            tombol.style.display =
+                jumlahKelompok <= 1
+                    ? 'none'
+                    : 'inline-block';
 
         });
 
@@ -870,7 +844,6 @@ document.addEventListener('DOMContentLoaded', function () {
         const tombol =
             event.target.closest('.btn-tambah-barang');
 
-
         if (!tombol) {
             return;
         }
@@ -879,42 +852,28 @@ document.addEventListener('DOMContentLoaded', function () {
         const kelompok =
             tombol.closest('.kelompok-kodering');
 
-
         if (!kelompok) {
             return;
         }
 
 
-        /*
-         * Ambil index kelompok sekarang.
-         */
-
-        const semuaKelompok =
+        const kelompokList =
             Array.from(
                 container.querySelectorAll('.kelompok-kodering')
             );
 
 
         const indexKelompok =
-            semuaKelompok.indexOf(kelompok);
+            kelompokList.indexOf(kelompok);
 
-
-        /*
-         * Cari tbody.
-         */
 
         const tbody =
             kelompok.querySelector('tbody');
-
 
         if (!tbody) {
             return;
         }
 
-
-        /*
-         * Tambahkan baris baru.
-         */
 
         const baris =
             buatBarisBarang(indexKelompok);
@@ -923,16 +882,9 @@ document.addEventListener('DOMContentLoaded', function () {
         tbody.appendChild(baris);
 
 
-        /*
-         * Update nomor.
-         */
-
         updateNomorBarang(kelompok);
+        updateIndexKelompok();
 
-
-        /*
-         * Fokus otomatis ke nama barang baru.
-         */
 
         const inputNama =
             baris.querySelector('.nama-barang');
@@ -941,9 +893,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (inputNama) {
 
             setTimeout(function () {
-
                 inputNama.focus();
-
             }, 50);
 
         }
@@ -960,7 +910,6 @@ document.addEventListener('DOMContentLoaded', function () {
         const tombol =
             event.target.closest('.btn-hapus-barang');
 
-
         if (!tombol) {
             return;
         }
@@ -968,7 +917,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const kelompok =
             tombol.closest('.kelompok-kodering');
-
 
         const baris =
             tombol.closest('.baris-barang');
@@ -995,9 +943,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         baris.remove();
 
-
         updateNomorBarang(kelompok);
-
         updateIndexKelompok();
 
     });
@@ -1018,17 +964,9 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
 
-        /*
-         * Clone kelompok.
-         */
-
         const kelompok =
             kelompokPertama.cloneNode(true);
 
-
-        /*
-         * Reset select kodering.
-         */
 
         const select =
             kelompok.querySelector('.kodering-select');
@@ -1037,30 +975,19 @@ document.addEventListener('DOMContentLoaded', function () {
         if (select) {
 
             select.value = '';
-
             select.name = '';
 
         }
 
-
-        /*
-         * Reset informasi kodering.
-         */
 
         const info =
             kelompok.querySelector('.kodering-info');
 
 
         if (info) {
-
             info.textContent = '';
-
         }
 
-
-        /*
-         * Kosongkan semua barang.
-         */
 
         const tbody =
             kelompok.querySelector('tbody');
@@ -1070,18 +997,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
             tbody.innerHTML = '';
 
-        }
 
+            const indexBaru =
+                container.querySelectorAll(
+                    '.kelompok-kodering'
+                ).length;
 
-        /*
-         * Tambahkan satu baris barang awal.
-         */
-
-        const indexBaru =
-            container.querySelectorAll('.kelompok-kodering').length;
-
-
-        if (tbody) {
 
             tbody.appendChild(
                 buatBarisBarang(indexBaru)
@@ -1090,32 +1011,17 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
 
-        /*
-         * Masukkan kelompok baru.
-         */
-
         container.appendChild(kelompok);
 
 
-        /*
-         * Rapikan index.
-         */
-
         updateIndexKelompok();
-
         updateTombolHapusKodering();
 
-
-        /*
-         * Fokus ke kodering baru.
-         */
 
         if (select) {
 
             setTimeout(function () {
-
                 select.focus();
-
             }, 50);
 
         }
@@ -1148,7 +1054,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
         const jumlahKelompok =
-            container.querySelectorAll('.kelompok-kodering').length;
+            container.querySelectorAll(
+                '.kelompok-kodering'
+            ).length;
 
 
         if (jumlahKelompok <= 1) {
@@ -1161,13 +1069,10 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
 
-        const konfirmasi =
-            confirm(
-                'Hapus kelompok kodering beserta seluruh barang di dalamnya?'
-            );
+        if (!confirm(
+            'Hapus kelompok kodering beserta seluruh barang di dalamnya?'
+        )) {
 
-
-        if (!konfirmasi) {
             return;
         }
 
@@ -1176,7 +1081,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
         updateIndexKelompok();
-
         updateTombolHapusKodering();
 
     });
@@ -1224,9 +1128,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
         const option =
-            select.options[
-                select.selectedIndex
-            ];
+            select.options[select.selectedIndex];
 
 
         const kodering =
@@ -1249,8 +1151,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
         let valid = true;
 
+
         const kelompokList =
-            container.querySelectorAll('.kelompok-kodering');
+            container.querySelectorAll(
+                '.kelompok-kodering'
+            );
 
 
         if (kelompokList.length === 0) {
@@ -1273,31 +1178,29 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
 
-            /*
-             * Cek kodering
-             */
-
             const select =
-                kelompok.querySelector('.kodering-select');
+                kelompok.querySelector(
+                    '.kodering-select'
+                );
 
 
             if (!select || !select.value) {
 
                 valid = false;
 
-                select.focus();
+                if (select) {
+                    select.focus();
+                }
 
                 return;
 
             }
 
 
-            /*
-             * Cek semua barang
-             */
-
             const rows =
-                kelompok.querySelectorAll('.baris-barang');
+                kelompok.querySelectorAll(
+                    '.baris-barang'
+                );
 
 
             if (rows.length === 0) {
@@ -1317,15 +1220,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
                 const nama =
-                    row.querySelector('.nama-barang');
-
+                    row.querySelector(
+                        '.nama-barang'
+                    );
 
                 const jumlah =
-                    row.querySelector('.jumlah-barang');
-
+                    row.querySelector(
+                        '.jumlah-barang'
+                    );
 
                 const satuan =
-                    row.querySelector('.satuan-barang');
+                    row.querySelector(
+                        '.satuan-barang'
+                    );
 
 
                 const namaValue =
@@ -1376,15 +1283,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
         /*
-         * Pastikan struktur name sudah rapi
-         * sebelum dikirim ke controller.
+         * Pastikan index name sudah rapi
+         * sebelum dikirim.
          */
 
         updateIndexKelompok();
 
 
         /*
-         * Hindari double submit.
+         * Cegah double submit.
          */
 
         btnSimpan.disabled = true;
@@ -1401,7 +1308,6 @@ document.addEventListener('DOMContentLoaded', function () {
     ===================================================== */
 
     updateIndexKelompok();
-
     updateTombolHapusKodering();
 
 });

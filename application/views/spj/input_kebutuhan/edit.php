@@ -1,12 +1,84 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
+
+$id_kebutuhan = (int) $kebutuhan->id_kebutuhan;
+
+/*
+ * =========================================================
+ * KELOMPOKKAN DETAIL BERDASARKAN KODERING
+ *
+ * Karena database menyimpan setiap barang sebagai baris,
+ * saat edit kita susun kembali menjadi:
+ *
+ * Kodering 1
+ *   - Barang 1
+ *   - Barang 2
+ *
+ * Kodering 2
+ *   - Barang 1
+ *   - Barang 2
+ * =========================================================
+ */
+
+$kelompok_kodering = array();
+
+if (!empty($detail)) {
+
+    foreach ($detail as $row) {
+
+        $key = (string) $row->id_kategori;
+
+        if (!isset($kelompok_kodering[$key])) {
+
+            $kelompok_kodering[$key] = array(
+                'id_kategori' => $row->id_kategori,
+                'kodering'    => $row->kodering,
+                'barang'      => array()
+            );
+
+        }
+
+        $kelompok_kodering[$key]['barang'][] = $row;
+    }
+}
+
+
+/*
+ * Jika tidak ada detail sama sekali,
+ * buat satu kelompok kosong.
+ */
+
+if (empty($kelompok_kodering)) {
+
+    $kelompok_kodering[] = array(
+        'id_kategori' => '',
+        'kodering'    => '',
+        'barang'      => array(
+            null
+        )
+    );
+
+} else {
+
+    /*
+     * Ubah associative array menjadi index 0,1,2...
+     * supaya cocok dengan name:
+     *
+     * id_kategori[0]
+     * id_kategori[1]
+     */
+
+    $kelompok_kodering = array_values($kelompok_kodering);
+
+}
+
 ?>
 
 <div class="container-fluid">
 
-    <!-- =================================================
+    <!-- =====================================================
          HEADER
-    ================================================== -->
+    ====================================================== -->
 
     <div class="d-flex align-items-center justify-content-between mb-4">
 
@@ -34,9 +106,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     </div>
 
 
-    <!-- =================================================
+    <!-- =====================================================
          ALERT
-    ================================================== -->
+    ====================================================== -->
 
     <?php if ($this->session->flashdata('error')): ?>
 
@@ -44,22 +116,24 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
             <i class="fas fa-exclamation-circle mr-1"></i>
 
-            <?= $this->session->flashdata('error') ?>
+            <?= html_escape($this->session->flashdata('error')) ?>
 
         </div>
 
     <?php endif; ?>
 
 
+    <!-- =====================================================
+         FORM
+    ====================================================== -->
+
     <form method="post"
-          action="<?= base_url(
-              'spj/update_kebutuhan/' .
-              $kebutuhan->id_kebutuhan
-          ) ?>">
+          action="<?= base_url('spj/update_kebutuhan/' . $id_kebutuhan) ?>"
+          id="formKebutuhan">
 
 
         <!-- =================================================
-             DATA SURAT
+             DATA PENGAJUAN
         ================================================== -->
 
         <div class="card shadow mb-4">
@@ -69,7 +143,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 <strong class="text-primary">
 
                     <i class="fas fa-file-alt mr-1"></i>
-
                     Data Pengajuan
 
                 </strong>
@@ -81,41 +154,45 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
                 <div class="row">
 
+
+                    <!-- NOMOR SURAT -->
+
                     <div class="col-md-6">
 
                         <div class="form-group">
 
-                            <label>
+                            <label class="font-weight-bold">
                                 Nomor Surat
+                                <span class="text-danger">*</span>
                             </label>
 
                             <input type="text"
                                    name="nomor_surat"
                                    class="form-control"
-                                   value="<?= html_escape(
-                                       $kebutuhan->nomor_surat
-                                   ) ?>"
+                                   value="<?= html_escape($kebutuhan->nomor_surat) ?>"
+                                   autocomplete="off"
                                    required>
 
                         </div>
 
                     </div>
 
+
+                    <!-- TANGGAL -->
 
                     <div class="col-md-6">
 
                         <div class="form-group">
 
-                            <label>
+                            <label class="font-weight-bold">
                                 Tanggal
+                                <span class="text-danger">*</span>
                             </label>
 
                             <input type="date"
                                    name="tanggal"
                                    class="form-control"
-                                   value="<?= html_escape(
-                                       $kebutuhan->tanggal
-                                   ) ?>"
+                                   value="<?= html_escape($kebutuhan->tanggal) ?>"
                                    required>
 
                         </div>
@@ -123,20 +200,87 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     </div>
 
 
+                    <!-- NOMOR INVOICE -->
+
+                    <div class="col-md-6">
+
+                        <div class="form-group">
+
+                            <label class="font-weight-bold">
+                                Nomor Invoice
+                            </label>
+
+                            <input type="text"
+                                   name="nomor_invoice"
+                                   class="form-control"
+                                   value="<?= html_escape($kebutuhan->nomor_invoice ?? '') ?>"
+                                   placeholder="Nomor invoice"
+                                   autocomplete="off">
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- NOMOR PESANAN -->
+
+                    <div class="col-md-6">
+
+                        <div class="form-group">
+
+                            <label class="font-weight-bold">
+                                Nomor Pesanan
+                            </label>
+
+                            <input type="text"
+                                   name="nomor_pesanan"
+                                   class="form-control"
+                                   value="<?= html_escape($kebutuhan->nomor_pesanan ?? '') ?>"
+                                   placeholder="Nomor pesanan"
+                                   autocomplete="off">
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- NAMA PENYEDIA -->
+
                     <div class="col-md-12">
 
                         <div class="form-group">
 
-                            <label>
+                            <label class="font-weight-bold">
+                                Nama CV/Penyedia
+                            </label>
+
+                            <input type="text"
+                                   name="nama_penyedia"
+                                   class="form-control"
+                                   value="<?= html_escape($kebutuhan->nama_penyedia ?? '') ?>"
+                                   placeholder="Nama CV atau penyedia barang/jasa"
+                                   autocomplete="off">
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- PERIHAL -->
+
+                    <div class="col-md-12">
+
+                        <div class="form-group">
+
+                            <label class="font-weight-bold">
                                 Perihal
+                                <span class="text-danger">*</span>
                             </label>
 
                             <input type="text"
                                    name="perihal"
                                    class="form-control"
-                                   value="<?= html_escape(
-                                       $kebutuhan->perihal
-                                   ) ?>"
+                                   value="<?= html_escape($kebutuhan->perihal) ?>"
                                    required>
 
                         </div>
@@ -144,20 +288,20 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     </div>
 
 
+                    <!-- KEGIATAN -->
+
                     <div class="col-md-12">
 
                         <div class="form-group">
 
-                            <label>
+                            <label class="font-weight-bold">
                                 Kegiatan
                             </label>
 
                             <input type="text"
                                    name="kegiatan"
                                    class="form-control"
-                                   value="<?= html_escape(
-                                       $kebutuhan->kegiatan
-                                   ) ?>"
+                                   value="<?= html_escape($kebutuhan->kegiatan ?? '') ?>"
                                    placeholder="Contoh: Kegiatan Kesiswaan">
 
                         </div>
@@ -165,19 +309,20 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     </div>
 
 
+                    <!-- KETERANGAN -->
+
                     <div class="col-md-12">
 
                         <div class="form-group mb-0">
 
-                            <label>
+                            <label class="font-weight-bold">
                                 Keterangan
                             </label>
 
                             <textarea name="keterangan"
                                       class="form-control"
-                                      rows="3"><?= html_escape(
-                                          $kebutuhan->keterangan
-                                      ) ?></textarea>
+                                      rows="3"
+                                      placeholder="Keterangan tambahan..."><?= html_escape($kebutuhan->keterangan ?? '') ?></textarea>
 
                         </div>
 
@@ -191,29 +336,36 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 
         <!-- =================================================
-             RINCIAN
+             RINCIAN KEBUTUHAN
         ================================================== -->
 
         <div class="card shadow mb-4">
 
             <div class="card-header d-flex align-items-center justify-content-between">
 
-                <strong class="text-primary">
+                <div>
 
-                    <i class="fas fa-list mr-1"></i>
+                    <strong class="text-primary">
 
-                    Rincian Kebutuhan
+                        <i class="fas fa-list mr-1"></i>
+                        Rincian Kebutuhan
 
-                </strong>
+                    </strong>
+
+                    <div class="small text-muted mt-1">
+                        Pilih kodering, kemudian tambahkan barang
+                        di dalam kelompok tersebut.
+                    </div>
+
+                </div>
 
 
                 <button type="button"
-                        id="btnTambahBaris"
+                        id="btnTambahKodering"
                         class="btn btn-primary btn-sm">
 
                     <i class="fas fa-plus mr-1"></i>
-
-                    Tambah Barang
+                    Tambah Kodering
 
                 </button>
 
@@ -222,92 +374,59 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
             <div class="card-body">
 
-                <div class="table-responsive">
-
-                    <table class="table table-bordered"
-                           id="tabelKebutuhan">
-
-                        <thead class="thead-light">
-
-                            <tr>
-
-                                <th width="4%">
-                                    No
-                                </th>
-
-                                <th width="25%">
-                                    Kategori / Kodering
-                                </th>
-
-                                <th>
-                                    Nama Barang/Jasa
-                                </th>
-
-                                <th width="10%">
-                                    Jumlah
-                                </th>
-
-                                <th width="12%">
-                                    Satuan
-                                </th>
-
-                                <th width="20%">
-                                    Keterangan
-                                </th>
-
-                                <th width="5%">
-                                </th>
-
-                            </tr>
-
-                        </thead>
+                <div id="containerKodering">
 
 
-                        <tbody>
+                    <?php foreach ($kelompok_kodering as $indexKelompok => $kelompok): ?>
 
-                            <?php
-                            $no = 1;
+                        <!-- =================================================
+                             KELOMPOK KODERING
+                        ================================================== -->
 
-                            foreach ($detail as $row):
-                            ?>
-
-                                <tr class="baris-kebutuhan">
-
-                                    <td class="nomor text-center">
-                                        <?= $no ?>
-                                    </td>
+                        <div class="kelompok-kodering"
+                             data-index="<?= $indexKelompok ?>">
 
 
-                                    <td>
+                            <!-- HEADER KODERING -->
 
-                                        <select name="id_kategori[]"
-                                                class="form-control kategori-select"
+                            <div class="kodering-header">
+
+                                <div class="row align-items-end">
+
+                                    <div class="col-md-9">
+
+                                        <label class="font-weight-bold mb-1">
+
+                                            Kodering
+                                            <span class="text-danger">*</span>
+
+                                        </label>
+
+
+                                        <select name="id_kategori[<?= $indexKelompok ?>]"
+                                                class="form-control kodering-select"
                                                 required>
 
                                             <option value="">
-                                                -- Pilih Kategori --
+                                                -- Pilih Kodering --
                                             </option>
+
 
                                             <?php foreach ($kategori as $k): ?>
 
-                                                <option
-                                                    value="<?= $k->id_kategori ?>"
+                                                <option value="<?= (int) $k->id_kategori ?>"
+                                                        data-kodering="<?= html_escape($k->kodering) ?>"
                                                     <?= (
-                                                        $k->id_kategori ==
-                                                        $row->id_kategori
+                                                        (int) $k->id_kategori ===
+                                                        (int) $kelompok['id_kategori']
                                                     )
                                                         ? 'selected'
                                                         : ''
                                                     ?>>
 
-                                                    <?= html_escape(
-                                                        $k->kodering
-                                                    ) ?>
-
+                                                    <?= html_escape($k->kodering) ?>
                                                     -
-                                                    <?= html_escape(
-                                                        $k->nama_kategori
-                                                    ) ?>
+                                                    <?= html_escape($k->nama_kategori) ?>
 
                                                 </option>
 
@@ -316,95 +435,177 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                         </select>
 
 
-                                        <small class="kodering-preview text-primary font-weight-bold">
+                                        <div class="kodering-info text-primary small font-weight-bold mt-1">
 
-                                            Kodering:
-                                            <?= html_escape(
-                                                $row->kodering
-                                            ) ?>
+                                            <?php if (!empty($kelompok['kodering'])): ?>
 
-                                        </small>
+                                                Kodering:
+                                                <?= html_escape($kelompok['kodering']) ?>
 
-                                    </td>
+                                            <?php endif; ?>
 
+                                        </div>
 
-                                    <td>
-
-                                        <input type="text"
-                                               name="nama_barang[]"
-                                               class="form-control"
-                                               value="<?= html_escape(
-                                                   $row->nama_barang
-                                               ) ?>"
-                                               required>
-
-                                    </td>
+                                    </div>
 
 
-                                    <td>
-
-                                        <input type="number"
-                                               name="jumlah[]"
-                                               class="form-control"
-                                               min="0.01"
-                                               step="0.01"
-                                               value="<?= html_escape(
-                                                   $row->jumlah
-                                               ) ?>"
-                                               required>
-
-                                    </td>
-
-
-                                    <td>
-
-                                        <input type="text"
-                                               name="satuan[]"
-                                               class="form-control"
-                                               value="<?= html_escape(
-                                                   $row->satuan
-                                               ) ?>"
-                                               placeholder="Pcs"
-                                               required>
-
-                                    </td>
-
-
-                                    <td>
-
-                                        <input type="text"
-                                               name="keterangan_detail[]"
-                                               class="form-control"
-                                               value="<?= html_escape(
-                                                   $row->keterangan
-                                               ) ?>"
-                                               placeholder="Opsional">
-
-                                    </td>
-
-
-                                    <td class="text-center">
+                                    <div class="col-md-3 text-right">
 
                                         <button type="button"
-                                                class="btn btn-danger btn-sm btn-hapus"
-                                                title="Hapus Barang">
+                                                class="btn btn-outline-danger btn-sm btn-hapus-kodering">
 
-                                            <i class="fas fa-times"></i>
+                                            <i class="fas fa-trash mr-1"></i>
+                                            Hapus Kodering
 
                                         </button>
 
-                                    </td>
+                                    </div>
 
-                                </tr>
+                                </div>
 
-                            <?php
-                                $no++;
-                            endforeach;
-                            ?>
+                            </div>
 
-                        </tbody>
 
-                    </table>
+                            <!-- TABEL BARANG -->
+
+                            <div class="table-responsive mt-3">
+
+                                <table class="table table-bordered table-hover tabel-barang mb-2">
+
+                                    <thead class="thead-light">
+
+                                        <tr>
+
+                                            <th width="5%"
+                                                class="text-center">
+                                                No
+                                            </th>
+
+                                            <th>
+                                                Nama Barang/Jasa
+                                            </th>
+
+                                            <th width="14%">
+                                                Jumlah
+                                            </th>
+
+                                            <th width="15%">
+                                                Satuan
+                                            </th>
+
+                                            <th width="25%">
+                                                Keterangan
+                                            </th>
+
+                                            <th width="6%"
+                                                class="text-center">
+                                                Aksi
+                                            </th>
+
+                                        </tr>
+
+                                    </thead>
+
+
+                                    <tbody>
+
+                                        <?php foreach ($kelompok['barang'] as $indexBarang => $barang): ?>
+
+                                            <tr class="baris-barang">
+
+                                                <td class="nomor-barang text-center">
+                                                    <?= $indexBarang + 1 ?>
+                                                </td>
+
+
+                                                <td>
+
+                                                    <input type="text"
+                                                           name="nama_barang[<?= $indexKelompok ?>][]"
+                                                           class="form-control nama-barang"
+                                                           value="<?= $barang ? html_escape($barang->nama_barang) : '' ?>"
+                                                           placeholder="Nama barang/jasa"
+                                                           autocomplete="off"
+                                                           required>
+
+                                                </td>
+
+
+                                                <td>
+
+                                                    <input type="number"
+                                                           name="jumlah[<?= $indexKelompok ?>][]"
+                                                           class="form-control jumlah-barang"
+                                                           value="<?= $barang ? html_escape($barang->jumlah) : '' ?>"
+                                                           min="0.01"
+                                                           step="0.01"
+                                                           placeholder="0"
+                                                           required>
+
+                                                </td>
+
+
+                                                <td>
+
+                                                    <input type="text"
+                                                           name="satuan[<?= $indexKelompok ?>][]"
+                                                           class="form-control satuan-barang"
+                                                           value="<?= $barang ? html_escape($barang->satuan) : '' ?>"
+                                                           placeholder="Pcs"
+                                                           autocomplete="off"
+                                                           required>
+
+                                                </td>
+
+
+                                                <td>
+
+                                                    <input type="text"
+                                                           name="keterangan_detail[<?= $indexKelompok ?>][]"
+                                                           class="form-control keterangan-barang"
+                                                           value="<?= $barang ? html_escape($barang->keterangan ?? '') : '' ?>"
+                                                           placeholder="Opsional"
+                                                           autocomplete="off">
+
+                                                </td>
+
+
+                                                <td class="text-center">
+
+                                                    <button type="button"
+                                                            class="btn btn-outline-danger btn-sm btn-hapus-barang"
+                                                            title="Hapus barang">
+
+                                                        <i class="fas fa-times"></i>
+
+                                                    </button>
+
+                                                </td>
+
+                                            </tr>
+
+                                        <?php endforeach; ?>
+
+                                    </tbody>
+
+                                </table>
+
+                            </div>
+
+
+                            <!-- TAMBAH BARANG -->
+
+                            <button type="button"
+                                    class="btn btn-outline-primary btn-sm btn-tambah-barang">
+
+                                <i class="fas fa-plus mr-1"></i>
+                                Tambah Barang
+
+                            </button>
+
+                        </div>
+
+                    <?php endforeach; ?>
 
                 </div>
 
@@ -420,7 +621,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         <div class="text-right mb-4">
 
             <a href="<?= base_url('spj/input_kebutuhan') ?>"
-               class="btn btn-secondary">
+               class="btn btn-secondary mr-1">
 
                 Batal
 
@@ -428,10 +629,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 
             <button type="submit"
-                    class="btn btn-primary">
+                    class="btn btn-primary"
+                    id="btnSimpan">
 
                 <i class="fas fa-save mr-1"></i>
-
                 Simpan Perubahan
 
             </button>
@@ -444,123 +645,931 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 </div>
 
 
+<style>
+
+.kelompok-kodering {
+
+    border: 1px solid #e3e6f0;
+
+    border-radius: 10px;
+
+    padding: 16px;
+
+    margin-bottom: 20px;
+
+    background: #fff;
+
+    box-shadow: 0 2px 8px rgba(0,0,0,.04);
+
+}
+
+
+.kodering-header {
+
+    padding-bottom: 12px;
+
+    border-bottom: 1px solid #eaecf4;
+
+}
+
+
+.tabel-barang {
+
+    margin-bottom: 0 !important;
+
+}
+
+
+.tabel-barang th {
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+    vertical-align: middle;
+
+}
+
+
+.tabel-barang td {
+
+    vertical-align: middle;
+
+}
+
+
+.tabel-barang .form-control {
+
+    font-size: 12px;
+
+}
+
+
+.nomor-barang {
+
+    font-weight: 700;
+
+    color: #858796;
+
+}
+
+
+.kodering-info {
+
+    min-height: 17px;
+
+}
+
+
+.btn-tambah-barang {
+
+    border-radius: 7px;
+
+}
+
+
+@media (max-width: 767.98px) {
+
+    .kelompok-kodering {
+
+        padding: 12px;
+
+    }
+
+
+    .kodering-header .text-right {
+
+        margin-top: 10px;
+
+        text-align: left !important;
+
+    }
+
+}
+
+</style>
+
+
 <script>
 
-$(document).ready(function () {
+document.addEventListener('DOMContentLoaded', function () {
+
+    const container =
+        document.getElementById('containerKodering');
+
+    const btnTambahKodering =
+        document.getElementById('btnTambahKodering');
+
+    const form =
+        document.getElementById('formKebutuhan');
+
+    const btnSimpan =
+        document.getElementById('btnSimpan');
 
 
     /* =====================================================
-       TAMBAH BARIS
+       TEMPLATE BARIS BARANG
     ===================================================== */
 
-    $('#btnTambahBaris').on('click', function () {
+    function buatBarisBarang(indexKelompok) {
 
-        var baris =
-            $('.baris-kebutuhan:first').clone();
+        const tr =
+            document.createElement('tr');
 
-        baris.find('input').val('');
+        tr.className =
+            'baris-barang';
 
-        baris.find('select').val('');
+        tr.innerHTML = `
+            <td class="nomor-barang text-center">
+                1
+            </td>
 
-        baris.find('.kodering-preview').text('');
+            <td>
+                <input type="text"
+                       name="nama_barang[${indexKelompok}][]"
+                       class="form-control nama-barang"
+                       placeholder="Nama barang/jasa"
+                       autocomplete="off"
+                       required>
+            </td>
 
-        $('#tabelKebutuhan tbody').append(baris);
+            <td>
+                <input type="number"
+                       name="jumlah[${indexKelompok}][]"
+                       class="form-control jumlah-barang"
+                       min="0.01"
+                       step="0.01"
+                       placeholder="0"
+                       required>
+            </td>
 
-        updateNomor();
+            <td>
+                <input type="text"
+                       name="satuan[${indexKelompok}][]"
+                       class="form-control satuan-barang"
+                       placeholder="Pcs"
+                       autocomplete="off"
+                       required>
+            </td>
+
+            <td>
+                <input type="text"
+                       name="keterangan_detail[${indexKelompok}][]"
+                       class="form-control keterangan-barang"
+                       placeholder="Opsional"
+                       autocomplete="off">
+            </td>
+
+            <td class="text-center">
+
+                <button type="button"
+                        class="btn btn-outline-danger btn-sm btn-hapus-barang"
+                        title="Hapus barang">
+
+                    <i class="fas fa-times"></i>
+
+                </button>
+
+            </td>
+        `;
+
+        return tr;
+    }
+
+
+    /* =====================================================
+       UPDATE NOMOR BARANG
+    ===================================================== */
+
+    function updateNomorBarang(kelompok) {
+
+        const rows =
+            kelompok.querySelectorAll('.baris-barang');
+
+        rows.forEach(function (row, index) {
+
+            const nomor =
+                row.querySelector('.nomor-barang');
+
+            if (nomor) {
+                nomor.textContent =
+                    index + 1;
+            }
+
+        });
+
+    }
+
+
+    /* =====================================================
+       UPDATE INDEX KELOMPOK
+    ===================================================== */
+
+    function updateIndexKelompok() {
+
+        const kelompokList =
+            container.querySelectorAll('.kelompok-kodering');
+
+
+        kelompokList.forEach(function (kelompok, indexKelompok) {
+
+            kelompok.dataset.index =
+                indexKelompok;
+
+
+            const select =
+                kelompok.querySelector('.kodering-select');
+
+
+            if (select) {
+
+                select.name =
+                    'id_kategori[' +
+                    indexKelompok +
+                    ']';
+
+            }
+
+
+            const rows =
+                kelompok.querySelectorAll('.baris-barang');
+
+
+            rows.forEach(function (row) {
+
+                const nama =
+                    row.querySelector('.nama-barang');
+
+                const jumlah =
+                    row.querySelector('.jumlah-barang');
+
+                const satuan =
+                    row.querySelector('.satuan-barang');
+
+                const keterangan =
+                    row.querySelector('.keterangan-barang');
+
+
+                if (nama) {
+
+                    nama.name =
+                        'nama_barang[' +
+                        indexKelompok +
+                        '][]';
+
+                }
+
+
+                if (jumlah) {
+
+                    jumlah.name =
+                        'jumlah[' +
+                        indexKelompok +
+                        '][]';
+
+                }
+
+
+                if (satuan) {
+
+                    satuan.name =
+                        'satuan[' +
+                        indexKelompok +
+                        '][]';
+
+                }
+
+
+                if (keterangan) {
+
+                    keterangan.name =
+                        'keterangan_detail[' +
+                        indexKelompok +
+                        '][]';
+
+                }
+
+            });
+
+
+            updateNomorBarang(kelompok);
+
+        });
+
+    }
+
+
+    /* =====================================================
+       UPDATE TOMBOL HAPUS KODERING
+    ===================================================== */
+
+    function updateTombolHapusKodering() {
+
+        const kelompokList =
+            container.querySelectorAll(
+                '.kelompok-kodering'
+            );
+
+
+        const jumlah =
+            kelompokList.length;
+
+
+        kelompokList.forEach(function (kelompok) {
+
+            const tombol =
+                kelompok.querySelector(
+                    '.btn-hapus-kodering'
+                );
+
+
+            if (!tombol) {
+                return;
+            }
+
+
+            if (jumlah <= 1) {
+
+                tombol.style.display =
+                    'none';
+
+            } else {
+
+                tombol.style.display =
+                    'inline-block';
+
+            }
+
+        });
+
+    }
+
+
+    /* =====================================================
+       TAMBAH BARANG
+    ===================================================== */
+
+    container.addEventListener('click', function (event) {
+
+        const tombol =
+            event.target.closest(
+                '.btn-tambah-barang'
+            );
+
+
+        if (!tombol) {
+            return;
+        }
+
+
+        const kelompok =
+            tombol.closest(
+                '.kelompok-kodering'
+            );
+
+
+        if (!kelompok) {
+            return;
+        }
+
+
+        const kelompokList =
+            Array.from(
+                container.querySelectorAll(
+                    '.kelompok-kodering'
+                )
+            );
+
+
+        const indexKelompok =
+            kelompokList.indexOf(
+                kelompok
+            );
+
+
+        const tbody =
+            kelompok.querySelector('tbody');
+
+
+        if (!tbody) {
+            return;
+        }
+
+
+        const baris =
+            buatBarisBarang(
+                indexKelompok
+            );
+
+
+        tbody.appendChild(
+            baris
+        );
+
+
+        updateNomorBarang(
+            kelompok
+        );
+
+
+        updateIndexKelompok();
+
+
+        const inputNama =
+            baris.querySelector(
+                '.nama-barang'
+            );
+
+
+        if (inputNama) {
+
+            setTimeout(function () {
+
+                inputNama.focus();
+
+            }, 50);
+
+        }
 
     });
 
 
     /* =====================================================
-       HAPUS BARIS
+       HAPUS BARANG
     ===================================================== */
 
-    $(document).on(
+    container.addEventListener('click', function (event) {
+
+        const tombol =
+            event.target.closest(
+                '.btn-hapus-barang'
+            );
+
+
+        if (!tombol) {
+            return;
+        }
+
+
+        const kelompok =
+            tombol.closest(
+                '.kelompok-kodering'
+            );
+
+
+        const baris =
+            tombol.closest(
+                '.baris-barang'
+            );
+
+
+        if (!kelompok || !baris) {
+            return;
+        }
+
+
+        const jumlahBaris =
+            kelompok.querySelectorAll(
+                '.baris-barang'
+            ).length;
+
+
+        if (jumlahBaris <= 1) {
+
+            alert(
+                'Minimal satu barang harus tersedia pada setiap kodering.'
+            );
+
+            return;
+
+        }
+
+
+        baris.remove();
+
+
+        updateNomorBarang(
+            kelompok
+        );
+
+
+        updateIndexKelompok();
+
+    });
+
+
+    /* =====================================================
+       TAMBAH KODERING
+    ===================================================== */
+
+    btnTambahKodering.addEventListener(
         'click',
-        '.btn-hapus',
         function () {
 
-            if (
-                $('.baris-kebutuhan').length <= 1
-            ) {
+            const kelompokPertama =
+                container.querySelector(
+                    '.kelompok-kodering'
+                );
+
+
+            if (!kelompokPertama) {
+                return;
+            }
+
+
+            const kelompok =
+                kelompokPertama.cloneNode(
+                    true
+                );
+
+
+            const select =
+                kelompok.querySelector(
+                    '.kodering-select'
+                );
+
+
+            if (select) {
+
+                select.value = '';
+                select.name = '';
+
+            }
+
+
+            const info =
+                kelompok.querySelector(
+                    '.kodering-info'
+                );
+
+
+            if (info) {
+
+                info.textContent = '';
+
+            }
+
+
+            const tbody =
+                kelompok.querySelector(
+                    'tbody'
+                );
+
+
+            if (tbody) {
+
+                tbody.innerHTML = '';
+
+            }
+
+
+            const indexBaru =
+                container.querySelectorAll(
+                    '.kelompok-kodering'
+                ).length;
+
+
+            if (tbody) {
+
+                tbody.appendChild(
+                    buatBarisBarang(
+                        indexBaru
+                    )
+                );
+
+            }
+
+
+            container.appendChild(
+                kelompok
+            );
+
+
+            updateIndexKelompok();
+            updateTombolHapusKodering();
+
+
+            if (select) {
+
+                setTimeout(function () {
+
+                    select.focus();
+
+                }, 50);
+
+            }
+
+        }
+    );
+
+
+    /* =====================================================
+       HAPUS KODERING
+    ===================================================== */
+
+    container.addEventListener('click', function (event) {
+
+        const tombol =
+            event.target.closest(
+                '.btn-hapus-kodering'
+            );
+
+
+        if (!tombol) {
+            return;
+        }
+
+
+        const kelompok =
+            tombol.closest(
+                '.kelompok-kodering'
+            );
+
+
+        if (!kelompok) {
+            return;
+        }
+
+
+        const jumlahKelompok =
+            container.querySelectorAll(
+                '.kelompok-kodering'
+            ).length;
+
+
+        if (jumlahKelompok <= 1) {
+
+            alert(
+                'Minimal satu kodering harus tersedia.'
+            );
+
+            return;
+
+        }
+
+
+        if (!confirm(
+            'Hapus kelompok kodering beserta seluruh barang di dalamnya?'
+        )) {
+
+            return;
+
+        }
+
+
+        kelompok.remove();
+
+
+        updateIndexKelompok();
+        updateTombolHapusKodering();
+
+    });
+
+
+    /* =====================================================
+       PERUBAHAN KODERING
+    ===================================================== */
+
+    container.addEventListener('change', function (event) {
+
+        const select =
+            event.target.closest(
+                '.kodering-select'
+            );
+
+
+        if (!select) {
+            return;
+        }
+
+
+        const kelompok =
+            select.closest(
+                '.kelompok-kodering'
+            );
+
+
+        if (!kelompok) {
+            return;
+        }
+
+
+        const info =
+            kelompok.querySelector(
+                '.kodering-info'
+            );
+
+
+        if (!info) {
+            return;
+        }
+
+
+        if (!select.value) {
+
+            info.textContent = '';
+
+            return;
+
+        }
+
+
+        const option =
+            select.options[
+                select.selectedIndex
+            ];
+
+
+        const kodering =
+            option.dataset.kodering || '';
+
+
+        info.textContent =
+            kodering
+                ? 'Kodering: ' + kodering
+                : '';
+
+    });
+
+
+    /* =====================================================
+       VALIDASI FORM
+    ===================================================== */
+
+    form.addEventListener(
+        'submit',
+        function (event) {
+
+            let valid = true;
+
+
+            const kelompokList =
+                container.querySelectorAll(
+                    '.kelompok-kodering'
+                );
+
+
+            if (kelompokList.length === 0) {
+
+                event.preventDefault();
 
                 alert(
-                    'Minimal satu barang harus tersedia.'
+                    'Minimal satu kodering harus tersedia.'
                 );
 
                 return;
-            }
-
-
-            $(this)
-                .closest('.baris-kebutuhan')
-                .remove();
-
-
-            updateNomor();
-
-        }
-    );
-
-
-    /* =====================================================
-       NOMOR
-    ===================================================== */
-
-    function updateNomor()
-    {
-        $('.baris-kebutuhan').each(
-            function (index) {
-
-                $(this)
-                    .find('.nomor')
-                    .text(index + 1);
 
             }
-        );
-    }
 
 
-    /* =====================================================
-       KODERING
-    ===================================================== */
+            kelompokList.forEach(
+                function (kelompok) {
 
-    $(document).on(
-        'change',
-        '.kategori-select',
-        function () {
-
-            var text =
-                $(this)
-                    .find('option:selected')
-                    .text()
-                    .trim();
+                    if (!valid) {
+                        return;
+                    }
 
 
-            var preview =
-                $(this)
-                    .closest('td')
-                    .find('.kodering-preview');
+                    const select =
+                        kelompok.querySelector(
+                            '.kodering-select'
+                        );
 
 
-            if (!$(this).val()) {
+                    if (
+                        !select ||
+                        !select.value
+                    ) {
 
-                preview.text('');
+                        valid = false;
 
-                return;
-            }
+                        if (select) {
+                            select.focus();
+                        }
+
+                        return;
+
+                    }
 
 
-            var kodering =
-                text.split(' - ')[0];
+                    const rows =
+                        kelompok.querySelectorAll(
+                            '.baris-barang'
+                        );
 
 
-            preview.text(
-                'Kodering: ' + kodering
+                    if (rows.length === 0) {
+
+                        valid = false;
+
+                        return;
+
+                    }
+
+
+                    rows.forEach(
+                        function (row) {
+
+                            if (!valid) {
+                                return;
+                            }
+
+
+                            const nama =
+                                row.querySelector(
+                                    '.nama-barang'
+                                );
+
+                            const jumlah =
+                                row.querySelector(
+                                    '.jumlah-barang'
+                                );
+
+                            const satuan =
+                                row.querySelector(
+                                    '.satuan-barang'
+                                );
+
+
+                            const namaValue =
+                                nama
+                                    ? nama.value.trim()
+                                    : '';
+
+
+                            const jumlahValue =
+                                jumlah
+                                    ? parseFloat(
+                                        jumlah.value
+                                    )
+                                    : 0;
+
+
+                            const satuanValue =
+                                satuan
+                                    ? satuan.value.trim()
+                                    : '';
+
+
+                            if (
+                                namaValue === '' ||
+                                !jumlahValue ||
+                                jumlahValue <= 0 ||
+                                satuanValue === ''
+                            ) {
+
+                                valid = false;
+
+                            }
+
+                        }
+                    );
+
+                }
             );
 
+
+            if (!valid) {
+
+                event.preventDefault();
+
+                alert(
+                    'Mohon lengkapi kodering dan seluruh data barang terlebih dahulu.'
+                );
+
+                return;
+
+            }
+
+
+            /*
+             * Pastikan seluruh name sudah
+             * berurutan sebelum POST.
+             */
+
+            updateIndexKelompok();
+
+
+            /*
+             * Cegah double submit.
+             */
+
+            btnSimpan.disabled = true;
+
+            btnSimpan.innerHTML =
+                '<i class="fas fa-spinner fa-spin mr-1"></i>' +
+                ' Menyimpan...';
+
         }
     );
+
+
+    /* =====================================================
+       INIT
+    ===================================================== */
+
+    updateIndexKelompok();
+    updateTombolHapusKodering();
 
 });
 

@@ -3,7 +3,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Spj_model extends CI_Model
 {
-    private $table = 'spj_kebutuhan';
+    private $table  = 'spj_kebutuhan';
     private $detail = 'spj_kebutuhan_detail';
 
 
@@ -15,19 +15,24 @@ class Spj_model extends CI_Model
     {
         return $this->db
             ->select('id_kategori, kodering, nama_kategori')
+            ->from('kategori_barang')
             ->order_by('kodering', 'ASC')
-            ->get('kategori_barang')
+            ->get()
             ->result();
     }
 
-public function get_kategori_by_id($id)
-{
-    return $this->db
-        ->select('id_kategori, kodering, nama_kategori')
-        ->where('id_kategori', (int) $id)
-        ->get('kategori_barang')
-        ->row();
-}
+
+    public function get_kategori_by_id($id)
+    {
+        return $this->db
+            ->select('id_kategori, kodering, nama_kategori')
+            ->from('kategori_barang')
+            ->where('id_kategori', (int) $id)
+            ->get()
+            ->row();
+    }
+
+
     /* =========================================================
        GET ALL KEBUTUHAN
     ========================================================= */
@@ -46,10 +51,7 @@ public function get_kategori_by_id($id)
                 'left'
             )
             ->group_by('spj_kebutuhan.id_kebutuhan')
-            ->order_by(
-                'spj_kebutuhan.id_kebutuhan',
-                'DESC'
-            )
+            ->order_by('spj_kebutuhan.id_kebutuhan', 'DESC')
             ->get()
             ->result();
     }
@@ -62,7 +64,7 @@ public function get_kategori_by_id($id)
     public function get_kebutuhan($id)
     {
         return $this->db
-            ->where('id_kebutuhan', $id)
+            ->where('id_kebutuhan', (int) $id)
             ->get($this->table)
             ->row();
     }
@@ -73,34 +75,34 @@ public function get_kategori_by_id($id)
     ========================================================= */
 
     public function get_detail($id)
-{
-    return $this->db
-        ->select('
-            spj_kebutuhan_detail.*,
-            kategori_barang.nama_kategori,
-            kategori_barang.nama_kodering
-        ')
-        ->from($this->detail)
-        ->join(
-            'kategori_barang',
-            'kategori_barang.id_kategori = spj_kebutuhan_detail.id_kategori',
-            'left'
-        )
-        ->where(
-            'spj_kebutuhan_detail.id_kebutuhan',
-            $id
-        )
-        ->order_by(
-            'spj_kebutuhan_detail.id_detail',
-            'ASC'
-        )
-        ->get()
-        ->result();
-}
+    {
+        return $this->db
+            ->select('
+                spj_kebutuhan_detail.*,
+                kategori_barang.nama_kategori,
+                kategori_barang.nama_kodering
+            ')
+            ->from($this->detail)
+            ->join(
+                'kategori_barang',
+                'kategori_barang.id_kategori = spj_kebutuhan_detail.id_kategori',
+                'left'
+            )
+            ->where(
+                'spj_kebutuhan_detail.id_kebutuhan',
+                (int) $id
+            )
+            ->order_by(
+                'spj_kebutuhan_detail.id_detail',
+                'ASC'
+            )
+            ->get()
+            ->result();
+    }
 
 
     /* =========================================================
-       INSERT
+       INSERT KEBUTUHAN
     ========================================================= */
 
     public function insert_kebutuhan($header, $details)
@@ -109,48 +111,48 @@ public function get_kategori_by_id($id)
 
 
         /*
-        |--------------------------------------------------------------------------
-        | HEADER
-        |--------------------------------------------------------------------------
-        */
+         * HEADER
+         *
+         * $header sekarang dapat berisi:
+         * - nomor_surat
+         * - nomor_invoice
+         * - nomor_pesanan
+         * - nama_penyedia
+         * - perihal
+         * - kegiatan
+         * - tanggal
+         * - keterangan
+         * - created_by
+         */
 
         $this->db->insert(
             $this->table,
             $header
         );
 
-
-        $id_kebutuhan =
-            $this->db->insert_id();
+        $id_kebutuhan = $this->db->insert_id();
 
 
         /*
-        |--------------------------------------------------------------------------
-        | DETAIL
-        |--------------------------------------------------------------------------
-        */
+         * DETAIL
+         */
 
-        foreach ($details as $detail) {
+        foreach ($details as $row) {
 
-            $detail['id_kebutuhan'] =
-                $id_kebutuhan;
+            $row['id_kebutuhan'] = $id_kebutuhan;
 
             $this->db->insert(
                 $this->detail,
-                $detail
+                $row
             );
         }
 
 
         /*
-        |--------------------------------------------------------------------------
-        | TRANSACTION
-        |--------------------------------------------------------------------------
-        */
+         * CEK TRANSAKSI
+         */
 
-        if (
-            $this->db->trans_status() === false
-        ) {
+        if ($this->db->trans_status() === false) {
 
             $this->db->trans_rollback();
 
@@ -165,87 +167,105 @@ public function get_kategori_by_id($id)
 
 
     /* =========================================================
-       DELETE
+       UPDATE KEBUTUHAN
+    ========================================================= */
+
+    public function update_kebutuhan($id, $header, $details)
+    {
+        $this->db->trans_begin();
+
+
+        /*
+         * UPDATE HEADER
+         */
+
+        $this->db
+            ->where(
+                'id_kebutuhan',
+                (int) $id
+            )
+            ->update(
+                $this->table,
+                $header
+            );
+
+
+        /*
+         * HAPUS DETAIL LAMA
+         */
+
+        $this->db
+            ->where(
+                'id_kebutuhan',
+                (int) $id
+            )
+            ->delete(
+                $this->detail
+            );
+
+
+        /*
+         * INSERT DETAIL BARU
+         */
+
+        foreach ($details as $row) {
+
+            $row['id_kebutuhan'] = (int) $id;
+
+            $this->db->insert(
+                $this->detail,
+                $row
+            );
+        }
+
+
+        /*
+         * CEK TRANSAKSI
+         */
+
+        if ($this->db->trans_status() === false) {
+
+            $this->db->trans_rollback();
+
+            return false;
+        }
+
+
+        $this->db->trans_commit();
+
+        return true;
+    }
+
+
+    /* =========================================================
+       DELETE KEBUTUHAN
     ========================================================= */
 
     public function delete_kebutuhan($id)
     {
         return $this->db
-            ->where('id_kebutuhan', $id)
+            ->where(
+                'id_kebutuhan',
+                (int) $id
+            )
             ->delete($this->table);
     }
 
-    public function update_kebutuhan(
-    $id,
-    $header,
-    $details
-) {
-    $this->db->trans_begin();
 
+    /* =========================================================
+       UPDATE BAST INTERNAL
+    ========================================================= */
 
-    /*
-     * UPDATE HEADER
-     */
-    $this->db
-        ->where(
-            'id_kebutuhan',
-            $id
-        )
-        ->update(
-            $this->table,
-            $header
-        );
-
-
-    /*
-     * HAPUS DETAIL LAMA
-     */
-    $this->db
-        ->where(
-            'id_kebutuhan',
-            $id
-        )
-        ->delete(
-            $this->detail
-        );
-
-
-    /*
-     * INSERT DETAIL BARU
-     */
-    foreach ($details as $row) {
-
-        $row['id_kebutuhan'] = $id;
-
-        $this->db->insert(
-            $this->detail,
-            $row
-        );
+    public function update_bast_internal($id, $data)
+    {
+        return $this->db
+            ->where(
+                'id_kebutuhan',
+                (int) $id
+            )
+            ->update(
+                $this->table,
+                $data
+            );
     }
-
-
-    /*
-     * CEK TRANSAKSI
-     */
-    if (
-        $this->db->trans_status() === false
-    ) {
-
-        $this->db->trans_rollback();
-
-        return false;
-    }
-
-
-    $this->db->trans_commit();
-
-    return true;
-}
-
-public function update_bast_internal($id, $data)
-{
-    return $this->db
-        ->where('id_kebutuhan', $id)
-        ->update($this->table, $data);
-}
 }

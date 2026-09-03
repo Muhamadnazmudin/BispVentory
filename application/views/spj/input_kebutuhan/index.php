@@ -16,13 +16,12 @@
             </div>
         </div>
 
-
-        <div class="d-flex align-items-center">
+        <div class="d-flex align-items-center flex-wrap">
 
             <!-- DOWNLOAD TEMPLATE -->
 
             <a href="<?= base_url('spj/download_template_kebutuhan') ?>"
-               class="btn btn-success mr-2">
+               class="btn btn-success btn-sm mr-2 mb-1">
 
                 <i class="fas fa-file-excel mr-1"></i>
                 Download Template
@@ -33,7 +32,7 @@
             <!-- IMPORT EXCEL -->
 
             <a href="<?= base_url('spj/import_kebutuhan') ?>"
-               class="btn btn-warning mr-2">
+               class="btn btn-warning btn-sm mr-2 mb-1">
 
                 <i class="fas fa-upload mr-1"></i>
                 Import Excel
@@ -41,21 +40,10 @@
             </a>
 
 
-            <!-- EXPORT EXCEL -->
-
-            <!-- <a href="<?= base_url('spj/export_kebutuhan') ?>"
-               class="btn btn-info mr-2">
-
-                <i class="fas fa-download mr-1"></i>
-                Export Excel
-
-            </a> -->
-
-
             <!-- INPUT MANUAL -->
 
             <a href="<?= base_url('spj/tambah_kebutuhan') ?>"
-               class="btn btn-primary">
+               class="btn btn-primary btn-sm mb-1">
 
                 <i class="fas fa-plus mr-1"></i>
                 Input Kebutuhan
@@ -73,11 +61,20 @@
 
     <?php if ($this->session->flashdata('success')): ?>
 
-        <div class="alert alert-success">
+        <div class="alert alert-success alert-dismissible fade show">
 
             <i class="fas fa-check-circle mr-1"></i>
 
             <?= $this->session->flashdata('success') ?>
+
+            <button type="button"
+                    class="close"
+                    data-dismiss="alert"
+                    aria-label="Close">
+
+                <span aria-hidden="true">&times;</span>
+
+            </button>
 
         </div>
 
@@ -86,11 +83,20 @@
 
     <?php if ($this->session->flashdata('error')): ?>
 
-        <div class="alert alert-danger">
+        <div class="alert alert-danger alert-dismissible fade show">
 
             <i class="fas fa-exclamation-circle mr-1"></i>
 
             <?= $this->session->flashdata('error') ?>
+
+            <button type="button"
+                    class="close"
+                    data-dismiss="alert"
+                    aria-label="Close">
+
+                <span aria-hidden="true">&times;</span>
+
+            </button>
 
         </div>
 
@@ -101,7 +107,7 @@
          CARD DAFTAR KEBUTUHAN
     ========================================================== -->
 
-    <div class="card shadow mb-4">
+    <div class="card shadow-sm mb-4">
 
         <!-- =====================================================
              CARD HEADER
@@ -111,24 +117,27 @@
 
             <div class="d-flex align-items-center justify-content-between">
 
-                <h6 class="m-0 font-weight-bold text-primary">
+                <div>
 
-                    <i class="fas fa-clipboard-list mr-1"></i>
+                    <h6 class="m-0 font-weight-bold text-primary">
 
-                    Daftar Kebutuhan
+                        <i class="fas fa-clipboard-list mr-1"></i>
+                        Daftar Kebutuhan
 
-                </h6>
+                    </h6>
+
+                </div>
 
 
-                <span class="text-muted small">
+                <div class="text-muted small">
 
-                    <span id="jumlahHasil">
+                    <span id="jumlahHasil" class="font-weight-bold">
                         <?= !empty($kebutuhan) ? count($kebutuhan) : 0 ?>
                     </span>
 
                     pengajuan
 
-                </span>
+                </div>
 
             </div>
 
@@ -143,15 +152,18 @@
 
             <div class="row mb-4">
 
-                <!-- PENCARIAN NOMOR SURAT -->
+                <!-- CARI NOMOR SURAT -->
 
                 <div class="col-md-5 mb-2">
 
-                    <label class="small font-weight-bold text-gray-700 mb-1">
+                    <label for="filterNomorSurat"
+                           class="small font-weight-bold text-gray-700">
+
                         Cari Nomor Surat
+
                     </label>
 
-                    <div class="input-group">
+                    <div class="input-group input-group-sm">
 
                         <div class="input-group-prepend">
 
@@ -175,12 +187,15 @@
 
                 <div class="col-md-3 mb-2">
 
-                    <label class="small font-weight-bold text-gray-700 mb-1">
+                    <label for="filterBulan"
+                           class="small font-weight-bold text-gray-700">
+
                         Filter Bulan
+
                     </label>
 
                     <select id="filterBulan"
-                            class="form-control">
+                            class="form-control form-control-sm">
 
                         <option value="">
                             Semua Bulan
@@ -210,7 +225,7 @@
 
                     <button type="button"
                             id="resetFilter"
-                            class="btn btn-secondary btn-block">
+                            class="btn btn-secondary btn-sm btn-block">
 
                         <i class="fas fa-sync-alt mr-1"></i>
                         Reset
@@ -228,34 +243,39 @@
 
             <div class="table-responsive">
 
-                <table class="table table-bordered table-hover"
+                <table class="table table-bordered table-hover mb-0"
                        id="tabelKebutuhan">
 
                     <thead class="thead-light">
 
                         <tr>
 
-                            <th width="5%" class="text-center">
+                            <th width="5%"
+                                class="text-center align-middle">
                                 No
                             </th>
 
-                            <th>
+                            <th width="27%"
+                                class="align-middle">
                                 Nomor Surat
                             </th>
 
-                            <th>
+                            <th class="align-middle">
                                 Perihal
                             </th>
 
-                            <th width="12%">
+                            <th width="12%"
+                                class="align-middle">
                                 Tanggal
                             </th>
 
-                            <th width="10%" class="text-center">
+                            <th width="9%"
+                                class="text-center align-middle">
                                 Item
                             </th>
 
-                            <th width="18%" class="text-center">
+                            <th width="18%"
+                                class="text-center align-middle">
                                 Aksi
                             </th>
 
@@ -271,44 +291,114 @@
                             <?php foreach ($kebutuhan as $row): ?>
 
                                 <?php
+
                                 $tanggal_data = !empty($row->tanggal)
-                                    ? date('Y-m-d', strtotime($row->tanggal))
+                                    ? date(
+                                        'Y-m-d',
+                                        strtotime($row->tanggal)
+                                    )
                                     : '';
 
                                 $bulan_data = !empty($row->tanggal)
-                                    ? date('m', strtotime($row->tanggal))
+                                    ? date(
+                                        'm',
+                                        strtotime($row->tanggal)
+                                    )
                                     : '';
+
                                 ?>
 
                                 <tr class="barisKebutuhan"
-                                    data-nomor="<?= html_escape(strtolower($row->nomor_surat)) ?>"
-                                    data-bulan="<?= html_escape($bulan_data) ?>">
+    data-nomor="<?= html_escape($row->nomor_surat) ?>"
+    data-invoice="<?= html_escape($row->nomor_invoice ?? '') ?>"
+    data-pesanan="<?= html_escape($row->nomor_pesanan ?? '') ?>"
+    data-penyedia="<?= html_escape($row->nama_penyedia ?? '') ?>"
+    data-bulan="<?= date('m', strtotime($row->tanggal)) ?>">
 
-                                    <!-- NO -->
+                                    <!-- =================================================
+                                         NO
+                                    ================================================== -->
 
-                                    <td class="text-center nomorUrut">
+                                    <td class="text-center align-middle nomorUrut">
                                         -
                                     </td>
 
 
-                                    <!-- NOMOR SURAT -->
+                                    <!-- =================================================
+                                         NOMOR SURAT + INFORMASI TAMBAHAN
+                                    ================================================== -->
 
-                                    <td>
+                                    <td class="align-middle">
 
-                                        <span class="font-weight-bold">
+                                        <div class="font-weight-bold text-gray-800">
 
                                             <?= html_escape(
                                                 $row->nomor_surat
                                             ) ?>
 
-                                        </span>
+                                        </div>
+
+
+                                        <!-- NOMOR INVOICE -->
+
+                                        <?php if (!empty($row->nomor_invoice)): ?>
+
+                                            <div class="small text-muted mt-1">
+
+                                                <i class="fas fa-file-invoice mr-1"></i>
+
+                                                Invoice:
+                                                <?= html_escape(
+                                                    $row->nomor_invoice
+                                                ) ?>
+
+                                            </div>
+
+                                        <?php endif; ?>
+
+
+                                        <!-- NOMOR PESANAN -->
+
+                                        <?php if (!empty($row->nomor_pesanan)): ?>
+
+                                            <div class="small text-muted">
+
+                                                <i class="fas fa-shopping-cart mr-1"></i>
+
+                                                Pesanan:
+                                                <?= html_escape(
+                                                    $row->nomor_pesanan
+                                                ) ?>
+
+                                            </div>
+
+                                        <?php endif; ?>
+
+
+                                        <!-- PENYEDIA -->
+
+                                        <?php if (!empty($row->nama_penyedia)): ?>
+
+                                            <div class="small text-muted">
+
+                                                <i class="fas fa-building mr-1"></i>
+
+                                                <?= html_escape(
+                                                    $row->nama_penyedia
+                                                ) ?>
+
+                                            </div>
+
+                                        <?php endif; ?>
 
                                     </td>
 
 
-                                    <!-- PERIHAL -->
+                                    <!-- =================================================
+                                         PERIHAL
+                                    ================================================== -->
 
-                                    <td>
+                                    <td class="align-middle">
 
                                         <?= html_escape(
                                             $row->perihal
@@ -317,16 +407,24 @@
                                     </td>
 
 
-                                    <!-- TANGGAL -->
+                                    <!-- =================================================
+                                         TANGGAL
+                                    ================================================== -->
 
-                                    <td>
+                                    <td class="align-middle">
 
                                         <?php if (!empty($tanggal_data)): ?>
 
-                                            <?= date(
-                                                'd-m-Y',
-                                                strtotime($tanggal_data)
-                                            ) ?>
+                                            <span class="text-nowrap">
+
+                                                <i class="far fa-calendar-alt mr-1 text-muted"></i>
+
+                                                <?= date(
+                                                    'd-m-Y',
+                                                    strtotime($tanggal_data)
+                                                ) ?>
+
+                                            </span>
 
                                         <?php else: ?>
 
@@ -337,11 +435,13 @@
                                     </td>
 
 
-                                    <!-- JUMLAH ITEM -->
+                                    <!-- =================================================
+                                         JUMLAH ITEM
+                                    ================================================== -->
 
-                                    <td class="text-center">
+                                    <td class="text-center align-middle">
 
-                                        <span class="badge badge-info">
+                                        <span class="badge badge-info px-2 py-1">
 
                                             <?= (int) $row->jumlah_item ?>
 
@@ -350,12 +450,13 @@
                                     </td>
 
 
-                                    <!-- AKSI -->
+                                    <!-- =================================================
+                                         AKSI
+                                    ================================================== -->
 
-                                    <td class="text-center">
+                                    <td class="text-center align-middle">
 
                                         <div class="d-flex justify-content-center">
-
 
                                             <!-- DETAIL -->
 
@@ -425,7 +526,9 @@
                             <?php endforeach; ?>
 
 
-                            <!-- DATA TIDAK DITEMUKAN -->
+                            <!-- =================================================
+                                 TIDAK DITEMUKAN
+                            ================================================== -->
 
                             <tr id="dataTidakDitemukan"
                                 style="display:none;">
@@ -450,7 +553,9 @@
 
                         <?php else: ?>
 
-                            <!-- DATA KOSONG -->
+                            <!-- =================================================
+                                 DATA KOSONG
+                            ================================================== -->
 
                             <tr>
 
@@ -495,11 +600,18 @@
 
 document.addEventListener('DOMContentLoaded', function () {
 
-    const inputNomor = document.getElementById('filterNomorSurat');
-    const selectBulan = document.getElementById('filterBulan');
-    const tombolReset = document.getElementById('resetFilter');
+    const inputNomor =
+        document.getElementById('filterNomorSurat');
 
-    const baris = document.querySelectorAll('.barisKebutuhan');
+    const selectBulan =
+        document.getElementById('filterBulan');
+
+    const tombolReset =
+        document.getElementById('resetFilter');
+
+    const baris =
+        document.querySelectorAll('.barisKebutuhan');
+
     const dataTidakDitemukan =
         document.getElementById('dataTidakDitemukan');
 
@@ -507,66 +619,120 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('jumlahHasil');
 
 
+    /*
+    |--------------------------------------------------------------------------
+    | FILTER DATA
+    |--------------------------------------------------------------------------
+    */
+
     function filterData() {
 
-        const keyword =
-            inputNomor.value
+    const keyword =
+        inputNomor
+            ? inputNomor.value
                 .toLowerCase()
-                .trim();
+                .trim()
+            : '';
 
-        const bulan =
-            selectBulan.value;
+    const bulan =
+        selectBulan
+            ? selectBulan.value
+            : '';
 
-        let jumlah = 0;
-
-
-        baris.forEach(function (row) {
-
-            const nomor =
-                row.getAttribute('data-nomor') || '';
-
-            const bulanData =
-                row.getAttribute('data-bulan') || '';
-
-
-            const cocokNomor =
-                nomor.indexOf(keyword) !== -1;
-
-            const cocokBulan =
-                bulan === '' ||
-                bulanData === bulan;
-
-
-            if (cocokNomor && cocokBulan) {
-
-                row.style.display = '';
-
-                jumlah++;
-
-            } else {
-
-                row.style.display = 'none';
-
-            }
-
-        });
+    let jumlah = 0;
 
 
         /*
-         * UPDATE NOMOR URUT
-         */
-
-        let nomorUrut = 1;
+        |--------------------------------------------------------------------------
+        | TAMPILKAN / SEMBUNYIKAN BARIS
+        |--------------------------------------------------------------------------
+        */
 
         baris.forEach(function (row) {
 
-            if (row.style.display !== 'none') {
+    const nomor =
+        (
+            row.getAttribute('data-nomor') || ''
+        ).toLowerCase();
+
+    const invoice =
+        (
+            row.getAttribute('data-invoice') || ''
+        ).toLowerCase();
+
+    const pesanan =
+        (
+            row.getAttribute('data-pesanan') || ''
+        ).toLowerCase();
+
+    const penyedia =
+        (
+            row.getAttribute('data-penyedia') || ''
+        ).toLowerCase();
+
+    const bulanData =
+        row.getAttribute(
+            'data-bulan'
+        ) || '';
+
+
+    const cocokNomor =
+        keyword === '' ||
+        nomor.indexOf(keyword) !== -1 ||
+        invoice.indexOf(keyword) !== -1 ||
+        pesanan.indexOf(keyword) !== -1 ||
+        penyedia.indexOf(keyword) !== -1;
+
+
+    const cocokBulan =
+        bulan === '' ||
+        bulanData === bulan;
+
+
+    if (
+        cocokNomor &&
+        cocokBulan
+    ) {
+
+        row.style.display = '';
+
+        jumlah++;
+
+    } else {
+
+        row.style.display = 'none';
+
+    }
+
+});
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | NOMOR URUT DINAMIS
+        |--------------------------------------------------------------------------
+        */
+
+        let nomorUrut = 1;
+
+
+        baris.forEach(function (row) {
+
+            if (
+                row.style.display !== 'none'
+            ) {
 
                 const cell =
-                    row.querySelector('.nomorUrut');
+                    row.querySelector(
+                        '.nomorUrut'
+                    );
+
 
                 if (cell) {
-                    cell.textContent = nomorUrut++;
+
+                    cell.textContent =
+                        nomorUrut++;
+
                 }
 
             }
@@ -575,22 +741,31 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
         /*
-         * UPDATE JUMLAH
-         */
+        |--------------------------------------------------------------------------
+        | JUMLAH HASIL
+        |--------------------------------------------------------------------------
+        */
 
         if (jumlahHasil) {
-            jumlahHasil.textContent = jumlah;
+
+            jumlahHasil.textContent =
+                jumlah;
+
         }
 
 
         /*
-         * DATA TIDAK DITEMUKAN
-         */
+        |--------------------------------------------------------------------------
+        | DATA TIDAK DITEMUKAN
+        |--------------------------------------------------------------------------
+        */
 
         if (dataTidakDitemukan) {
 
             dataTidakDitemukan.style.display =
-                jumlah === 0 ? '' : 'none';
+                jumlah === 0
+                    ? ''
+                    : 'none';
 
         }
 
@@ -598,8 +773,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
     /*
-     * PENCARIAN NOMOR SURAT
-     */
+    |--------------------------------------------------------------------------
+    | PENCARIAN
+    |--------------------------------------------------------------------------
+    */
 
     if (inputNomor) {
 
@@ -612,8 +789,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
     /*
-     * FILTER BULAN
-     */
+    |--------------------------------------------------------------------------
+    | FILTER BULAN
+    |--------------------------------------------------------------------------
+    */
 
     if (selectBulan) {
 
@@ -626,8 +805,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
     /*
-     * RESET FILTER
-     */
+    |--------------------------------------------------------------------------
+    | RESET
+    |--------------------------------------------------------------------------
+    */
 
     if (tombolReset) {
 
@@ -635,8 +816,13 @@ document.addEventListener('DOMContentLoaded', function () {
             'click',
             function () {
 
-                inputNomor.value = '';
-                selectBulan.value = '';
+                if (inputNomor) {
+                    inputNomor.value = '';
+                }
+
+                if (selectBulan) {
+                    selectBulan.value = '';
+                }
 
                 filterData();
 
@@ -647,8 +833,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
     /*
-     * INISIALISASI
-     */
+    |--------------------------------------------------------------------------
+    | INIT
+    |--------------------------------------------------------------------------
+    */
 
     filterData();
 

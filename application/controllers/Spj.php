@@ -40,459 +40,501 @@ class Spj extends MY_Controller
     ========================================================= */
 
     public function tambah_kebutuhan()
-    {
-        if (!$this->input->post()) {
+{
+    /*
+    |--------------------------------------------------------------------------
+    | TAMPILKAN FORM
+    |--------------------------------------------------------------------------
+    */
 
-            $data['title'] = 'Tambah Input Kebutuhan';
+    if (!$this->input->post()) {
 
-            $data['kategori'] =
-                $this->Spj_model->get_kategori();
+        $data = array(
+            'title'    => 'Tambah Input Kebutuhan',
+            'kategori' => $this->Spj_model->get_kategori()
+        );
+
+        $this->load->view('layouts/header');
+        $this->load->view('layouts/sidebar');
+        $this->load->view('layouts/topbar');
+        $this->load->view(
+            'spj/input_kebutuhan/form',
+            $data
+        );
+        $this->load->view('layouts/footer');
+
+        return;
+    }
 
 
-            $this->load->view('layouts/header');
-            $this->load->view('layouts/sidebar');
-            $this->load->view('layouts/topbar');
-            $this->load->view(
-                'spj/input_kebutuhan/form',
-                $data
-            );
-            $this->load->view('layouts/footer');
+    /*
+    |--------------------------------------------------------------------------
+    | DATA HEADER
+    |--------------------------------------------------------------------------
+    */
 
-            return;
+    $nomor_surat = trim(
+        (string) $this->input->post('nomor_surat', true)
+    );
+
+    $nomor_invoice = trim(
+        (string) $this->input->post('nomor_invoice', true)
+    );
+
+    $nomor_pesanan = trim(
+        (string) $this->input->post('nomor_pesanan', true)
+    );
+
+    $nama_penyedia = trim(
+        (string) $this->input->post('nama_penyedia', true)
+    );
+
+    $perihal = trim(
+        (string) $this->input->post('perihal', true)
+    );
+
+    $kegiatan = trim(
+        (string) $this->input->post('kegiatan', true)
+    );
+
+    $tanggal = trim(
+        (string) $this->input->post('tanggal', true)
+    );
+
+    $keterangan = trim(
+        (string) $this->input->post('keterangan', true)
+    );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | VALIDASI HEADER
+    |--------------------------------------------------------------------------
+    */
+
+    if (
+        $nomor_surat === '' ||
+        $perihal === '' ||
+        $tanggal === ''
+    ) {
+
+        $this->session->set_flashdata(
+            'error',
+            'Nomor surat, perihal, dan tanggal wajib diisi.'
+        );
+
+        redirect('spj/tambah_kebutuhan');
+
+        return;
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | DATA DETAIL
+    |--------------------------------------------------------------------------
+    |
+    | Struktur:
+    |
+    | id_kategori[0]
+    |
+    | nama_barang[0][0]
+    | jumlah[0][0]
+    | satuan[0][0]
+    |
+    | nama_barang[0][1]
+    | jumlah[0][1]
+    | satuan[0][1]
+    |
+    | id_kategori[1]
+    | dst...
+    |
+    |--------------------------------------------------------------------------
+    */
+
+    $id_kategori = $this->input->post('id_kategori');
+
+    $nama_barang = $this->input->post('nama_barang');
+
+    $jumlah = $this->input->post('jumlah');
+
+    $satuan = $this->input->post('satuan');
+
+    $keterangan_detail =
+        $this->input->post('keterangan_detail');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | VALIDASI STRUKTUR DETAIL
+    |--------------------------------------------------------------------------
+    */
+
+    if (
+        !is_array($id_kategori) ||
+        !is_array($nama_barang) ||
+        !is_array($jumlah) ||
+        !is_array($satuan)
+    ) {
+
+        $this->session->set_flashdata(
+            'error',
+            'Rincian kebutuhan tidak valid.'
+        );
+
+        redirect('spj/tambah_kebutuhan');
+
+        return;
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | BENTUK DETAIL FLAT
+    |--------------------------------------------------------------------------
+    */
+
+    $details = array();
+
+
+    foreach (
+        $id_kategori as $index_kelompok => $kategori_id
+    ) {
+
+        /*
+        |--------------------------------------------------------------------------
+        | VALIDASI KATEGORI
+        |--------------------------------------------------------------------------
+        */
+
+        $kategori_id = (int) $kategori_id;
+
+        if ($kategori_id <= 0) {
+            continue;
         }
-
-
-        /* =====================================================
-           DATA HEADER SURAT
-        ===================================================== */
-
-        $nomor_surat = trim(
-            (string) $this->input->post('nomor_surat', true)
-        );
-
-        $perihal = trim(
-            (string) $this->input->post('perihal', true)
-        );
-
-        $kegiatan = trim(
-            (string) $this->input->post('kegiatan', true)
-        );
-
-        $tanggal = trim(
-            (string) $this->input->post('tanggal', true)
-        );
-
-        $keterangan = trim(
-            (string) $this->input->post('keterangan', true)
-        );
-
-
-        /* =====================================================
-           VALIDASI HEADER
-        ===================================================== */
-
-        if (
-            $nomor_surat === '' ||
-            $perihal === '' ||
-            $tanggal === ''
-        ) {
-
-            $this->session->set_flashdata(
-                'error',
-                'Nomor surat, perihal, dan tanggal wajib diisi.'
-            );
-
-            redirect('spj/tambah_kebutuhan');
-
-            return;
-        }
-
-
-        /* =====================================================
-           DATA DETAIL
-           
-           STRUKTUR FORM BARU:
-
-           id_kategori[0]
-
-           nama_barang[0][0]
-           jumlah[0][0]
-           satuan[0][0]
-
-           nama_barang[0][1]
-           jumlah[0][1]
-           satuan[0][1]
-
-
-           id_kategori[1]
-
-           nama_barang[1][0]
-           jumlah[1][0]
-           satuan[1][0]
-
-           dst...
-        ===================================================== */
-
-        $id_kategori =
-            $this->input->post('id_kategori');
-
-        $nama_barang =
-            $this->input->post('nama_barang');
-
-        $jumlah =
-            $this->input->post('jumlah');
-
-        $satuan =
-            $this->input->post('satuan');
-
-        $keterangan_detail =
-            $this->input->post('keterangan_detail');
 
 
         /*
-         * Pastikan struktur utama berupa array.
-         */
+        |--------------------------------------------------------------------------
+        | AMBIL KATEGORI DARI DATABASE
+        |--------------------------------------------------------------------------
+        |
+        | Kodering diambil dari database.
+        | Tidak mempercayai data kodering dari browser.
+        |
+        */
 
-        if (
-            !is_array($id_kategori) ||
-            !is_array($nama_barang) ||
-            !is_array($jumlah) ||
-            !is_array($satuan)
-        ) {
-
-            $this->session->set_flashdata(
-                'error',
-                'Rincian kebutuhan tidak valid.'
+        $kategori =
+            $this->Spj_model->get_kategori_by_id(
+                $kategori_id
             );
 
-            redirect('spj/tambah_kebutuhan');
 
-            return;
+        if (!$kategori) {
+            continue;
         }
 
 
-        /* =====================================================
-           BENTUK DETAIL FLAT
-           
-           Hasil akhirnya:
+        /*
+        |--------------------------------------------------------------------------
+        | AMBIL DATA KELOMPOK
+        |--------------------------------------------------------------------------
+        */
 
-           [
-               [
-                   id_kategori,
-                   kodering,
-                   nama_barang,
-                   jumlah,
-                   satuan,
-                   keterangan
-               ],
-
-               [
-                   ...
-               ]
-           ]
-        ===================================================== */
-
-        $details = array();
+        $barang_kelompok =
+            isset($nama_barang[$index_kelompok]) &&
+            is_array($nama_barang[$index_kelompok])
+                ? $nama_barang[$index_kelompok]
+                : array();
 
 
-        foreach ($id_kategori as $index_kelompok => $kategori_id) {
+        $jumlah_kelompok =
+            isset($jumlah[$index_kelompok]) &&
+            is_array($jumlah[$index_kelompok])
+                ? $jumlah[$index_kelompok]
+                : array();
 
 
-            /* =================================================
-               VALIDASI KODERING
-            ================================================== */
+        $satuan_kelompok =
+            isset($satuan[$index_kelompok]) &&
+            is_array($satuan[$index_kelompok])
+                ? $satuan[$index_kelompok]
+                : array();
 
-            $kategori_id =
-                (int) $kategori_id;
+
+        $keterangan_kelompok =
+            isset($keterangan_detail[$index_kelompok]) &&
+            is_array($keterangan_detail[$index_kelompok])
+                ? $keterangan_detail[$index_kelompok]
+                : array();
 
 
-            if ($kategori_id <= 0) {
+        /*
+        |--------------------------------------------------------------------------
+        | LOOP BARANG
+        |--------------------------------------------------------------------------
+        */
+
+        foreach (
+            $barang_kelompok as $index_barang => $nama
+        ) {
+
+            $nama = trim(
+                (string) $nama
+            );
+
+
+            $jumlah_barang =
+                isset($jumlah_kelompok[$index_barang])
+                    ? trim(
+                        (string)
+                        $jumlah_kelompok[$index_barang]
+                    )
+                    : '';
+
+
+            $satuan_barang =
+                isset($satuan_kelompok[$index_barang])
+                    ? trim(
+                        (string)
+                        $satuan_kelompok[$index_barang]
+                    )
+                    : '';
+
+
+            $ket_barang =
+                isset($keterangan_kelompok[$index_barang])
+                    ? trim(
+                        (string)
+                        $keterangan_kelompok[$index_barang]
+                    )
+                    : '';
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | LEWATI BARIS KOSONG
+            |--------------------------------------------------------------------------
+            */
+
+            if (
+                $nama === '' &&
+                $jumlah_barang === '' &&
+                $satuan_barang === ''
+            ) {
 
                 continue;
             }
 
 
             /*
-             * Ambil kodering dari database.
-             *
-             * JANGAN percaya kodering yang dikirim
-             * dari browser.
-             */
+            |--------------------------------------------------------------------------
+            | VALIDASI NAMA BARANG
+            |--------------------------------------------------------------------------
+            */
 
-            $kategori =
-                $this->Spj_model->get_kategori_by_id(
-                    $kategori_id
+            if ($nama === '') {
+
+                $this->session->set_flashdata(
+                    'error',
+                    'Nama barang pada salah satu rincian belum diisi.'
                 );
 
+                redirect('spj/tambah_kebutuhan');
 
-            if (!$kategori) {
-
-                continue;
+                return;
             }
 
 
-            /* =================================================
-               DATA BARANG DALAM KELOMPOK
-            ================================================== */
+            /*
+            |--------------------------------------------------------------------------
+            | VALIDASI JUMLAH
+            |--------------------------------------------------------------------------
+            */
 
-            $barang_kelompok =
-                isset($nama_barang[$index_kelompok])
-                    && is_array($nama_barang[$index_kelompok])
-                    ? $nama_barang[$index_kelompok]
-                    : array();
-
-
-            $jumlah_kelompok =
-                isset($jumlah[$index_kelompok])
-                    && is_array($jumlah[$index_kelompok])
-                    ? $jumlah[$index_kelompok]
-                    : array();
-
-
-            $satuan_kelompok =
-                isset($satuan[$index_kelompok])
-                    && is_array($satuan[$index_kelompok])
-                    ? $satuan[$index_kelompok]
-                    : array();
-
-
-            $keterangan_kelompok =
-                isset($keterangan_detail[$index_kelompok])
-                    && is_array($keterangan_detail[$index_kelompok])
-                    ? $keterangan_detail[$index_kelompok]
-                    : array();
-
-
-            /* =================================================
-               LOOP BARANG
-            ================================================== */
-
-            foreach (
-                $barang_kelompok
-                as $index_barang => $nama
+            if (
+                $jumlah_barang === '' ||
+                !is_numeric($jumlah_barang) ||
+                (float) $jumlah_barang <= 0
             ) {
 
-
-                $nama =
-                    trim(
-                        (string) $nama
-                    );
-
-
-                $jumlah_barang =
-                    isset(
-                        $jumlah_kelompok[$index_barang]
-                    )
-                        ? trim(
-                            (string)
-                            $jumlah_kelompok[$index_barang]
-                        )
-                        : '';
-
-
-                $satuan_barang =
-                    isset(
-                        $satuan_kelompok[$index_barang]
-                    )
-                        ? trim(
-                            (string)
-                            $satuan_kelompok[$index_barang]
-                        )
-                        : '';
-
-
-                $ket_barang =
-                    isset(
-                        $keterangan_kelompok[$index_barang]
-                    )
-                        ? trim(
-                            (string)
-                            $keterangan_kelompok[$index_barang]
-                        )
-                        : '';
-
-
-                /* =============================================
-                   LEWATI BARIS KOSONG
-                ============================================== */
-
-                if (
-                    $nama === '' &&
-                    $jumlah_barang === '' &&
-                    $satuan_barang === ''
-                ) {
-
-                    continue;
-                }
-
-
-                /* =============================================
-                   VALIDASI BARANG
-                ============================================== */
-
-                if ($nama === '') {
-
-                    $this->session->set_flashdata(
-                        'error',
-                        'Nama barang pada salah satu rincian belum diisi.'
-                    );
-
-                    redirect('spj/tambah_kebutuhan');
-
-                    return;
-                }
-
-
-                if (
-                    $jumlah_barang === '' ||
-                    !is_numeric($jumlah_barang) ||
-                    (float) $jumlah_barang <= 0
-                ) {
-
-                    $this->session->set_flashdata(
-                        'error',
-                        'Jumlah barang harus lebih dari 0.'
-                    );
-
-                    redirect('spj/tambah_kebutuhan');
-
-                    return;
-                }
-
-
-                if ($satuan_barang === '') {
-
-                    $this->session->set_flashdata(
-                        'error',
-                        'Satuan barang pada salah satu rincian belum diisi.'
-                    );
-
-                    redirect('spj/tambah_kebutuhan');
-
-                    return;
-                }
-
-
-                /* =============================================
-                   MASUKKAN KE DETAIL FLAT
-                ============================================== */
-
-                $details[] = array(
-
-                    'id_kategori' =>
-                        $kategori->id_kategori,
-
-                    'kodering' =>
-                        $kategori->kodering,
-
-                    'nama_barang' =>
-                        $nama,
-
-                    'jumlah' =>
-                        $jumlah_barang,
-
-                    'satuan' =>
-                        $satuan_barang,
-
-                    'keterangan' =>
-                        $ket_barang !== ''
-                            ? $ket_barang
-                            : null
-
+                $this->session->set_flashdata(
+                    'error',
+                    'Jumlah barang harus lebih dari 0.'
                 );
 
+                redirect('spj/tambah_kebutuhan');
+
+                return;
             }
 
+
+            /*
+            |--------------------------------------------------------------------------
+            | VALIDASI SATUAN
+            |--------------------------------------------------------------------------
+            */
+
+            if ($satuan_barang === '') {
+
+                $this->session->set_flashdata(
+                    'error',
+                    'Satuan barang pada salah satu rincian belum diisi.'
+                );
+
+                redirect('spj/tambah_kebutuhan');
+
+                return;
+            }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | SIMPAN DETAIL
+            |--------------------------------------------------------------------------
+            */
+
+            $details[] = array(
+
+                'id_kategori' =>
+                    $kategori->id_kategori,
+
+                'kodering' =>
+                    $kategori->kodering,
+
+                'nama_barang' =>
+                    $nama,
+
+                'jumlah' =>
+                    $jumlah_barang,
+
+                'satuan' =>
+                    $satuan_barang,
+
+                'keterangan' =>
+                    $ket_barang !== ''
+                        ? $ket_barang
+                        : null
+            );
         }
+    }
 
 
-        /* =====================================================
-           PASTIKAN ADA BARANG
-        ===================================================== */
+    /*
+    |--------------------------------------------------------------------------
+    | PASTIKAN MINIMAL ADA 1 BARANG
+    |--------------------------------------------------------------------------
+    */
 
-        if (empty($details)) {
-
-            $this->session->set_flashdata(
-                'error',
-                'Minimal satu barang kebutuhan harus diisi.'
-            );
-
-            redirect('spj/tambah_kebutuhan');
-
-            return;
-        }
-
-
-        /* =====================================================
-           HEADER DATABASE
-        ===================================================== */
-
-        $header = array(
-
-            'nomor_surat' =>
-                $nomor_surat,
-
-            'perihal' =>
-                $perihal,
-
-            'kegiatan' =>
-                $kegiatan !== ''
-                    ? $kegiatan
-                    : null,
-
-            'tanggal' =>
-                $tanggal,
-
-            'keterangan' =>
-                $keterangan !== ''
-                    ? $keterangan
-                    : null,
-
-            'created_by' =>
-                $this->session->userdata('id_user')
-
-        );
-
-
-        /* =====================================================
-           SIMPAN
-        ===================================================== */
-
-        $id =
-            $this->Spj_model->insert_kebutuhan(
-                $header,
-                $details
-            );
-
-
-        if ($id) {
-
-            $this->session->set_flashdata(
-                'success',
-                'Kebutuhan berhasil disimpan.'
-            );
-
-            redirect(
-                'spj/input_kebutuhan'
-            );
-
-            return;
-        }
-
-
-        /* =====================================================
-           GAGAL
-        ===================================================== */
+    if (empty($details)) {
 
         $this->session->set_flashdata(
             'error',
-            'Gagal menyimpan kebutuhan.'
+            'Minimal satu barang kebutuhan harus diisi.'
+        );
+
+        redirect('spj/tambah_kebutuhan');
+
+        return;
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | HEADER DATABASE
+    |--------------------------------------------------------------------------
+    */
+
+    $header = array(
+
+        'nomor_surat' =>
+            $nomor_surat,
+
+        'nomor_invoice' =>
+            $nomor_invoice !== ''
+                ? $nomor_invoice
+                : null,
+
+        'nomor_pesanan' =>
+            $nomor_pesanan !== ''
+                ? $nomor_pesanan
+                : null,
+
+        'nama_penyedia' =>
+            $nama_penyedia !== ''
+                ? $nama_penyedia
+                : null,
+
+        'perihal' =>
+            $perihal,
+
+        'kegiatan' =>
+            $kegiatan !== ''
+                ? $kegiatan
+                : null,
+
+        'tanggal' =>
+            $tanggal,
+
+        'keterangan' =>
+            $keterangan !== ''
+                ? $keterangan
+                : null,
+
+        'created_by' =>
+            $this->session->userdata('id_user')
+    );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | SIMPAN KE DATABASE
+    |--------------------------------------------------------------------------
+    */
+
+    $id =
+        $this->Spj_model->insert_kebutuhan(
+            $header,
+            $details
+        );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | BERHASIL
+    |--------------------------------------------------------------------------
+    */
+
+    if ($id) {
+
+        $this->session->set_flashdata(
+            'success',
+            'Kebutuhan berhasil disimpan.'
         );
 
         redirect(
-            'spj/tambah_kebutuhan'
+            'spj/input_kebutuhan'
         );
+
+        return;
     }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | GAGAL
+    |--------------------------------------------------------------------------
+    */
+
+    $this->session->set_flashdata(
+        'error',
+        'Gagal menyimpan kebutuhan.'
+    );
+
+    redirect(
+        'spj/tambah_kebutuhan'
+    );
+}
 
 
     /* =========================================================
@@ -767,21 +809,46 @@ public function cetak_kebutuhan($id)
 
 public function edit_kebutuhan($id)
 {
-    $data['title'] = 'Edit Input Kebutuhan';
+    $id = (int) $id;
 
-    $data['kebutuhan'] =
-        $this->Spj_model->get_kebutuhan($id);
-
-    if (!$data['kebutuhan']) {
+    if ($id <= 0) {
         show_404();
+        return;
     }
 
-    $data['detail'] =
-        $this->Spj_model->get_detail($id);
+    /*
+    |--------------------------------------------------------------------------
+    | AMBIL DATA KEBUTUHAN
+    |--------------------------------------------------------------------------
+    */
 
-    $data['kategori'] =
-        $this->Spj_model->get_kategori();
+    $kebutuhan = $this->Spj_model->get_kebutuhan($id);
 
+    if (!$kebutuhan) {
+        show_404();
+        return;
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | DATA FORM
+    |--------------------------------------------------------------------------
+    */
+
+    $data = array(
+        'title'     => 'Edit Input Kebutuhan',
+        'kebutuhan' => $kebutuhan,
+        'detail'    => $this->Spj_model->get_detail($id),
+        'kategori'  => $this->Spj_model->get_kategori()
+    );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | TAMPILKAN HALAMAN
+    |--------------------------------------------------------------------------
+    */
 
     $this->load->view('layouts/header');
     $this->load->view('layouts/sidebar');
@@ -796,57 +863,137 @@ public function edit_kebutuhan($id)
 }
 public function update_kebutuhan($id)
 {
-    $kebutuhan =
-        $this->Spj_model->get_kebutuhan($id);
+    $id = (int) $id;
+
+    if ($id <= 0) {
+        show_404();
+        return;
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | CEK DATA
+    |--------------------------------------------------------------------------
+    */
+
+    $kebutuhan = $this->Spj_model->get_kebutuhan($id);
 
     if (!$kebutuhan) {
         show_404();
+        return;
     }
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | HARUS POST
+    |--------------------------------------------------------------------------
+    */
 
     if (!$this->input->post()) {
-        redirect('spj/edit_kebutuhan/' . $id);
+
+        redirect(
+            'spj/edit_kebutuhan/' . $id
+        );
+
+        return;
     }
 
 
-    $nomor_surat =
-        trim(
-            (string) $this->input->post(
-                'nomor_surat',
-                true
-            )
-        );
+    /*
+    |--------------------------------------------------------------------------
+    | DATA HEADER
+    |--------------------------------------------------------------------------
+    */
 
-    $perihal =
-        trim(
-            (string) $this->input->post(
-                'perihal',
-                true
-            )
-        );
+    $nomor_surat = trim(
+        (string) $this->input->post(
+            'nomor_surat',
+            true
+        )
+    );
 
-    $kegiatan =
-        trim(
-            (string) $this->input->post(
-                'kegiatan',
-                true
-            )
-        );
+    $nomor_invoice = trim(
+        (string) $this->input->post(
+            'nomor_invoice',
+            true
+        )
+    );
 
-    $tanggal =
-        $this->input->post(
+    $nomor_pesanan = trim(
+        (string) $this->input->post(
+            'nomor_pesanan',
+            true
+        )
+    );
+
+    $nama_penyedia = trim(
+        (string) $this->input->post(
+            'nama_penyedia',
+            true
+        )
+    );
+
+    $perihal = trim(
+        (string) $this->input->post(
+            'perihal',
+            true
+        )
+    );
+
+    $kegiatan = trim(
+        (string) $this->input->post(
+            'kegiatan',
+            true
+        )
+    );
+
+    $tanggal = trim(
+        (string) $this->input->post(
             'tanggal',
             true
+        )
+    );
+
+    $keterangan = trim(
+        (string) $this->input->post(
+            'keterangan',
+            true
+        )
+    );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | VALIDASI HEADER
+    |--------------------------------------------------------------------------
+    */
+
+    if (
+        $nomor_surat === '' ||
+        $perihal === '' ||
+        $tanggal === ''
+    ) {
+
+        $this->session->set_flashdata(
+            'error',
+            'Nomor surat, perihal, dan tanggal wajib diisi.'
         );
 
-    $keterangan =
-        trim(
-            (string) $this->input->post(
-                'keterangan',
-                true
-            )
+        redirect(
+            'spj/edit_kebutuhan/' . $id
         );
 
+        return;
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | DATA DETAIL
+    |--------------------------------------------------------------------------
+    */
 
     $id_kategori =
         $this->input->post('id_kategori');
@@ -860,130 +1007,246 @@ public function update_kebutuhan($id)
     $satuan =
         $this->input->post('satuan');
 
-    $ket_detail =
+    $keterangan_detail =
         $this->input->post('keterangan_detail');
 
 
+    /*
+    |--------------------------------------------------------------------------
+    | VALIDASI STRUKTUR DETAIL
+    |--------------------------------------------------------------------------
+    */
+
     if (
-        empty($nomor_surat) ||
-        empty($perihal) ||
-        empty($tanggal)
+        !is_array($id_kategori) ||
+        !is_array($nama_barang) ||
+        !is_array($jumlah) ||
+        !is_array($satuan)
     ) {
 
         $this->session->set_flashdata(
             'error',
-            'Nomor surat, perihal, dan tanggal wajib diisi.'
+            'Rincian kebutuhan tidak valid.'
         );
 
         redirect(
             'spj/edit_kebutuhan/' . $id
         );
+
+        return;
     }
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | BENTUK DETAIL FLAT
+    |--------------------------------------------------------------------------
+    */
 
     $details = array();
 
 
-    if (is_array($id_kategori)) {
+    foreach (
+        $id_kategori as $index_kelompok => $kategori_id
+    ) {
 
-        foreach ($id_kategori as $i => $kategori_id) {
+        /*
+        |--------------------------------------------------------------------------
+        | VALIDASI KATEGORI
+        |--------------------------------------------------------------------------
+        */
 
-            $kategori_id =
-                trim(
-                    (string) $kategori_id
-                );
+        $kategori_id = (int) $kategori_id;
 
-            $nama =
-                isset($nama_barang[$i])
+        if ($kategori_id <= 0) {
+            continue;
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | AMBIL KATEGORI DARI DATABASE
+        |--------------------------------------------------------------------------
+        |
+        | Kodering selalu diambil ulang dari database.
+        |
+        */
+
+        $kategori =
+            $this->Spj_model->get_kategori_by_id(
+                $kategori_id
+            );
+
+
+        if (!$kategori) {
+            continue;
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | DATA KELOMPOK
+        |--------------------------------------------------------------------------
+        */
+
+        $barang_kelompok =
+            isset($nama_barang[$index_kelompok]) &&
+            is_array($nama_barang[$index_kelompok])
+                ? $nama_barang[$index_kelompok]
+                : array();
+
+
+        $jumlah_kelompok =
+            isset($jumlah[$index_kelompok]) &&
+            is_array($jumlah[$index_kelompok])
+                ? $jumlah[$index_kelompok]
+                : array();
+
+
+        $satuan_kelompok =
+            isset($satuan[$index_kelompok]) &&
+            is_array($satuan[$index_kelompok])
+                ? $satuan[$index_kelompok]
+                : array();
+
+
+        $keterangan_kelompok =
+            isset($keterangan_detail[$index_kelompok]) &&
+            is_array($keterangan_detail[$index_kelompok])
+                ? $keterangan_detail[$index_kelompok]
+                : array();
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | LOOP BARANG
+        |--------------------------------------------------------------------------
+        */
+
+        foreach (
+            $barang_kelompok as $index_barang => $nama
+        ) {
+
+            $nama = trim(
+                (string) $nama
+            );
+
+
+            $jumlah_barang =
+                isset($jumlah_kelompok[$index_barang])
                     ? trim(
-                        (string) $nama_barang[$i]
+                        (string)
+                        $jumlah_kelompok[$index_barang]
                     )
                     : '';
 
-            $qty =
-                isset($jumlah[$i])
-                    ? $jumlah[$i]
-                    : '';
 
-            $unit =
-                isset($satuan[$i])
+            $satuan_barang =
+                isset($satuan_kelompok[$index_barang])
                     ? trim(
-                        (string) $satuan[$i]
+                        (string)
+                        $satuan_kelompok[$index_barang]
                     )
                     : '';
 
-            $ket =
-                isset($ket_detail[$i])
+
+            $ket_barang =
+                isset($keterangan_kelompok[$index_barang])
                     ? trim(
-                        (string) $ket_detail[$i]
+                        (string)
+                        $keterangan_kelompok[$index_barang]
                     )
-                    : null;
+                    : '';
 
 
             /*
-             * BARIS KOSONG DIABAIKAN
-             */
+            |--------------------------------------------------------------------------
+            | LEWATI BARIS KOSONG
+            |--------------------------------------------------------------------------
+            */
+
             if (
-                $kategori_id === '' &&
                 $nama === '' &&
-                $qty === '' &&
-                $unit === ''
+                $jumlah_barang === '' &&
+                $satuan_barang === ''
             ) {
+
                 continue;
             }
 
 
             /*
-             * BARIS TIDAK LENGKAP
-             */
-            if (
-                $kategori_id === '' ||
-                $nama === '' ||
-                $qty === '' ||
-                $unit === ''
-            ) {
+            |--------------------------------------------------------------------------
+            | VALIDASI NAMA
+            |--------------------------------------------------------------------------
+            */
+
+            if ($nama === '') {
 
                 $this->session->set_flashdata(
                     'error',
-                    'Data barang belum lengkap.'
+                    'Nama barang pada salah satu rincian belum diisi.'
                 );
 
                 redirect(
                     'spj/edit_kebutuhan/' . $id
                 );
+
+                return;
             }
 
 
             /*
-             * AMBIL KODERING DARI KATEGORI
-             */
-            $kategori =
-                $this->db
-                    ->select(
-                        'id_kategori, kodering'
-                    )
-                    ->where(
-                        'id_kategori',
-                        $kategori_id
-                    )
-                    ->get(
-                        'kategori_barang'
-                    )
-                    ->row();
+            |--------------------------------------------------------------------------
+            | VALIDASI JUMLAH
+            |--------------------------------------------------------------------------
+            */
 
-
-            if (!$kategori) {
+            if (
+                $jumlah_barang === '' ||
+                !is_numeric($jumlah_barang) ||
+                (float) $jumlah_barang <= 0
+            ) {
 
                 $this->session->set_flashdata(
                     'error',
-                    'Kategori barang tidak ditemukan.'
+                    'Jumlah barang harus lebih dari 0.'
                 );
 
                 redirect(
                     'spj/edit_kebutuhan/' . $id
                 );
+
+                return;
             }
 
+
+            /*
+            |--------------------------------------------------------------------------
+            | VALIDASI SATUAN
+            |--------------------------------------------------------------------------
+            */
+
+            if ($satuan_barang === '') {
+
+                $this->session->set_flashdata(
+                    'error',
+                    'Satuan barang pada salah satu rincian belum diisi.'
+                );
+
+                redirect(
+                    'spj/edit_kebutuhan/' . $id
+                );
+
+                return;
+            }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | MASUKKAN DETAIL
+            |--------------------------------------------------------------------------
+            */
 
             $details[] = array(
 
@@ -997,19 +1260,25 @@ public function update_kebutuhan($id)
                     $nama,
 
                 'jumlah' =>
-                    $qty,
+                    $jumlah_barang,
 
                 'satuan' =>
-                    $unit,
+                    $satuan_barang,
 
                 'keterangan' =>
-                    ($ket !== '')
-                        ? $ket
+                    $ket_barang !== ''
+                        ? $ket_barang
                         : null
             );
         }
     }
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | MINIMAL 1 BARANG
+    |--------------------------------------------------------------------------
+    */
 
     if (empty($details)) {
 
@@ -1021,27 +1290,60 @@ public function update_kebutuhan($id)
         redirect(
             'spj/edit_kebutuhan/' . $id
         );
+
+        return;
     }
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | HEADER DATABASE
+    |--------------------------------------------------------------------------
+    */
 
     $header = array(
 
         'nomor_surat' =>
             $nomor_surat,
 
+        'nomor_invoice' =>
+            $nomor_invoice !== ''
+                ? $nomor_invoice
+                : null,
+
+        'nomor_pesanan' =>
+            $nomor_pesanan !== ''
+                ? $nomor_pesanan
+                : null,
+
+        'nama_penyedia' =>
+            $nama_penyedia !== ''
+                ? $nama_penyedia
+                : null,
+
         'perihal' =>
             $perihal,
 
         'kegiatan' =>
-            $kegiatan,
+            $kegiatan !== ''
+                ? $kegiatan
+                : null,
 
         'tanggal' =>
             $tanggal,
 
         'keterangan' =>
-            $keterangan
+            $keterangan !== ''
+                ? $keterangan
+                : null
     );
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | UPDATE
+    |--------------------------------------------------------------------------
+    */
 
     $hasil =
         $this->Spj_model->update_kebutuhan(
@@ -1050,6 +1352,12 @@ public function update_kebutuhan($id)
             $details
         );
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | BERHASIL
+    |--------------------------------------------------------------------------
+    */
 
     if ($hasil) {
 
@@ -1061,8 +1369,16 @@ public function update_kebutuhan($id)
         redirect(
             'spj/input_kebutuhan'
         );
+
+        return;
     }
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | GAGAL
+    |--------------------------------------------------------------------------
+    */
 
     $this->session->set_flashdata(
         'error',
@@ -1489,22 +1805,25 @@ public function download_template_kebutuhan()
 
     require_once FCPATH . 'vendor/autoload.php';
 
-    $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+    $spreadsheet =
+        new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+
 
     /*
     |--------------------------------------------------------------------------
-    | SHEET 1
+    | SHEET UTAMA
     |--------------------------------------------------------------------------
     */
 
-    $sheet = $spreadsheet->getActiveSheet();
+    $sheet =
+        $spreadsheet->getActiveSheet();
 
     $sheet->setTitle('Sheet1');
 
 
     /*
     |--------------------------------------------------------------------------
-    | DATA HEADER
+    | HEADER INPUT
     |--------------------------------------------------------------------------
     */
 
@@ -1515,6 +1834,14 @@ public function download_template_kebutuhan()
     $sheet->setCellValue('A6', 'keterangan');
     $sheet->setCellValue('A7', 'Kodering');
 
+    /*
+     * FIELD BARU
+     */
+
+    $sheet->setCellValue('A8', 'nomor invoice');
+    $sheet->setCellValue('A9', 'nomor pesanan');
+    $sheet->setCellValue('A10', 'nama CV/penyedia');
+
 
     /*
     |--------------------------------------------------------------------------
@@ -1522,11 +1849,11 @@ public function download_template_kebutuhan()
     |--------------------------------------------------------------------------
     */
 
-    $sheet->setCellValue('A9', 'no');
-    $sheet->setCellValue('B9', 'nama barang/jasa');
-    $sheet->setCellValue('C9', 'jumlah');
-    $sheet->setCellValue('D9', 'satuan');
-    $sheet->setCellValue('E9', 'keterangan');
+    $sheet->setCellValue('A12', 'no');
+    $sheet->setCellValue('B12', 'nama barang/jasa');
+    $sheet->setCellValue('C12', 'jumlah');
+    $sheet->setCellValue('D12', 'satuan');
+    $sheet->setCellValue('E12', 'keterangan');
 
 
     /*
@@ -1535,7 +1862,8 @@ public function download_template_kebutuhan()
     |--------------------------------------------------------------------------
     */
 
-    $kategori = $this->Spj_model->get_kategori();
+    $kategori =
+        $this->Spj_model->get_kategori();
 
 
     /*
@@ -1544,14 +1872,29 @@ public function download_template_kebutuhan()
     |--------------------------------------------------------------------------
     */
 
-    $referensi = $spreadsheet->createSheet();
+    $referensi =
+        $spreadsheet->createSheet();
 
-    $referensi->setTitle('Referensi_kodering');
+    $referensi->setTitle(
+        'Referensi_kodering'
+    );
+
+    $referensi->setCellValue(
+        'A1',
+        'Kodering'
+    );
+
+    $referensi->setCellValue(
+        'B1',
+        'Nama Kodering'
+    );
 
 
-    $referensi->setCellValue('A1', 'Kodering');
-    $referensi->setCellValue('B1', 'Nama Kodering');
-
+    /*
+    |--------------------------------------------------------------------------
+    | ISI REFERENSI
+    |--------------------------------------------------------------------------
+    */
 
     $baris = 2;
 
@@ -1575,18 +1918,17 @@ public function download_template_kebutuhan()
     |--------------------------------------------------------------------------
     | DROPDOWN KODERING
     |--------------------------------------------------------------------------
-    |
-    | Dropdown ditampilkan menggunakan NAMA KODERING.
-    |
     */
 
     if (!empty($kategori)) {
 
-        $jumlah_kategori = count($kategori);
+        $jumlah_kategori =
+            count($kategori);
 
         $validation =
-            $sheet->getCell('B7')
-            ->getDataValidation();
+            $sheet
+                ->getCell('B7')
+                ->getDataValidation();
 
         $validation->setType(
             \PhpOffice\PhpSpreadsheet\Cell\DataValidation::TYPE_LIST
@@ -1627,7 +1969,9 @@ public function download_template_kebutuhan()
 
         $sheet
             ->getCell('B7')
-            ->setDataValidation($validation);
+            ->setDataValidation(
+                $validation
+            );
     }
 
 
@@ -1637,32 +1981,47 @@ public function download_template_kebutuhan()
     |--------------------------------------------------------------------------
     */
 
-    for ($i = 10; $i <= 109; $i++) {
+    for ($i = 13; $i <= 112; $i++) {
 
         $sheet->setCellValue(
             'A' . $i,
-            $i - 9
+            $i - 12
         );
     }
 
 
     /*
     |--------------------------------------------------------------------------
-    | STYLE SHEET1
+    | STYLE HEADER INPUT
     |--------------------------------------------------------------------------
     */
 
-    $sheet->getStyle('A2:A7')->getFont()->setBold(true);
+    $sheet
+        ->getStyle('A2:A10')
+        ->getFont()
+        ->setBold(true);
 
-    $sheet->getStyle('A9:E9')->getFont()->setBold(true);
 
-    $sheet->getStyle('A9:E9')
+    /*
+    |--------------------------------------------------------------------------
+    | STYLE HEADER DETAIL
+    |--------------------------------------------------------------------------
+    */
+
+    $sheet
+        ->getStyle('A12:E12')
+        ->getFont()
+        ->setBold(true);
+
+    $sheet
+        ->getStyle('A12:E12')
         ->getAlignment()
         ->setHorizontal(
             \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER
         );
 
-    $sheet->getStyle('A9:E9')
+    $sheet
+        ->getStyle('A12:E12')
         ->getFill()
         ->setFillType(
             \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID
@@ -1678,7 +2037,7 @@ public function download_template_kebutuhan()
     */
 
     $sheet
-        ->getStyle('A9:E109')
+        ->getStyle('A12:E112')
         ->getBorders()
         ->getAllBorders()
         ->setBorderStyle(
@@ -1696,7 +2055,8 @@ public function download_template_kebutuhan()
 
         $referensi
             ->getStyle(
-                'A1:B' . ($jumlah_kategori + 1)
+                'A1:B' .
+                ($jumlah_kategori + 1)
             )
             ->getBorders()
             ->getAllBorders()
@@ -1713,25 +2073,44 @@ public function download_template_kebutuhan()
 
     /*
     |--------------------------------------------------------------------------
-    | WIDTH SHEET1
+    | LEBAR KOLOM SHEET UTAMA
     |--------------------------------------------------------------------------
     */
 
-    $sheet->getColumnDimension('A')->setWidth(18);
-    $sheet->getColumnDimension('B')->setWidth(35);
-    $sheet->getColumnDimension('C')->setWidth(12);
-    $sheet->getColumnDimension('D')->setWidth(15);
-    $sheet->getColumnDimension('E')->setWidth(30);
+    $sheet
+        ->getColumnDimension('A')
+        ->setWidth(22);
+
+    $sheet
+        ->getColumnDimension('B')
+        ->setWidth(35);
+
+    $sheet
+        ->getColumnDimension('C')
+        ->setWidth(12);
+
+    $sheet
+        ->getColumnDimension('D')
+        ->setWidth(15);
+
+    $sheet
+        ->getColumnDimension('E')
+        ->setWidth(30);
 
 
     /*
     |--------------------------------------------------------------------------
-    | WIDTH REFERENSI
+    | LEBAR REFERENSI
     |--------------------------------------------------------------------------
     */
 
-    $referensi->getColumnDimension('A')->setWidth(25);
-    $referensi->getColumnDimension('B')->setWidth(40);
+    $referensi
+        ->getColumnDimension('A')
+        ->setWidth(25);
+
+    $referensi
+        ->getColumnDimension('B')
+        ->setWidth(40);
 
 
     /*
@@ -1743,23 +2122,25 @@ public function download_template_kebutuhan()
     $sheet
         ->getStyle('B3')
         ->getNumberFormat()
-        ->setFormatCode('dd-mm-yyyy');
+        ->setFormatCode(
+            'dd-mm-yyyy'
+        );
 
 
     /*
     |--------------------------------------------------------------------------
-    | FREEZE HEADER
+    | FREEZE
     |--------------------------------------------------------------------------
     */
 
-    $sheet->freezePane('A10');
+    $sheet->freezePane('A13');
 
     $referensi->freezePane('A2');
 
 
     /*
     |--------------------------------------------------------------------------
-    | AKTIFKAN SHEET1
+    | AKTIFKAN SHEET UTAMA
     |--------------------------------------------------------------------------
     */
 
@@ -1768,7 +2149,7 @@ public function download_template_kebutuhan()
 
     /*
     |--------------------------------------------------------------------------
-    | DOWNLOAD
+    | NAMA FILE
     |--------------------------------------------------------------------------
     */
 
@@ -1778,6 +2159,12 @@ public function download_template_kebutuhan()
         '.xlsx';
 
 
+    /*
+    |--------------------------------------------------------------------------
+    | WRITER
+    |--------------------------------------------------------------------------
+    */
+
     $writer =
         new \PhpOffice\PhpSpreadsheet\Writer\Xlsx(
             $spreadsheet
@@ -1786,13 +2173,20 @@ public function download_template_kebutuhan()
 
     /*
     |--------------------------------------------------------------------------
-    | HEADER DOWNLOAD
+    | BERSIHKAN OUTPUT BUFFER
     |--------------------------------------------------------------------------
     */
 
     while (ob_get_level()) {
         ob_end_clean();
     }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | HEADER DOWNLOAD
+    |--------------------------------------------------------------------------
+    */
 
     header(
         'Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
@@ -1809,7 +2203,15 @@ public function download_template_kebutuhan()
     );
 
 
-    $writer->save('php://output');
+    /*
+    |--------------------------------------------------------------------------
+    | OUTPUT
+    |--------------------------------------------------------------------------
+    */
+
+    $writer->save(
+        'php://output'
+    );
 
     exit;
 }
@@ -1827,11 +2229,26 @@ public function import_kebutuhan()
             'title' => 'Import Kebutuhan'
         );
 
-        $this->load->view('layouts/header');
-        $this->load->view('layouts/sidebar');
-        $this->load->view('layouts/topbar');
-        $this->load->view('spj/import_kebutuhan', $data);
-        $this->load->view('layouts/footer');
+        $this->load->view(
+            'layouts/header'
+        );
+
+        $this->load->view(
+            'layouts/sidebar'
+        );
+
+        $this->load->view(
+            'layouts/topbar'
+        );
+
+        $this->load->view(
+            'spj/import_kebutuhan',
+            $data
+        );
+
+        $this->load->view(
+            'layouts/footer'
+        );
 
         return;
     }
@@ -1853,7 +2270,9 @@ public function import_kebutuhan()
             'Silakan pilih file Excel terlebih dahulu.'
         );
 
-        redirect('spj/import_kebutuhan');
+        redirect(
+            'spj/import_kebutuhan'
+        );
 
         return;
     }
@@ -1865,7 +2284,8 @@ public function import_kebutuhan()
     |--------------------------------------------------------------------------
     */
 
-    $upload_path = FCPATH . 'uploads/import_spj/';
+    $upload_path =
+        FCPATH . 'uploads/import_spj/';
 
     if (!is_dir($upload_path)) {
 
@@ -1890,35 +2310,50 @@ public function import_kebutuhan()
         'encrypt_name'  => true
     );
 
-    $this->load->library('upload', $config);
+    $this->load->library(
+        'upload',
+        $config
+    );
 
 
     /*
     |--------------------------------------------------------------------------
-    | UPLOAD FILE
+    | UPLOAD
     |--------------------------------------------------------------------------
     */
 
-    if (!$this->upload->do_upload('file_excel')) {
+    if (
+        !$this->upload->do_upload(
+            'file_excel'
+        )
+    ) {
 
         $error = strip_tags(
-            $this->upload->display_errors('', '')
+            $this->upload->display_errors(
+                '',
+                ''
+            )
         );
 
         $this->session->set_flashdata(
             'error',
-            'File Excel gagal diupload: ' . $error
+            'File Excel gagal diupload: ' .
+            $error
         );
 
-        redirect('spj/import_kebutuhan');
+        redirect(
+            'spj/import_kebutuhan'
+        );
 
         return;
     }
 
 
-    $upload = $this->upload->data();
+    $upload =
+        $this->upload->data();
 
-    $file_path = $upload['full_path'];
+    $file_path =
+        $upload['full_path'];
 
 
     /*
@@ -1929,6 +2364,12 @@ public function import_kebutuhan()
 
     require_once FCPATH . 'vendor/autoload.php';
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | BACA FILE
+    |--------------------------------------------------------------------------
+    */
 
     try {
 
@@ -1946,7 +2387,9 @@ public function import_kebutuhan()
             'File Excel tidak dapat dibaca.'
         );
 
-        redirect('spj/import_kebutuhan');
+        redirect(
+            'spj/import_kebutuhan'
+        );
 
         return;
     }
@@ -1954,11 +2397,12 @@ public function import_kebutuhan()
 
     /*
     |--------------------------------------------------------------------------
-    | SHEET PERTAMA
+    | SHEET UTAMA
     |--------------------------------------------------------------------------
     */
 
-    $sheet = $spreadsheet->getSheet(0);
+    $sheet =
+        $spreadsheet->getSheet(0);
 
 
     /*
@@ -1967,11 +2411,13 @@ public function import_kebutuhan()
     |--------------------------------------------------------------------------
     */
 
-    $nomor_surat = trim(
-        (string) $sheet
-            ->getCell('B2')
-            ->getFormattedValue()
-    );
+    $nomor_surat =
+        trim(
+            (string)
+            $sheet
+                ->getCell('B2')
+                ->getFormattedValue()
+        );
 
 
     $tanggal_raw =
@@ -1980,32 +2426,73 @@ public function import_kebutuhan()
             ->getValue();
 
 
-    $perihal = trim(
-        (string) $sheet
-            ->getCell('B4')
-            ->getFormattedValue()
-    );
+    $perihal =
+        trim(
+            (string)
+            $sheet
+                ->getCell('B4')
+                ->getFormattedValue()
+        );
 
 
-    $kegiatan = trim(
-        (string) $sheet
-            ->getCell('B5')
-            ->getFormattedValue()
-    );
+    $kegiatan =
+        trim(
+            (string)
+            $sheet
+                ->getCell('B5')
+                ->getFormattedValue()
+        );
 
 
-    $keterangan = trim(
-        (string) $sheet
-            ->getCell('B6')
-            ->getFormattedValue()
-    );
+    $keterangan =
+        trim(
+            (string)
+            $sheet
+                ->getCell('B6')
+                ->getFormattedValue()
+        );
 
 
-    $nama_kodering = trim(
-        (string) $sheet
-            ->getCell('B7')
-            ->getFormattedValue()
-    );
+    $nama_kodering =
+        trim(
+            (string)
+            $sheet
+                ->getCell('B7')
+                ->getFormattedValue()
+        );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | FIELD BARU
+    |--------------------------------------------------------------------------
+    */
+
+    $nomor_invoice =
+        trim(
+            (string)
+            $sheet
+                ->getCell('B8')
+                ->getFormattedValue()
+        );
+
+
+    $nomor_pesanan =
+        trim(
+            (string)
+            $sheet
+                ->getCell('B9')
+                ->getFormattedValue()
+        );
+
+
+    $nama_penyedia =
+        trim(
+            (string)
+            $sheet
+                ->getCell('B10')
+                ->getFormattedValue()
+        );
 
 
     /*
@@ -2072,24 +2559,29 @@ public function import_kebutuhan()
 
     foreach ($kategori as $row) {
 
-        /*
-        |--------------------------------------------------------------
-        | Cocokkan berdasarkan NAMA KODERING
-        |--------------------------------------------------------------
-        */
-
         if (
-            strtolower(trim($row->nama_kategori))
+            strtolower(
+                trim($row->nama_kategori)
+            )
             ===
-            strtolower(trim($nama_kodering))
+            strtolower(
+                trim($nama_kodering)
+            )
         ) {
 
-            $kategori_ditemukan = $row;
+            $kategori_ditemukan =
+                $row;
 
             break;
         }
     }
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | VALIDASI KODERING
+    |--------------------------------------------------------------------------
+    */
 
     if (!$kategori_ditemukan) {
 
@@ -2111,11 +2603,14 @@ public function import_kebutuhan()
 
     /*
     |--------------------------------------------------------------------------
-    | TENTUKAN BARIS TERAKHIR
+    | BARIS DETAIL
     |--------------------------------------------------------------------------
     |
-    | Kita tidak lagi memaksa sampai baris 1000.
-    | PhpSpreadsheet hanya mengambil area yang memang digunakan.
+    | Template baru:
+    |
+    | Row 12 = header detail
+    | Row 13 = data pertama
+    | Row 112 = data terakhir
     |
     */
 
@@ -2123,75 +2618,87 @@ public function import_kebutuhan()
         $sheet->getHighestDataRow();
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | MINIMAL DATA BARANG DIMULAI BARIS 10
-    |--------------------------------------------------------------------------
-    */
+    if ($highest_row < 13) {
 
-    if ($highest_row < 10) {
-
-        $highest_row = 9;
+        $highest_row = 12;
     }
 
 
     /*
     |--------------------------------------------------------------------------
-    | BACA BARANG
+    | BACA DETAIL
     |--------------------------------------------------------------------------
     */
 
-    for ($baris = 10; $baris <= $highest_row; $baris++) {
+    for (
+        $baris = 13;
+        $baris <= $highest_row;
+        $baris++
+    ) {
 
         /*
-        |--------------------------------------------------------------
+        |--------------------------------------------------------------------------
         | NAMA BARANG
-        |--------------------------------------------------------------
+        |--------------------------------------------------------------------------
         */
 
-        $nama_barang = trim(
-            (string) $sheet
-                ->getCell('B' . $baris)
-                ->getFormattedValue()
-        );
+        $nama_barang =
+            trim(
+                (string)
+                $sheet
+                    ->getCell(
+                        'B' . $baris
+                    )
+                    ->getFormattedValue()
+            );
 
 
         /*
-        |--------------------------------------------------------------
+        |--------------------------------------------------------------------------
         | JUMLAH
-        |--------------------------------------------------------------
+        |--------------------------------------------------------------------------
         */
 
         $jumlah_raw =
             $sheet
-                ->getCell('C' . $baris)
+                ->getCell(
+                    'C' . $baris
+                )
                 ->getValue();
 
 
         /*
-        |--------------------------------------------------------------
+        |--------------------------------------------------------------------------
         | SATUAN
-        |--------------------------------------------------------------
+        |--------------------------------------------------------------------------
         */
 
-        $satuan = trim(
-            (string) $sheet
-                ->getCell('D' . $baris)
-                ->getFormattedValue()
-        );
+        $satuan =
+            trim(
+                (string)
+                $sheet
+                    ->getCell(
+                        'D' . $baris
+                    )
+                    ->getFormattedValue()
+            );
 
 
         /*
-        |--------------------------------------------------------------
+        |--------------------------------------------------------------------------
         | KETERANGAN
-        |--------------------------------------------------------------
+        |--------------------------------------------------------------------------
         */
 
-        $ket_detail = trim(
-            (string) $sheet
-                ->getCell('E' . $baris)
-                ->getFormattedValue()
-        );
+        $ket_detail =
+            trim(
+                (string)
+                $sheet
+                    ->getCell(
+                        'E' . $baris
+                    )
+                    ->getFormattedValue()
+            );
 
 
         /*
@@ -2199,14 +2706,7 @@ public function import_kebutuhan()
         | BARIS KOSONG
         |--------------------------------------------------------------------------
         |
-        | INI BAGIAN PENTING.
-        |
-        | Nama barang adalah indikator utama.
-        |
-        | Kalau kolom B kosong, baris dianggap bukan data barang.
-        |
-        | Jadi dropdown/formula/format di kolom lain tidak akan
-        | menyebabkan baris dianggap sebagai data.
+        | Kolom B menjadi indikator utama.
         |
         */
 
@@ -2264,10 +2764,12 @@ public function import_kebutuhan()
         $details[] = array(
 
             'id_kategori' =>
-                $kategori_ditemukan->id_kategori,
+                $kategori_ditemukan
+                    ->id_kategori,
 
             'kodering' =>
-                $kategori_ditemukan->kodering,
+                $kategori_ditemukan
+                    ->kodering,
 
             'nama_barang' =>
                 $nama_barang,
@@ -2282,7 +2784,6 @@ public function import_kebutuhan()
                 $ket_detail !== ''
                     ? $ket_detail
                     : null
-
         );
     }
 
@@ -2302,14 +2803,13 @@ public function import_kebutuhan()
 
     /*
     |--------------------------------------------------------------------------
-    | JIKA ADA ERROR
+    | JIKA ERROR
     |--------------------------------------------------------------------------
     */
 
     if (!empty($errors)) {
 
         @unlink($file_path);
-
 
         $pesan =
             '<strong>Import gagal.</strong><br><ul>';
@@ -2332,7 +2832,6 @@ public function import_kebutuhan()
             $pesan
         );
 
-
         redirect(
             'spj/import_kebutuhan'
         );
@@ -2352,6 +2851,21 @@ public function import_kebutuhan()
         'nomor_surat' =>
             $nomor_surat,
 
+        'nomor_invoice' =>
+            $nomor_invoice !== ''
+                ? $nomor_invoice
+                : null,
+
+        'nomor_pesanan' =>
+            $nomor_pesanan !== ''
+                ? $nomor_pesanan
+                : null,
+
+        'nama_penyedia' =>
+            $nama_penyedia !== ''
+                ? $nama_penyedia
+                : null,
+
         'perihal' =>
             $perihal,
 
@@ -2369,14 +2883,14 @@ public function import_kebutuhan()
                 : null,
 
         'created_by' =>
-            $this->session->userdata('id_user')
-
+            $this->session
+                ->userdata('id_user')
     );
 
 
     /*
     |--------------------------------------------------------------------------
-    | SIMPAN KE DATABASE
+    | SIMPAN DATABASE
     |--------------------------------------------------------------------------
     */
 
@@ -2435,8 +2949,16 @@ public function import_kebutuhan()
         'spj/input_kebutuhan'
     );
 }
+
+
 private function _normalisasi_tanggal_excel($value)
 {
+    /*
+    |--------------------------------------------------------------------------
+    | NILAI KOSONG
+    |--------------------------------------------------------------------------
+    */
+
     if (
         $value === null ||
         $value === ''
@@ -2465,7 +2987,9 @@ private function _normalisasi_tanggal_excel($value)
                         $value
                     );
 
-            return $date->format('Y-m-d');
+            return $date->format(
+                'Y-m-d'
+            );
 
         } catch (\Throwable $e) {
 
@@ -2486,6 +3010,12 @@ private function _normalisasi_tanggal_excel($value)
         );
 
 
+    /*
+    |--------------------------------------------------------------------------
+    | FORMAT YANG DIDUKUNG
+    |--------------------------------------------------------------------------
+    */
+
     $format_list = array(
         'Y-m-d',
         'd-m-Y',
@@ -2494,6 +3024,12 @@ private function _normalisasi_tanggal_excel($value)
         'Y/m/d'
     );
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | CEK FORMAT
+    |--------------------------------------------------------------------------
+    */
 
     foreach ($format_list as $format) {
 
@@ -2509,10 +3045,18 @@ private function _normalisasi_tanggal_excel($value)
             $date->format($format) === $value
         ) {
 
-            return $date->format('Y-m-d');
+            return $date->format(
+                'Y-m-d'
+            );
         }
     }
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | TIDAK VALID
+    |--------------------------------------------------------------------------
+    */
 
     return false;
 }
