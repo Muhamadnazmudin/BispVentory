@@ -225,69 +225,68 @@ $pemeriksa_nip =
 
 
         /*
-        |--------------------------------------------------------------------------
-        | KOP
-        |--------------------------------------------------------------------------
-        */
+|--------------------------------------------------------------------------
+| KOP
+|--------------------------------------------------------------------------
+*/
 
-        .kop-surat {
+.kop-surat {
 
-            position: relative;
+    position: relative;
 
-            width: 100%;
+    width: 100%;
 
-            min-height: 132px;
+    min-height: 132px;
 
-            text-align: center;
+    text-align: center;
 
-            margin: 0 auto;
+    margin: 0 auto;
 
-            padding: 0;
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | LOGO
-        |--------------------------------------------------------------------------
-        |
-        | Logo ditempatkan relatif terhadap kop.
-        | Tidak menggunakan posisi halaman.
-        |
-        */
-
-        .kop-logo {
-
-            position: absolute;
-
-            left: 72px;
-            top: 8px;
-
-            width: 78px;
-
-            text-align: center;
-        }
+    padding: 0;
+}
 
 
-        .kop-logo img {
+/*
+|--------------------------------------------------------------------------
+| LOGO
+|--------------------------------------------------------------------------
+*/
 
-            display: block;
+.kop-logo {
 
-            width: 76px;
+    position: absolute;
 
-            height: auto;
+    left: 80px;
 
-            margin: 0 auto;
-        }
+    top: 8px;
+
+    width: 75px;
+
+    text-align: center;
+}
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | BLOK TEKS KOP
-        |--------------------------------------------------------------------------
-        */
+.kop-logo img {
 
-        .kop-teks {
+    display: block;
+
+    width: 80px;
+
+    height: 80px;
+
+    object-fit: contain;
+
+    margin: 0 auto;
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| TEKS KOP
+|--------------------------------------------------------------------------
+*/
+
+.kop-teks {
 
     width: 76%;
 
@@ -297,80 +296,100 @@ $pemeriksa_nip =
 
     text-align: center;
 
-    line-height: 1.25;
+    line-height: 1.02;
+
+    padding-right: 45px !important;
 }
 
-        .kop-instansi {
 
-            font-size: 13px;
+.kop-instansi {
 
-            font-weight: normal;
+    font-size: 13px;
 
-            margin-bottom: 3px;
-        }
+    font-weight: normal;
 
-
-        .kop-dinas {
-
-            font-size: 13px;
-
-            font-weight: normal;
-
-            margin-bottom: 3px;
-        }
+    margin-bottom: 3px;
+}
 
 
-        .kop-cabang {
+.kop-dinas {
 
-            font-size: 13px;
+    font-size: 13px;
 
-            font-weight: normal;
+    font-weight: normal;
 
-            margin-bottom: 5px;
-        }
-
-
-        .kop-sekolah {
-
-            font-size: 18px;
-
-            font-weight: bold;
-
-            margin-bottom: 7px;
-        }
+    margin-bottom: 3px;
+}
 
 
-        .kop-alamat {
+.kop-cabang {
 
-            font-size: 10px;
+    font-size: 13px;
 
-            margin-bottom: 3px;
-        }
+    font-weight: normal;
 
-
-        .kop-telepon {
-
-            font-size: 10px;
-        }
+    margin-bottom: 5px;
+}
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | GARIS KOP
-        |--------------------------------------------------------------------------
-        */
+.kop-sekolah {
 
-        .garis-kop {
+    font-size: 15px;
 
-            width: 100%;
+    font-weight: bold;
 
-            border-bottom: 2px solid #000;
+    margin-top: 2px;
 
-            margin-top: 2px;
+    margin-bottom: 2px;
+}
 
-            margin-bottom: 18px;
-        }
 
+.kop-alamat {
+
+    font-size: 9px;
+
+    font-style: italic;
+
+    margin-bottom: 0;
+}
+
+
+.kop-kabupaten {
+
+    font-size: 8.5px;
+
+    font-style: italic;
+
+    margin-bottom: 0;
+}
+
+
+.kop-telepon {
+
+    font-size: 8.5px;
+
+    margin-bottom: 0;
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| GARIS KOP
+|--------------------------------------------------------------------------
+*/
+
+.garis-kop {
+
+    width: 100%;
+
+    border-top: 3px double #000;
+
+    margin-top: 4px;
+
+    margin-bottom: 6px;
+
+    height: 1px;
+}
 
         /*
         |--------------------------------------------------------------------------
@@ -710,13 +729,18 @@ $pemeriksa_nip =
             SMK NEGERI 1 CILIMUS
         </div>
 
-        <div class="kop-alamat">
-            Jalan Eyang Kuwu Sangkan Cilimus, Kabupaten Kuningan 45556
-        </div>
+       <div class="kop-alamat">
+    Jalan Eyang Kyai Hasan Maulani Caracas Cilimus
+</div>
 
-        <div class="kop-telepon">
-            Telp. (0232) 8910145
-        </div>
+<div class="kop-telepon">
+    Telp. (0232) 8910145,
+    Email: smkn_1cilimus@yahoo.com
+</div>
+
+<div class="kop-kabupaten">
+    Kabupaten Kuningan 45556
+</div>
 
     </div>
 
@@ -725,10 +749,7 @@ $pemeriksa_nip =
 
 <div class="garis-kop"></div>
 
-
-<!-- =========================================================
-     JUDUL
-========================================================= -->
+<div class="spj-full-bast-gap"></div>
 
 <div class="judul">
     BERITA ACARA PEMERIKSAAN BARANG
@@ -861,9 +882,9 @@ $pemeriksa_nip =
                 No.
             </th>
 
-            <th class="col-kodering">
+            <!-- <th class="col-kodering">
                 Kodering
-            </th>
+            </th> -->
 
             <th class="col-nama">
                 Nama Barang/Jasa
@@ -897,13 +918,13 @@ $pemeriksa_nip =
                 </td>
 
 
-                <td>
+                <!-- <td>
                     <?= $esc(
                         !empty($row->kodering)
                             ? $row->kodering
                             : '-'
                     ) ?>
-                </td>
+                </td> -->
 
 
                 <td>
@@ -916,12 +937,23 @@ $pemeriksa_nip =
 
 
                 <td class="col-jumlah">
-                    <?= $esc(
-                        !empty($row->jumlah)
-                            ? $row->jumlah
-                            : '0'
-                    ) ?>
-                </td>
+    <?= $esc(
+        !empty($row->jumlah)
+            ? rtrim(
+                rtrim(
+                    number_format(
+                        (float) $row->jumlah,
+                        2,
+                        '.',
+                        ''
+                    ),
+                    '0'
+                ),
+                '.'
+            )
+            : '0'
+    ) ?>
+</td>
 
 
                 <td class="col-satuan">

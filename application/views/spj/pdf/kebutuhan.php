@@ -274,114 +274,107 @@ if (file_exists($logo_path)) {
 
 
         /* =====================================================
-           KOP SURAT
-        ===================================================== */
+   KOP SURAT
+===================================================== */
 
-        .kop {
+.kop {
 
-            width: 100%;
+    width: 100%;
 
-            border-collapse: collapse;
+    border-collapse: collapse;
 
-            margin: 0;
-
-            padding: 0;
-        }
+    margin-bottom: 2px;
+}
 
 
-        .kop td {
+.kop td {
 
-            padding: 0;
+    padding: 0;
 
-            vertical-align: middle;
-        }
-
-
-        .kop-logo {
-
-            width: 75px;
-
-            text-align: left;
-        }
+    vertical-align: middle;
+}
 
 
-        .kop-logo img {
+.kop-logo {
 
-            display: block;
+    width: 75px;
 
-            width: 63px;
-
-            height: 63px;
-
-            object-fit: contain;
-        }
+    text-align: center;
+}
 
 
-        .kop-text {
+.kop-logo img {
 
-            padding-right: 40px !important;
+    width: 80px;
 
-            text-align: center;
+    height: 80px;
 
-            line-height: 1.05;
-        }
+    object-fit: contain;
 
+    position: relative;
 
-        .kop-text .baris {
-
-            font-size: 11pt;
-
-            font-weight: normal;
-        }
+    left: 80px;
+}
 
 
-        .kop-text .sekolah {
+.kop-text {
 
-            margin-top: 2px;
+    text-align: center;
 
-            font-size: 16pt;
+    line-height: 1.02;
 
-            font-weight: bold;
-        }
-
-
-        .kop-text .alamat {
-
-            margin-top: 2px;
-
-            font-size: 10pt;
-
-            font-style: italic;
-        }
+    padding-right: 45px !important;
+}
 
 
-        .kop-text .kontak {
+.kop-text .baris {
 
-            font-size: 9.5pt;
-        }
-
-
-        .kop-text .kabupaten {
-
-            font-size: 9.5pt;
-
-            font-style: italic;
-        }
+    font-size: 9.5pt;
+}
 
 
-        .garis-kop {
+.kop-text .sekolah {
 
-            width: 100%;
+    margin-top: 2px;
 
-            height: 1px;
+    font-size: 15pt;
 
-            margin-top: 6px;
+    font-weight: bold;
+}
 
-            margin-bottom: 11px;
 
-            border-top: 2px solid #000;
-        }
+.kop-text .alamat {
 
+    font-size: 9pt;
+
+    font-style: italic;
+}
+
+
+.kop-text .kontak {
+
+    font-size: 8.5pt;
+}
+
+
+.kop-text .kabupaten {
+
+    font-size: 8.5pt;
+
+    font-style: italic;
+}
+
+
+.garis-kop {
+
+    border-top: 3px double #000;
+
+    margin-top: 4px;
+
+    margin-bottom: 6px;
+
+    height: 1px;
+}
 
         /* =====================================================
            IDENTITAS SURAT
