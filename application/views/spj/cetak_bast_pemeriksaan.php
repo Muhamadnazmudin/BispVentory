@@ -289,17 +289,16 @@ $pemeriksa_nip =
 
         .kop-teks {
 
-            width: 76%;
+    width: 76%;
 
-            margin-left: 20%;
+    margin-left: 14%;
 
-            margin-right: 4%;
+    margin-right: 10%;
 
-            text-align: center;
+    text-align: center;
 
-            line-height: 1.25;
-        }
-
+    line-height: 1.25;
+}
 
         .kop-instansi {
 

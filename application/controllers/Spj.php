@@ -3447,35 +3447,125 @@ public function tambah_bast_pemeriksaan($id_kebutuhan)
 }
 public function edit_bast_pemeriksaan($id)
 {
+    /*
+    |--------------------------------------------------------------------------
+    | VALIDASI ID
+    |--------------------------------------------------------------------------
+    */
+
     $id = (int) $id;
 
-
     if ($id <= 0) {
-
         show_404();
+        return;
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | AMBIL DATA BAST
+    |--------------------------------------------------------------------------
+    */
+
+    $bast =
+        $this->Spj_model
+            ->get_bast_pemeriksaan($id);
+
+
+    if (!$bast) {
+        show_404();
+        return;
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | AMBIL DATA KEBUTUHAN
+    |--------------------------------------------------------------------------
+    |
+    | Form BAST mengambil data kebutuhan sebagai sumber informasi.
+    |
+    */
+
+    $kebutuhan =
+        $this->Spj_model
+            ->get_kebutuhan(
+                $bast->id_kebutuhan
+            );
+
+
+    if (!$kebutuhan) {
+
+        $this->session->set_flashdata(
+            'error',
+            'Data kebutuhan untuk BAST ini tidak ditemukan.'
+        );
+
+        redirect(
+            'spj/bast_pemeriksaan'
+        );
 
         return;
     }
 
 
-    $bast =
+    /*
+    |--------------------------------------------------------------------------
+    | AMBIL DETAIL BAST
+    |--------------------------------------------------------------------------
+    */
+
+    $detail =
         $this->Spj_model
-            ->get_bast_pemeriksaan(
+            ->get_bast_pemeriksaan_detail(
                 $id
             );
 
 
-    if (!$bast) {
+    if (empty($detail)) {
 
-        show_404();
+        $this->session->set_flashdata(
+            'error',
+            'Rincian BAST Pemeriksaan tidak ditemukan.'
+        );
+
+        redirect(
+            'spj/bast_pemeriksaan'
+        );
 
         return;
     }
 
 
+    /*
+    |--------------------------------------------------------------------------
+    | NOMOR KEPUTUSAN
+    |--------------------------------------------------------------------------
+    |
+    | Nomor keputusan berlaku sama untuk seluruh
+    | Berita Acara Pemeriksaan.
+    |
+    */
+
+    $nomor_keputusan =
+        '110/PK.02.01/SMKN1 Clms';
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | PROSES UPDATE
+    |--------------------------------------------------------------------------
+    */
+
     if (
         $this->input->method() === 'post'
     ) {
+
+        /*
+        |--------------------------------------------------------------------------
+        | NOMOR BAST
+        |--------------------------------------------------------------------------
+        */
 
         $nomor_bast =
             trim(
@@ -3487,24 +3577,17 @@ public function edit_bast_pemeriksaan($id)
             );
 
 
-        $nomor_keputusan =
-            trim(
-                (string)
-                $this->input->post(
-                    'nomor_keputusan',
-                    true
-                )
-            );
+        /*
+        |--------------------------------------------------------------------------
+        | VALIDASI NOMOR BAST
+        |--------------------------------------------------------------------------
+        */
 
-
-        if (
-            $nomor_bast === '' ||
-            $nomor_keputusan === ''
-        ) {
+        if ($nomor_bast === '') {
 
             $this->session->set_flashdata(
                 'error',
-                'Nomor BAST dan Nomor Keputusan wajib diisi.'
+                'Nomor BAST wajib diisi.'
             );
 
             redirect(
@@ -3517,9 +3600,14 @@ public function edit_bast_pemeriksaan($id)
 
 
         /*
-         * Tanggal pemeriksaan tetap
-         * berasal dari tanggal kebutuhan.
-         */
+        |--------------------------------------------------------------------------
+        | HEADER UPDATE
+        |--------------------------------------------------------------------------
+        |
+        | Nomor keputusan TIDAK lagi mengambil dari browser.
+        | Seluruh BAST menggunakan nomor keputusan yang sama.
+        |
+        */
 
         $header = array(
 
@@ -3530,17 +3618,19 @@ public function edit_bast_pemeriksaan($id)
                 $nomor_keputusan,
 
             'tanggal_pemeriksaan' =>
-                $bast->tanggal_kebutuhan
+                $kebutuhan->tanggal
 
         );
 
 
-        $detail =
-            $this->Spj_model
-                ->get_bast_pemeriksaan_detail(
-                    $id
-                );
-
+        /*
+        |--------------------------------------------------------------------------
+        | DETAIL
+        |--------------------------------------------------------------------------
+        |
+        | Detail tetap menggunakan snapshot BAST yang sudah tersimpan.
+        |
+        */
 
         $details = array();
 
@@ -3565,11 +3655,19 @@ public function edit_bast_pemeriksaan($id)
                     $row->satuan,
 
                 'keterangan' =>
-                    $row->keterangan
+                    !empty($row->keterangan)
+                        ? $row->keterangan
+                        : null
 
             );
         }
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | UPDATE DATABASE
+        |--------------------------------------------------------------------------
+        */
 
         $hasil =
             $this->Spj_model
@@ -3579,6 +3677,12 @@ public function edit_bast_pemeriksaan($id)
                     $details
                 );
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | BERHASIL
+        |--------------------------------------------------------------------------
+        */
 
         if ($hasil) {
 
@@ -3595,11 +3699,16 @@ public function edit_bast_pemeriksaan($id)
         }
 
 
+        /*
+        |--------------------------------------------------------------------------
+        | GAGAL
+        |--------------------------------------------------------------------------
+        */
+
         $this->session->set_flashdata(
             'error',
             'Gagal memperbarui BAST Pemeriksaan.'
         );
-
 
         redirect(
             'spj/edit_bast_pemeriksaan/' .
@@ -3610,6 +3719,12 @@ public function edit_bast_pemeriksaan($id)
     }
 
 
+    /*
+    |--------------------------------------------------------------------------
+    | DATA FORM
+    |--------------------------------------------------------------------------
+    */
+
     $data = array(
 
         'title' =>
@@ -3618,14 +3733,29 @@ public function edit_bast_pemeriksaan($id)
         'bast' =>
             $bast,
 
+        'kebutuhan' =>
+            $kebutuhan,
+
         'detail' =>
-            $this->Spj_model
-                ->get_bast_pemeriksaan_detail(
-                    $id
-                )
+            $detail,
+
+        'nomor_keputusan' =>
+            $nomor_keputusan,
+
+        'is_edit' =>
+            true
 
     );
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | TAMPILKAN FORM
+    |--------------------------------------------------------------------------
+    |
+    | EDIT DAN TAMBAH MENGGUNAKAN FORM YANG SAMA
+    |
+    */
 
     $this->load->view(
         'layouts/header'
@@ -3640,7 +3770,7 @@ public function edit_bast_pemeriksaan($id)
     );
 
     $this->load->view(
-        'spj/bast_pemeriksaan/edit',
+        'spj/bast_pemeriksaan/form',
         $data
     );
 
