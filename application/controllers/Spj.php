@@ -1400,6 +1400,1102 @@ public function bast_internal()
     $this->load->view('spj/bast_internal/index', $data);
     $this->load->view('layouts/footer');
 }
+
+
+/* =========================================================
+   DOWNLOAD SPJ FULL
+========================================================= */
+
+public function download_spj_full()
+{
+    /*
+    |----------------------------------------------------------------------
+    | AMBIL SEMUA KEBUTUHAN
+    |----------------------------------------------------------------------
+    */
+
+    $kebutuhan =
+        $this->Spj_model
+            ->get_all_kebutuhan();
+
+
+    /*
+    |----------------------------------------------------------------------
+    | DATA VIEW
+    |----------------------------------------------------------------------
+    */
+
+    $data = array(
+
+        'title' =>
+            'Download SPJ Full',
+
+        'kebutuhan' =>
+            $kebutuhan
+
+    );
+
+
+    /*
+    |----------------------------------------------------------------------
+    | LAYOUT
+    |----------------------------------------------------------------------
+    */
+
+    $this->load->view(
+        'layouts/header'
+    );
+
+    $this->load->view(
+        'layouts/sidebar'
+    );
+
+    $this->load->view(
+        'layouts/topbar'
+    );
+
+    $this->load->view(
+        'spj/download_spj_full/index',
+        $data
+    );
+
+    $this->load->view(
+        'layouts/footer'
+    );
+}
+/* =========================================================
+   DOWNLOAD 3 DOKUMEN SPJ SEKALIGUS
+========================================================= */
+
+public function download_spj_full_file($id)
+{
+    /*
+    |--------------------------------------------------------------------------
+    | VALIDASI
+    |--------------------------------------------------------------------------
+    */
+
+    $id = (int) $id;
+
+    if ($id <= 0) {
+
+        show_404();
+
+        return;
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | LOAD DOMPDF
+    |--------------------------------------------------------------------------
+    */
+
+    if (!class_exists('\Dompdf\Dompdf')) {
+
+        $dompdf_autoload =
+            APPPATH .
+            'third_party/dompdf/autoload.inc.php';
+
+        if (file_exists($dompdf_autoload)) {
+
+            require_once $dompdf_autoload;
+        }
+    }
+
+
+    if (!class_exists('\Dompdf\Dompdf')) {
+
+        show_error(
+            'Dompdf belum tersedia.'
+        );
+
+        return;
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | DATA KEBUTUHAN
+    |--------------------------------------------------------------------------
+    */
+
+    $kebutuhan =
+        $this->Spj_model
+            ->get_kebutuhan($id);
+
+
+    if (!$kebutuhan) {
+
+        show_404();
+
+        return;
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | DETAIL
+    |--------------------------------------------------------------------------
+    */
+
+    $detail =
+        $this->Spj_model
+            ->get_detail($id);
+
+
+    if (empty($detail)) {
+
+        show_error(
+            'Rincian kebutuhan tidak ditemukan.'
+        );
+
+        return;
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | BAST PEMERIKSAAN
+    |--------------------------------------------------------------------------
+    */
+
+    $bast_pemeriksaan =
+        $this->Spj_model
+            ->get_bast_pemeriksaan_by_kebutuhan(
+                $id
+            );
+
+
+    if (!$bast_pemeriksaan) {
+
+        show_error(
+            'BAST Pemeriksaan untuk kebutuhan ini belum dibuat.'
+        );
+
+        return;
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | BAST INTERNAL
+    |--------------------------------------------------------------------------
+    */
+
+    if (
+        empty(
+            $kebutuhan->nomor_bast_internal
+        )
+    ) {
+
+        show_error(
+            'BAST Internal untuk kebutuhan ini belum dibuat.'
+        );
+
+        return;
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | LOGO
+    |--------------------------------------------------------------------------
+    */
+
+    $logo_path =
+        FCPATH .
+        'assets/img/logoprovinsi.png';
+
+
+    $logo_base64 = '';
+
+
+    if (is_file($logo_path)) {
+
+        $logo_data =
+            file_get_contents(
+                $logo_path
+            );
+
+
+        if ($logo_data !== false) {
+
+            $logo_base64 =
+                'data:image/png;base64,' .
+                base64_encode(
+                    $logo_data
+                );
+        }
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | DOKUMEN 1
+    | INPUT KEBUTUHAN
+    |--------------------------------------------------------------------------
+    */
+
+    $data_kebutuhan = array(
+
+        'kebutuhan' =>
+            $kebutuhan,
+
+        'detail' =>
+            $detail,
+
+        'nama_sekolah' =>
+            'SMK NEGERI 1 CILIMUS',
+
+        'alamat' =>
+            'Jalan Eyang Kyai Hasan Maulani Caracas Cilimus',
+
+        'telepon' =>
+            '(0232) 8910145',
+
+        'email' =>
+            'smkn_1cilimus@yahoo.com',
+
+        'kabupaten' =>
+            'Kabupaten Kuningan 45556',
+
+        'kepala_nama' =>
+            'Drs. ROSIDIN',
+
+        'kepala_nip' =>
+            'NIP. 196707061994031014',
+
+        'pengaju_nama' =>
+            'M. HENDI GUNTARA, S.Pd',
+
+        'pengaju_nip' =>
+            'NIP. 19940828 202221 1 006'
+
+    );
+
+
+    $html_kebutuhan =
+        $this->load->view(
+            'spj/pdf/kebutuhan',
+            $data_kebutuhan,
+            true
+        );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | TANGGAL PEMERIKSAAN
+    |--------------------------------------------------------------------------
+    */
+
+    $tanggal_pemeriksaan =
+        !empty(
+            $bast_pemeriksaan->tanggal_pemeriksaan
+        )
+            ? $bast_pemeriksaan->tanggal_pemeriksaan
+            : date('Y-m-d');
+
+
+    $timestamp =
+        strtotime(
+            $tanggal_pemeriksaan
+        );
+
+
+    if ($timestamp === false) {
+
+        $timestamp = time();
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | HARI
+    |--------------------------------------------------------------------------
+    */
+
+    $hari = array(
+
+        'Sunday' =>
+            'Minggu',
+
+        'Monday' =>
+            'Senin',
+
+        'Tuesday' =>
+            'Selasa',
+
+        'Wednesday' =>
+            'Rabu',
+
+        'Thursday' =>
+            'Kamis',
+
+        'Friday' =>
+            'Jumat',
+
+        'Saturday' =>
+            'Sabtu'
+
+    );
+
+
+    $nama_hari =
+        isset(
+            $hari[
+                date(
+                    'l',
+                    $timestamp
+                )
+            ]
+        )
+            ? $hari[
+                date(
+                    'l',
+                    $timestamp
+                )
+            ]
+            : '';
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | BULAN
+    |--------------------------------------------------------------------------
+    */
+
+    $bulan = array(
+
+        1 =>
+            'Januari',
+
+        2 =>
+            'Februari',
+
+        3 =>
+            'Maret',
+
+        4 =>
+            'April',
+
+        5 =>
+            'Mei',
+
+        6 =>
+            'Juni',
+
+        7 =>
+            'Juli',
+
+        8 =>
+            'Agustus',
+
+        9 =>
+            'September',
+
+        10 =>
+            'Oktober',
+
+        11 =>
+            'November',
+
+        12 =>
+            'Desember'
+
+    );
+
+
+    $nomor_hari =
+        (int) date(
+            'j',
+            $timestamp
+        );
+
+
+    $nomor_bulan =
+        (int) date(
+            'n',
+            $timestamp
+        );
+
+
+    $nama_bulan =
+        isset(
+            $bulan[
+                $nomor_bulan
+            ]
+        )
+            ? $bulan[
+                $nomor_bulan
+            ]
+            : '';
+
+
+    $tahun =
+        (int) date(
+            'Y',
+            $timestamp
+        );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | TERBILANG TANGGAL
+    |--------------------------------------------------------------------------
+    */
+
+    $angka = array(
+
+        1 => 'Satu',
+        2 => 'Dua',
+        3 => 'Tiga',
+        4 => 'Empat',
+        5 => 'Lima',
+        6 => 'Enam',
+        7 => 'Tujuh',
+        8 => 'Delapan',
+        9 => 'Sembilan',
+        10 => 'Sepuluh',
+        11 => 'Sebelas',
+        12 => 'Dua Belas',
+        13 => 'Tiga Belas',
+        14 => 'Empat Belas',
+        15 => 'Lima Belas',
+        16 => 'Enam Belas',
+        17 => 'Tujuh Belas',
+        18 => 'Delapan Belas',
+        19 => 'Sembilan Belas',
+        20 => 'Dua Puluh',
+        21 => 'Dua Puluh Satu',
+        22 => 'Dua Puluh Dua',
+        23 => 'Dua Puluh Tiga',
+        24 => 'Dua Puluh Empat',
+        25 => 'Dua Puluh Lima',
+        26 => 'Dua Puluh Enam',
+        27 => 'Dua Puluh Tujuh',
+        28 => 'Dua Puluh Delapan',
+        29 => 'Dua Puluh Sembilan',
+        30 => 'Tiga Puluh',
+        31 => 'Tiga Puluh Satu'
+
+    );
+
+
+    $tanggal_terbilang =
+        isset(
+            $angka[
+                $nomor_hari
+            ]
+        )
+            ? $angka[
+                $nomor_hari
+            ]
+            : (string) $nomor_hari;
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | TAHUN TERBILANG
+    |--------------------------------------------------------------------------
+    */
+
+    if ($tahun == 2026) {
+
+        $tahun_terbilang =
+            'Dua Ribu Dua Puluh Enam';
+
+    } elseif ($tahun == 2025) {
+
+        $tahun_terbilang =
+            'Dua Ribu Dua Puluh Lima';
+
+    } elseif ($tahun == 2027) {
+
+        $tahun_terbilang =
+            'Dua Ribu Dua Puluh Tujuh';
+
+    } else {
+
+        $tahun_terbilang =
+            (string) $tahun;
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | NOMOR KEPUTUSAN
+    |--------------------------------------------------------------------------
+    */
+
+    $nomor_keputusan =
+        !empty(
+            $bast_pemeriksaan->nomor_keputusan
+        )
+            ? trim(
+                $bast_pemeriksaan->nomor_keputusan
+            )
+            : '';
+
+
+    $nomor_keputusan =
+        preg_replace(
+            '/^\s*No\.?\s*/i',
+            '',
+            $nomor_keputusan
+        );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | DOKUMEN 2
+    | BAST PEMERIKSAAN
+    |--------------------------------------------------------------------------
+    */
+
+    $data_pemeriksaan = array(
+
+        'bast' =>
+            $bast_pemeriksaan,
+
+        'detail' =>
+            $this->Spj_model
+                ->get_bast_pemeriksaan_detail(
+                    $bast_pemeriksaan
+                        ->id_bast_pemeriksaan
+                ),
+
+        'nama_sekolah' =>
+            'SMK NEGERI 1 CILIMUS',
+
+        'alamat' =>
+            'Jalan Eyang Kyai Hasan Maulani Caracas Cilimus',
+
+        'telepon' =>
+            '(0232) 8910145',
+
+        'email' =>
+            'smkn_1cilimus@yahoo.com',
+
+        'kabupaten' =>
+            'Kabupaten Kuningan 45556',
+
+        'logo_base64' =>
+            $logo_base64,
+
+        'pemeriksa_nama' =>
+            'Yosi Tazu Sobirin',
+
+        'pemeriksa_jabatan' =>
+            'Tim/Petugas Pemeriksa Barang',
+
+        'pemeriksa_nip' =>
+            '199503272025211117',
+
+        'nomor_keputusan' =>
+            $nomor_keputusan,
+
+        'nama_hari' =>
+            $nama_hari,
+
+        'nomor_hari' =>
+            $nomor_hari,
+
+        'tanggal_format' =>
+            date(
+                'd',
+                $timestamp
+            ) .
+            ' ' .
+            $nama_bulan .
+            ' ' .
+            $tahun,
+
+        'tanggal_terbilang' =>
+            $tanggal_terbilang,
+
+        'nama_bulan' =>
+            $nama_bulan,
+
+        'tahun' =>
+            $tahun,
+
+        'tahun_terbilang' =>
+            $tahun_terbilang
+
+    );
+
+
+    $html_pemeriksaan =
+        $this->load->view(
+            'spj/cetak_bast_pemeriksaan',
+            $data_pemeriksaan,
+            true
+        );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | DOKUMEN 3
+    | BAST INTERNAL
+    |--------------------------------------------------------------------------
+    */
+
+    $data_internal = array(
+
+        'kebutuhan' =>
+            $kebutuhan,
+
+        'detail' =>
+            $detail,
+
+        'bast_pemeriksaan' =>
+            $bast_pemeriksaan,
+
+        'nama_sekolah' =>
+            'SMK NEGERI 1 CILIMUS',
+
+        'alamat' =>
+            'Jalan Baru Lingkar Caracas Cilimus',
+
+        'telepon' =>
+            '(0232) 8910145',
+
+        'email' =>
+            'smkn_1cilimus@yahoo.com',
+
+        'kabupaten' =>
+            'Kabupaten Kuningan 45556',
+
+        'pemeriksa_nama' =>
+            'YOSI TAZU SOBIRIN',
+
+        'pemeriksa_jabatan' =>
+            'Petugas/Tim Pemeriksa',
+
+        'penyerah_nama' =>
+            'Yosi Tazu Sobirin',
+
+        'penyerah_jabatan' =>
+            'Petugas/Tim Pemeriksa',
+
+        'penyerah_nip' =>
+            'NIP. 199503272025211117',
+
+        'penerima_nama' =>
+            'Drs. Rosidin',
+
+        'penerima_jabatan' =>
+            'Kepala SMKN 1 Cilimus',
+
+        'penerima_nip' =>
+            'NIP. 199503272025211117'
+
+    );
+
+
+    $html_internal =
+        $this->load->view(
+            'spj/cetak_bast_internal',
+            $data_internal,
+            true
+        );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | FUNGSI EKSTRAK CSS DAN BODY
+    |--------------------------------------------------------------------------
+    */
+
+    $ambil_body = function ($html) {
+
+        $css = '';
+
+        if (
+            preg_match_all(
+                '/<style\b[^>]*>(.*?)<\/style>/is',
+                $html,
+                $style_matches
+            )
+        ) {
+
+            foreach (
+                $style_matches[1]
+                as $style
+            ) {
+
+                $css .=
+                    "\n" .
+                    $style .
+                    "\n";
+            }
+        }
+
+
+        if (
+            preg_match(
+                '/<body\b[^>]*>(.*?)<\/body>/is',
+                $html,
+                $body_match
+            )
+        ) {
+
+            $body =
+                $body_match[1];
+
+        } else {
+
+            $body =
+                $html;
+        }
+
+
+        return array(
+
+            'css' =>
+                $css,
+
+            'body' =>
+                $body
+
+        );
+    };
+
+
+    $dokumen_1 =
+        $ambil_body(
+            $html_kebutuhan
+        );
+
+
+    $dokumen_2 =
+        $ambil_body(
+            $html_pemeriksaan
+        );
+
+
+    $dokumen_3 =
+        $ambil_body(
+            $html_internal
+        );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | JANGAN UBAH HTML TTD
+    |--------------------------------------------------------------------------
+    |
+    | View cetak_bast_pemeriksaan sudah benar.
+    |
+    | Kita hanya memberi IDENTITAS kepada dokumen 2
+    | supaya CSS khususnya dapat diprioritaskan.
+    |
+    */
+
+    $dokumen_2_body =
+        '<div class="spj-document-2">' .
+            $dokumen_2['body'] .
+        '</div>';
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | CSS KHUSUS BAST PEMERIKSAAN
+    |--------------------------------------------------------------------------
+    |
+    | CSS ini mengikuti PERSIS CSS pada view manual.
+    |
+    | Tidak mengubah posisi TTD.
+    | Tidak menggunakan absolute.
+    | Tidak menggunakan float.
+    |
+    */
+
+    $css_ttd_pemeriksaan = '
+
+/*
+|--------------------------------------------------------------------------
+| TTD BAST PEMERIKSAAN
+|--------------------------------------------------------------------------
+|
+| Sama dengan cetak_bast_pemeriksaan.php
+|
+*/
+
+.spj-document-2 .ttd-wrapper {
+
+    width: 100% !important;
+
+    margin-top: 35px !important;
+
+    page-break-inside: avoid !important;
+}
+
+
+.spj-document-2 .ttd {
+
+    width: 48% !important;
+
+    margin-left: auto !important;
+
+    margin-right: 0 !important;
+
+    text-align: center !important;
+
+    font-size: 10.5px !important;
+}
+
+
+.spj-document-2 .ttd-jabatan {
+
+    min-height: 42px !important;
+
+    margin-top: 3px !important;
+
+    margin-bottom: 55px !important;
+
+    text-align: center !important;
+}
+
+
+.spj-document-2 .ttd-nama {
+
+    font-weight: bold !important;
+
+    text-decoration: underline !important;
+
+    text-align: center !important;
+}
+
+
+.spj-document-2 .ttd-nip {
+
+    margin-top: 2px !important;
+
+    text-align: center !important;
+}
+
+';
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | CSS GABUNGAN
+    |--------------------------------------------------------------------------
+    */
+
+    $css_gabungan =
+        $dokumen_1['css'] .
+        "\n" .
+        $dokumen_2['css'] .
+        "\n" .
+        $dokumen_3['css'] .
+        "\n" .
+        $css_ttd_pemeriksaan;
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | HTML FINAL
+    |--------------------------------------------------------------------------
+    */
+
+    $html_final = '
+
+<!DOCTYPE html>
+
+<html lang="id">
+
+<head>
+
+<meta charset="UTF-8">
+
+<style>
+
+' .
+        $css_gabungan .
+        '
+
+
+/*
+|--------------------------------------------------------------------------
+| PEMISAH DOKUMEN
+|--------------------------------------------------------------------------
+*/
+
+.spj-full-document {
+
+    width: 100%;
+
+    page-break-after: always;
+
+}
+
+
+.spj-full-document:last-child {
+
+    page-break-after: auto;
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+
+<!-- =========================================================
+     DOKUMEN 1
+========================================================= -->
+
+<div class="spj-full-document">
+
+' .
+        $dokumen_1['body'] .
+        '
+
+</div>
+
+
+<!-- =========================================================
+     DOKUMEN 2
+========================================================= -->
+
+<div class="spj-full-document">
+
+' .
+        $dokumen_2_body .
+        '
+
+</div>
+
+
+<!-- =========================================================
+     DOKUMEN 3
+========================================================= -->
+
+<div class="spj-full-document">
+
+' .
+        $dokumen_3['body'] .
+        '
+
+</div>
+
+
+</body>
+
+</html>
+';
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | DOMPDF
+    |--------------------------------------------------------------------------
+    */
+
+    $options =
+        new \Dompdf\Options();
+
+
+    $options->set(
+        'isHtml5ParserEnabled',
+        true
+    );
+
+
+    $options->set(
+        'isRemoteEnabled',
+        true
+    );
+
+
+    $dompdf =
+        new \Dompdf\Dompdf(
+            $options
+        );
+
+
+    $dompdf->loadHtml(
+        $html_final
+    );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | UKURAN KERTAS
+    |--------------------------------------------------------------------------
+    |
+    | TETAP A4 PORTRAIT.
+    |
+    */
+
+    $dompdf->setPaper(
+        'A4',
+        'portrait'
+    );
+
+
+    $dompdf->render();
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | NAMA FILE
+    |--------------------------------------------------------------------------
+    */
+
+    $nomor_surat =
+        !empty(
+            $kebutuhan->nomor_surat
+        )
+            ? $kebutuhan->nomor_surat
+            : 'SPJ';
+
+
+    $nama_file =
+        preg_replace(
+            '/[^A-Za-z0-9\-_]/',
+            '-',
+            $nomor_surat
+        );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | BERSIHKAN OUTPUT BUFFER
+    |--------------------------------------------------------------------------
+    */
+
+    while (
+        ob_get_level()
+    ) {
+
+        ob_end_clean();
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | DOWNLOAD
+    |--------------------------------------------------------------------------
+    */
+
+    $dompdf->stream(
+        'SPJ-Full-' .
+        $nama_file .
+        '.pdf',
+        array(
+            'Attachment' => true
+        )
+    );
+
+
+    exit;
+}
 public function cetak_bast_internal($id)
 {
     /*
@@ -4237,7 +5333,7 @@ public function cetak_bast_pemeriksaan($id)
             'Yosi Tazu Sobirin',
 
         'pemeriksa_jabatan' =>
-            'Tim/Petugas Pemeriksa Barang Modal/Barang dan Jasa',
+            'Tim/Petugas Pemeriksa Barang',
 
         'pemeriksa_nip' =>
             '199503272025211117',

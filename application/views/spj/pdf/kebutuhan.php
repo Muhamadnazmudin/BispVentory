@@ -189,7 +189,7 @@ $pengaju_nip =
 ========================================================= */
 
 $logo_path =
-    FCPATH . 'assets/img/logobispar.png';
+    FCPATH . 'assets/img/logoprovinsi.png';
 
 $logo_base64 = '';
 

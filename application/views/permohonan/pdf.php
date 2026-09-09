@@ -125,7 +125,7 @@ body{
 <table class="kop">
 <tr>
     <td class="logo">
-    <img src="assets/img/logobispar.png" class="logo-img">
+    <img src="assets/img/logoprovinsi.png" class="logo-img">
 </td>
 
     <td class="kop-text">

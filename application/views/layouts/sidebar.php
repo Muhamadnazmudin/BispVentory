@@ -890,35 +890,38 @@ $is_laporan_page = (
 
 
                 <!-- =================================================
-                     INPUT KEBUTUHAN
-                ================================================== -->
+     INPUT KEBUTUHAN
+================================================= -->
 
-                <a class="collapse-item spj-item <?= $segment2 === 'input_kebutuhan' ? 'active' : '' ?>"
-                   href="<?= base_url('spj/input_kebutuhan') ?>">
+<a class="collapse-item spj-item <?= $segment2 === 'input_kebutuhan' ? 'active' : '' ?>"
+   href="<?= base_url('spj/input_kebutuhan') ?>">
 
-                    <i class="fas fa-edit"></i>
+    <i class="fas fa-edit"></i>
 
-                    Input Kebutuhan
+    Input Kebutuhan
 
-                </a>
+</a>
+
+
 <!-- =================================================
-                     BAST PEMERIKSAAN
-                ================================================== -->
+     BAST PEMERIKSAAN
+================================================= -->
 
-                <a class="collapse-item spj-item <?= $segment2 === 'bast_pemeriksaan' ? 'active' : '' ?>"
-                   href="<?= base_url('spj/bast_pemeriksaan') ?>">
+<a class="collapse-item spj-item <?= $segment2 === 'bast_pemeriksaan' ? 'active' : '' ?>"
+   href="<?= base_url('spj/bast_pemeriksaan') ?>">
 
-                    <i class="fas fa-clipboard-check"></i>
+    <i class="fas fa-clipboard-check"></i>
 
-                    BAST Pemeriksaan
+    BAST Pemeriksaan
 
-                </a>
+</a>
 
-                <!-- =================================================
-                     BAST INTERNAL
-                ================================================== -->
 
-                <a class="collapse-item spj-menu <?= $segment2 === 'bast_internal' ? 'active' : '' ?>"
+<!-- =================================================
+     BAST INTERNAL
+================================================= -->
+
+<a class="collapse-item spj-menu <?= $segment2 === 'bast_internal' ? 'active' : '' ?>"
    href="<?= base_url('spj/bast_internal') ?>">
 
     <i class="fas fa-file-signature"></i>
@@ -927,6 +930,19 @@ $is_laporan_page = (
 
 </a>
 
+
+<!-- =================================================
+     DOWNLOAD SPJ FULL
+================================================= -->
+
+<a class="collapse-item spj-item <?= $segment2 === 'download_spj_full' ? 'active' : '' ?>"
+   href="<?= base_url('spj/download_spj_full') ?>">
+
+    <i class="fas fa-file-archive"></i>
+
+    Download SPJ Full
+
+</a>
 
                 
 

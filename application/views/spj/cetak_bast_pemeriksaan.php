@@ -977,7 +977,7 @@ $pemeriksa_nip =
     <div class="ttd">
 
         <div>
-            Cilimus, <?= $esc($tanggal_lengkap) ?>
+            Kuningan, <?= $esc($tanggal_lengkap) ?>
         </div>
 
 
