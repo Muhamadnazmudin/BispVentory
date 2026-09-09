@@ -1,69 +1,339 @@
-/* ===============================
-   GLOBAL BACKGROUND
-================================ */
+/* =========================================================
+   BISPVENTORY DARK MODE
+========================================================= */
+
+/* =========================================================
+   GLOBAL
+========================================================= */
+
 body.dark-mode {
 	background-color: #181824;
+
 	color: #eaeaea;
 }
 
-/* Content wrapper & main content */
+/* Content */
+
 body.dark-mode #content-wrapper,
 body.dark-mode #content {
 	background-color: #181824;
 }
 
-/* Page content (area putih besar) */
+/* Page content */
+
 body.dark-mode .container-fluid {
-	background-color: #181824;
+	background-color: transparent;
 }
 
-/* ===============================
+/* =========================================================
    TOPBAR
-================================ */
+========================================================= */
+
 body.dark-mode .topbar {
 	background-color: #23233a !important;
-	border-bottom: 1px solid #2f2f4f;
+
+	border-bottom: 1px solid #30304a;
 }
 
-/* ===============================
-   SIDEBAR (FIX BIRU!)
-================================ */
+body.dark-mode .topbar .nav-link {
+	color: #d8d9e8;
+}
+
+body.dark-mode .topbar .nav-link:hover {
+	color: #fff;
+}
+
+/* =========================================================
+   SIDEBAR
+========================================================= */
+
+/*
+|--------------------------------------------------------------------------
+| DARK MODE SIDEBAR
+|--------------------------------------------------------------------------
+|
+| Layout sidebar TIDAK diatur di sini.
+| Lebar, posisi, responsive, dan toggle tetap menjadi
+| tanggung jawab sidebar.php.
+|
+*/
+
 body.dark-mode .sidebar {
 	background-color: #1c1c2e !important;
+
 	background-image: none !important;
+
+	color: #eaeaea;
 }
 
-body.dark-mode .sidebar-brand {
-	background-color: #1c1c2e;
-}
+/* Gradient SB Admin 2 */
 
-body.dark-mode .sidebar .nav-item .nav-link {
-	color: #cfd2ff !important;
-}
-
-body.dark-mode .sidebar .nav-item.active .nav-link {
-	background-color: #2a2a45;
-	color: #ffffff !important;
-}
-
-body.dark-mode .sidebar .nav-item .nav-link:hover {
-	background-color: #262640;
-}
-
-/* Hilangkan gradient biru SB Admin */
 body.dark-mode .bg-gradient-primary {
 	background-color: #1c1c2e !important;
+
 	background-image: none !important;
 }
 
-/* ===============================
-   CARD & TABLE
-================================ */
+/* =========================================================
+   SIDEBAR BRAND
+========================================================= */
+
+body.dark-mode .sidebar-brand {
+	background-color: transparent;
+
+	border-bottom-color: rgba(255, 255, 255, 0.07);
+}
+
+body.dark-mode .sidebar-brand:hover {
+	background-color: rgba(255, 255, 255, 0.035);
+}
+
+body.dark-mode .sidebar-brand-icon {
+	background-color: rgba(255, 255, 255, 0.08);
+}
+
+body.dark-mode .sidebar-brand-title {
+	color: #fff;
+}
+
+body.dark-mode .sidebar-brand-version {
+	color: rgba(255, 255, 255, 0.48);
+}
+
+/* =========================================================
+   SIDEBAR DIVIDER
+========================================================= */
+
+body.dark-mode .sidebar-divider {
+	border-top-color: rgba(255, 255, 255, 0.07) !important;
+}
+
+/* =========================================================
+   SIDEBAR HEADING
+========================================================= */
+
+body.dark-mode .sidebar-heading {
+	color: rgba(255, 255, 255, 0.38) !important;
+}
+
+/* =========================================================
+   MAIN NAV
+========================================================= */
+
+body.dark-mode .sidebar .nav-link {
+	color: rgba(255, 255, 255, 0.72) !important;
+}
+
+body.dark-mode .sidebar .nav-link i {
+	color: rgba(255, 255, 255, 0.45);
+}
+
+body.dark-mode .sidebar .nav-link:hover {
+	color: #fff !important;
+
+	background-color: rgba(255, 255, 255, 0.075);
+}
+
+body.dark-mode .sidebar .nav-link:hover i {
+	color: #fff;
+}
+
+/* =========================================================
+   ACTIVE MAIN MENU
+========================================================= */
+
+body.dark-mode .sidebar .nav-item.active > .nav-link {
+	color: #fff !important;
+
+	background-color: rgba(255, 255, 255, 0.12);
+
+	box-shadow: inset 3px 0 0 rgba(255, 255, 255, 0.9);
+}
+
+body.dark-mode .sidebar .nav-item.active > .nav-link i {
+	color: #fff;
+}
+
+/* =========================================================
+   COLLAPSE PARENT
+========================================================= */
+
+body.dark-mode
+	.sidebar
+	.nav-link[data-toggle="collapse"][aria-expanded="true"] {
+	color: #fff !important;
+
+	background-color: rgba(255, 255, 255, 0.075);
+}
+
+body.dark-mode
+	.sidebar
+	.nav-link[data-toggle="collapse"][aria-expanded="true"]
+	i {
+	color: #fff;
+}
+
+/* =========================================================
+   SUBMENU
+========================================================= */
+
+body.dark-mode .sidebar .collapse-inner {
+	background-color: rgba(255, 255, 255, 0.055) !important;
+
+	border: 1px solid rgba(255, 255, 255, 0.06);
+
+	box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02);
+}
+
+/* =========================================================
+   SUBMENU HEADER
+========================================================= */
+
+body.dark-mode .sidebar .collapse-header {
+	color: rgba(255, 255, 255, 0.38);
+}
+
+/* =========================================================
+   SUBMENU DIVIDER
+========================================================= */
+
+body.dark-mode .sidebar .collapse-divider {
+	background-color: rgba(255, 255, 255, 0.07);
+}
+
+/* =========================================================
+   SUBMENU ITEM
+========================================================= */
+
+body.dark-mode .sidebar .collapse-item {
+	color: rgba(255, 255, 255, 0.68) !important;
+}
+
+body.dark-mode .sidebar .collapse-item i {
+	color: rgba(255, 255, 255, 0.4);
+}
+
+body.dark-mode .sidebar .collapse-item:hover {
+	color: #fff !important;
+
+	background-color: rgba(255, 255, 255, 0.085);
+}
+
+body.dark-mode .sidebar .collapse-item:hover i {
+	color: #fff;
+}
+
+/* =========================================================
+   ACTIVE SUBMENU
+========================================================= */
+
+body.dark-mode .sidebar .collapse-item.active {
+	color: #fff !important;
+
+	background-color: rgba(78, 115, 223, 0.42);
+
+	box-shadow: inset 2px 0 0 #fff;
+}
+
+body.dark-mode .sidebar .collapse-item.active i {
+	color: #fff;
+}
+
+/* =========================================================
+   SPJ
+========================================================= */
+
+body.dark-mode .sidebar .spj-item {
+	color: rgba(255, 255, 255, 0.68) !important;
+
+	background-color: transparent;
+}
+
+body.dark-mode .sidebar .spj-item i {
+	color: rgba(255, 255, 255, 0.42);
+}
+
+body.dark-mode .sidebar .spj-item:hover {
+	color: #fff !important;
+
+	background-color: rgba(255, 255, 255, 0.09);
+}
+
+body.dark-mode .sidebar .spj-item.active {
+	color: #fff !important;
+
+	background-color: rgba(78, 115, 223, 0.42);
+
+	box-shadow: inset 3px 0 0 #fff;
+}
+
+body.dark-mode .sidebar .spj-item.active i {
+	color: #fff;
+}
+
+/* =========================================================
+   SIDEBAR TOGGLE
+========================================================= */
+
+body.dark-mode .sidebar-toggle-button {
+	color: rgba(255, 255, 255, 0.6);
+
+	background-color: rgba(255, 255, 255, 0.075);
+
+	border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+body.dark-mode .sidebar-toggle-button:hover {
+	color: #fff;
+
+	background-color: rgba(255, 255, 255, 0.14);
+}
+
+/* =========================================================
+   SIDEBAR SCROLLBAR
+========================================================= */
+
+body.dark-mode .sidebar {
+	scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+}
+
+body.dark-mode .sidebar::-webkit-scrollbar-thumb {
+	background: rgba(255, 255, 255, 0.15);
+}
+
+body.dark-mode .sidebar::-webkit-scrollbar-thumb:hover {
+	background: rgba(255, 255, 255, 0.24);
+}
+
+/* =========================================================
+   CARD
+========================================================= */
+
 body.dark-mode .card {
 	background-color: #23233a;
+
 	color: #eaeaea;
-	border: 1px solid #2f2f4f;
+
+	border: 1px solid #30304a;
 }
+
+body.dark-mode .card-header {
+	background-color: #27273f;
+
+	color: #fff;
+
+	border-bottom: 1px solid #30304a;
+}
+
+body.dark-mode .card-footer {
+	background-color: #27273f;
+
+	border-top: 1px solid #30304a;
+}
+
+/* =========================================================
+   TABLE
+========================================================= */
 
 body.dark-mode .table {
 	color: #eaeaea;
@@ -71,7 +341,8 @@ body.dark-mode .table {
 
 body.dark-mode .table thead {
 	background-color: #2a2a45;
-	color: #ffffff;
+
+	color: #fff;
 }
 
 body.dark-mode .table tbody tr {
@@ -82,31 +353,140 @@ body.dark-mode .table tbody tr:hover {
 	background-color: #2a2a45;
 }
 
-/* ===============================
-   BUTTON
-================================ */
-body.dark-mode .btn-primary {
-	background-color: #4e73df;
-	border-color: #4e73df;
+body.dark-mode .table td,
+body.dark-mode .table th {
+	border-color: #353550;
 }
 
-/* ===============================
+/* =========================================================
    FORM
-================================ */
+========================================================= */
+
+/*
+|--------------------------------------------------------------------------
+| FORM TETAP TERANG
+|--------------------------------------------------------------------------
+|
+| Sengaja dipertahankan agar form nyaman dibaca
+| dan konsisten dengan aplikasi saat ini.
+|
+*/
+
 body.dark-mode input,
-body.dark-mode select,
-body.dark-mode textarea {
-	background-color: #1f1f35;
-	color: #ffffff;
-	border-color: #3a3a5f;
+body.dark-mode textarea,
+body.dark-mode select {
+	color: #212529 !important;
+
+	background-color: #f1f3f5 !important;
+
+	border-color: #ced4da !important;
 }
 
-/* ===============================
+body.dark-mode input:focus,
+body.dark-mode textarea:focus,
+body.dark-mode select:focus {
+	border-color: #4e73df !important;
+
+	box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.2);
+}
+
+/* =========================================================
+   READONLY / DISABLED
+========================================================= */
+
+body.dark-mode input[readonly],
+body.dark-mode input:disabled,
+body.dark-mode textarea:disabled,
+body.dark-mode select:disabled {
+	background-color: #e9ecef !important;
+
+	color: #212529 !important;
+}
+
+/* =========================================================
+   SELECT2
+========================================================= */
+
+body.dark-mode .select2-container--default .select2-selection--single {
+	height: 38px;
+
+	background-color: #f1f3f5;
+
+	border: 1px solid #ced4da;
+}
+
+body.dark-mode
+	.select2-container--default
+	.select2-selection--single
+	.select2-selection__rendered {
+	line-height: 36px;
+
+	color: #212529;
+}
+
+body.dark-mode
+	.select2-container--default
+	.select2-selection--single
+	.select2-selection__arrow {
+	height: 36px;
+
+	right: 6px;
+}
+
+body.dark-mode
+	.select2-container--default.select2-container--focus
+	.select2-selection--single {
+	border-color: #4e73df;
+
+	box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.2);
+}
+
+/* =========================================================
+   SELECT2 DROPDOWN
+========================================================= */
+
+body.dark-mode .select2-dropdown {
+	background-color: #fff;
+
+	color: #212529;
+
+	border-color: #ced4da;
+}
+
+body.dark-mode .select2-search--dropdown {
+	display: block !important;
+}
+
+body.dark-mode .select2-search__field {
+	background-color: #fff !important;
+
+	color: #212529 !important;
+
+	border: 1px solid #ced4da !important;
+}
+
+body.dark-mode .select2-container--default .select2-results__option {
+	color: #212529;
+}
+
+body.dark-mode
+	.select2-container--default
+	.select2-results__option--highlighted {
+	background-color: #4e73df;
+
+	color: #fff;
+}
+
+/* =========================================================
    DROPDOWN
-================================ */
+========================================================= */
+
 body.dark-mode .dropdown-menu {
 	background-color: #23233a;
-	color: #ffffff;
+
+	border: 1px solid #30304a;
+
+	box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
 }
 
 body.dark-mode .dropdown-item {
@@ -114,127 +494,183 @@ body.dark-mode .dropdown-item {
 }
 
 body.dark-mode .dropdown-item:hover {
+	color: #fff;
+
 	background-color: #2a2a45;
 }
-/* =============================== */
-/* DESKTOP ONLY - FIX SCROLL       */
-/* =============================== */
-@media (min-width: 768px) {
-	/* Sidebar tetap */
-	#accordionSidebar {
-		position: fixed;
-		top: 0;
-		left: 0;
-		height: 100vh;
-	}
 
-	/* Content wrapper = tinggi layar dikurangi topbar */
-	#content-wrapper {
-		margin-left: 224px;
-		min-height: calc(100vh - 70px); /* 70px = tinggi topbar SB Admin 2 */
-		display: flex;
-		flex-direction: column;
-	}
-
-	/* Area konten fleksibel */
-	#content {
-		flex: 1;
-	}
-
-	/* Footer dipaksa ke bawah */
-	.sticky-footer {
-		margin-top: auto;
-	}
-}
-/* Dark mode input fix */
-body.dark-mode input,
-body.dark-mode textarea,
-body.dark-mode select {
-	color: #212529 !important; /* teks gelap */
-	background-color: #f1f3f5 !important;
+body.dark-mode .dropdown-divider {
+	border-top-color: #36364f;
 }
 
-/* readonly / disabled lebih soft */
-body.dark-mode input[readonly],
-body.dark-mode input:disabled {
-	background-color: #e9ecef !important;
-	color: #212529 !important;
-}
-/* ===============================
-   SELECT2 SEARCH FIX - DARK MODE
-   (SB ADMIN 2)
-================================ */
+/* =========================================================
+   BUTTON
+========================================================= */
 
-/* paksa searchbox muncul */
-body.dark-mode .select2-search--dropdown {
-	display: block !important;
-}
+body.dark-mode .btn-primary {
+	background-color: #4e73df;
 
-/* pastikan input search terlihat & bisa diketik */
-body.dark-mode .select2-search__field {
-	background-color: #ffffff !important;
-	color: #212529 !important;
-	border: 1px solid #ced4da !important;
-}
-
-/* dropdown tidak ketimpa rule select */
-body.dark-mode .select2-container--default .select2-results__option {
-	color: #212529;
-}
-/* ===============================
-   SELECT2 STYLE - SAMA DENGAN FORM
-   SB ADMIN 2 + DARK MODE
-================================ */
-
-/* container utama */
-.select2-container--default .select2-selection--single {
-	height: 38px;
-	border: 1px solid #ced4da;
-	border-radius: 0.35rem;
-	background-color: #fff;
-}
-
-/* teks di dalam */
-.select2-container--default
-	.select2-selection--single
-	.select2-selection__rendered {
-	line-height: 36px;
-	padding-left: 0.75rem;
-	color: #495057;
-}
-
-/* arrow */
-.select2-container--default
-	.select2-selection--single
-	.select2-selection__arrow {
-	height: 36px;
-	right: 6px;
-}
-
-/* fokus (klik) */
-.select2-container--default.select2-container--focus
-	.select2-selection--single {
 	border-color: #4e73df;
-	box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
 }
 
-/* ===============================
-   DARK MODE ADJUSTMENT
-================================ */
-body.dark-mode .select2-container--default .select2-selection--single {
-	background-color: #f1f3f5;
-	border-color: #ced4da;
+body.dark-mode .btn-primary:hover {
+	background-color: #4262c5;
+
+	border-color: #4262c5;
 }
 
-body.dark-mode
-	.select2-container--default
-	.select2-selection--single
-	.select2-selection__rendered {
-	color: #212529;
+/* =========================================================
+   MODAL
+========================================================= */
+
+body.dark-mode .modal-content {
+	background-color: #23233a;
+
+	color: #eaeaea;
+
+	border: 1px solid #30304a;
 }
 
-/* dropdown */
-body.dark-mode .select2-dropdown {
-	background-color: #ffffff;
-	color: #212529;
+body.dark-mode .modal-header {
+	border-bottom-color: #30304a;
+}
+
+body.dark-mode .modal-footer {
+	border-top-color: #30304a;
+}
+
+/* =========================================================
+   TEXT MUTED
+========================================================= */
+
+body.dark-mode .text-muted {
+	color: #9ca3af !important;
+}
+
+/* =========================================================
+   BREADCRUMB
+========================================================= */
+
+body.dark-mode .breadcrumb {
+	background-color: #23233a;
+}
+
+body.dark-mode .breadcrumb-item {
+	color: #bfc2d4;
+}
+
+body.dark-mode .breadcrumb-item.active {
+	color: #fff;
+}
+
+/* =========================================================
+   ALERT
+========================================================= */
+
+body.dark-mode .alert {
+	border-color: rgba(255, 255, 255, 0.08);
+}
+
+/* =========================================================
+   FOOTER
+========================================================= */
+
+body.dark-mode footer {
+	background-color: #181824;
+
+	color: #9ca3af;
+}
+/* =========================================================
+   MOBILE SUBMENU - DARK MODE
+   FIX SUBMENU TRANSPARAN + TEKS TERTIMPA
+========================================================= */
+
+@media (max-width: 767.98px) {
+	/*
+    |--------------------------------------------------------------------------
+    | SUBMENU CONTAINER
+    |--------------------------------------------------------------------------
+    */
+
+	body.dark-mode #accordionSidebar .collapse-inner {
+		background-color: #23233a !important;
+
+		background-image: none !important;
+
+		color: #eaeaea !important;
+
+		box-shadow: 0 0.15rem 1.75rem 0 rgba(0, 0, 0, 0.35) !important;
+	}
+
+	/*
+    |--------------------------------------------------------------------------
+    | SUBMENU ITEM
+    |--------------------------------------------------------------------------
+    */
+
+	body.dark-mode #accordionSidebar .collapse-item {
+		color: #eaeaea !important;
+
+		background-color: transparent !important;
+	}
+
+	/*
+    |--------------------------------------------------------------------------
+    | HOVER
+    |--------------------------------------------------------------------------
+    */
+
+	body.dark-mode #accordionSidebar .collapse-item:hover {
+		color: #ffffff !important;
+
+		background-color: #2f2f4f !important;
+	}
+
+	/*
+    |--------------------------------------------------------------------------
+    | ACTIVE
+    |--------------------------------------------------------------------------
+    */
+
+	body.dark-mode #accordionSidebar .collapse-item.active {
+		color: #ffffff !important;
+
+		background-color: #3b4f91 !important;
+	}
+
+	/*
+    |--------------------------------------------------------------------------
+    | HEADER SUBMENU
+    |--------------------------------------------------------------------------
+    */
+
+	body.dark-mode #accordionSidebar .collapse-header {
+		color: #9ca3af !important;
+	}
+
+	/*
+    |--------------------------------------------------------------------------
+    | DIVIDER
+    |--------------------------------------------------------------------------
+    */
+
+	body.dark-mode #accordionSidebar .collapse-divider {
+		background-color: #3a3a52 !important;
+	}
+
+	/*
+    |--------------------------------------------------------------------------
+    | SUBMENU TETAP DI ATAS ELEMEN LAIN
+    |--------------------------------------------------------------------------
+    */
+
+	body.dark-mode #accordionSidebar .collapse {
+		z-index: 1050 !important;
+	}
+
+	body.dark-mode #accordionSidebar .collapse-inner {
+		position: relative;
+
+		z-index: 1051;
+	}
 }
