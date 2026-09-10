@@ -84,7 +84,13 @@ class Spj extends MY_Controller
     $nomor_pesanan = trim(
         (string) $this->input->post('nomor_pesanan', true)
     );
+    $tanggal_invoice = trim(
+    (string) $this->input->post('tanggal_invoice', true)
+);
 
+$tanggal_pesanan = trim(
+    (string) $this->input->post('tanggal_pesanan', true)
+);
     $nama_penyedia = trim(
         (string) $this->input->post('nama_penyedia', true)
     );
@@ -451,14 +457,24 @@ class Spj extends MY_Controller
             $nomor_surat,
 
         'nomor_invoice' =>
-            $nomor_invoice !== ''
-                ? $nomor_invoice
-                : null,
+    $nomor_invoice !== ''
+        ? $nomor_invoice
+        : null,
 
-        'nomor_pesanan' =>
-            $nomor_pesanan !== ''
-                ? $nomor_pesanan
-                : null,
+'tanggal_invoice' =>
+    $tanggal_invoice !== ''
+        ? $tanggal_invoice
+        : null,
+
+'nomor_pesanan' =>
+    $nomor_pesanan !== ''
+        ? $nomor_pesanan
+        : null,
+
+'tanggal_pesanan' =>
+    $tanggal_pesanan !== ''
+        ? $tanggal_pesanan
+        : null,
 
         'nama_penyedia' =>
             $nama_penyedia !== ''
@@ -915,18 +931,32 @@ public function update_kebutuhan($id)
     );
 
     $nomor_invoice = trim(
-        (string) $this->input->post(
-            'nomor_invoice',
-            true
-        )
-    );
+    (string) $this->input->post(
+        'nomor_invoice',
+        true
+    )
+);
 
-    $nomor_pesanan = trim(
-        (string) $this->input->post(
-            'nomor_pesanan',
-            true
-        )
-    );
+$tanggal_invoice = trim(
+    (string) $this->input->post(
+        'tanggal_invoice',
+        true
+    )
+);
+
+$nomor_pesanan = trim(
+    (string) $this->input->post(
+        'nomor_pesanan',
+        true
+    )
+);
+
+$tanggal_pesanan = trim(
+    (string) $this->input->post(
+        'tanggal_pesanan',
+        true
+    )
+);
 
     $nama_penyedia = trim(
         (string) $this->input->post(
@@ -1303,40 +1333,50 @@ public function update_kebutuhan($id)
 
     $header = array(
 
-        'nomor_surat' =>
-            $nomor_surat,
+    'nomor_surat' =>
+        $nomor_surat,
 
-        'nomor_invoice' =>
-            $nomor_invoice !== ''
-                ? $nomor_invoice
-                : null,
+    'nomor_invoice' =>
+        $nomor_invoice !== ''
+            ? $nomor_invoice
+            : null,
 
-        'nomor_pesanan' =>
-            $nomor_pesanan !== ''
-                ? $nomor_pesanan
-                : null,
+    'tanggal_invoice' =>
+        $tanggal_invoice !== ''
+            ? $tanggal_invoice
+            : null,
 
-        'nama_penyedia' =>
-            $nama_penyedia !== ''
-                ? $nama_penyedia
-                : null,
+    'nomor_pesanan' =>
+        $nomor_pesanan !== ''
+            ? $nomor_pesanan
+            : null,
 
-        'perihal' =>
-            $perihal,
+    'tanggal_pesanan' =>
+        $tanggal_pesanan !== ''
+            ? $tanggal_pesanan
+            : null,
 
-        'kegiatan' =>
-            $kegiatan !== ''
-                ? $kegiatan
-                : null,
+    'nama_penyedia' =>
+        $nama_penyedia !== ''
+            ? $nama_penyedia
+            : null,
 
-        'tanggal' =>
-            $tanggal,
+    'perihal' =>
+        $perihal,
 
-        'keterangan' =>
-            $keterangan !== ''
-                ? $keterangan
-                : null
-    );
+    'kegiatan' =>
+        $kegiatan !== ''
+            ? $kegiatan
+            : null,
+
+    'tanggal' =>
+        $tanggal,
+
+    'keterangan' =>
+        $keterangan !== ''
+            ? $keterangan
+            : null
+);
 
 
     /*

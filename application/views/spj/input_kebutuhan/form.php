@@ -102,7 +102,7 @@
 
 
                     <!-- =================================================
-                         TANGGAL
+                         TANGGAL KEBUTUHAN
                     ================================================== -->
 
                     <div class="col-md-6">
@@ -110,7 +110,7 @@
                         <div class="form-group">
 
                             <label class="font-weight-bold">
-                                Tanggal
+                                Tanggal Kebutuhan
                                 <span class="text-danger">*</span>
                             </label>
 
@@ -165,6 +165,48 @@
                                    class="form-control"
                                    placeholder="Nomor pesanan"
                                    autocomplete="off">
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- =================================================
+                         TANGGAL INVOICE
+                    ================================================== -->
+
+                    <div class="col-md-6">
+
+                        <div class="form-group">
+
+                            <label class="font-weight-bold">
+                                Tanggal Invoice
+                            </label>
+
+                            <input type="date"
+                                   name="tanggal_invoice"
+                                   class="form-control">
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- =================================================
+                         TANGGAL PESANAN
+                    ================================================== -->
+
+                    <div class="col-md-6">
+
+                        <div class="form-group">
+
+                            <label class="font-weight-bold">
+                                Tanggal Pesanan
+                            </label>
+
+                            <input type="date"
+                                   name="tanggal_pesanan"
+                                   class="form-control">
 
                         </div>
 
@@ -619,10 +661,17 @@
 
 document.addEventListener('DOMContentLoaded', function () {
 
-    const container = document.getElementById('containerKodering');
-    const btnTambahKodering = document.getElementById('btnTambahKodering');
-    const form = document.getElementById('formKebutuhan');
-    const btnSimpan = document.getElementById('btnSimpan');
+    const container =
+        document.getElementById('containerKodering');
+
+    const btnTambahKodering =
+        document.getElementById('btnTambahKodering');
+
+    const form =
+        document.getElementById('formKebutuhan');
+
+    const btnSimpan =
+        document.getElementById('btnSimpan');
 
 
     /* =====================================================
@@ -631,9 +680,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function buatBarisBarang(indexKelompok) {
 
-        const tr = document.createElement('tr');
+        const tr =
+            document.createElement('tr');
 
-        tr.className = 'baris-barang';
+        tr.className =
+            'baris-barang';
 
         tr.innerHTML = `
             <td class="nomor-barang text-center">
@@ -700,15 +751,22 @@ document.addEventListener('DOMContentLoaded', function () {
     function updateNomorBarang(kelompok) {
 
         const rows =
-            kelompok.querySelectorAll('.baris-barang');
+            kelompok.querySelectorAll(
+                '.baris-barang'
+            );
 
         rows.forEach(function (row, index) {
 
             const nomor =
-                row.querySelector('.nomor-barang');
+                row.querySelector(
+                    '.nomor-barang'
+                );
 
             if (nomor) {
-                nomor.textContent = index + 1;
+
+                nomor.textContent =
+                    index + 1;
+
             }
 
         });
@@ -723,81 +781,111 @@ document.addEventListener('DOMContentLoaded', function () {
     function updateIndexKelompok() {
 
         const kelompokList =
-            container.querySelectorAll('.kelompok-kodering');
-
-        kelompokList.forEach(function (kelompok, indexKelompok) {
-
-            kelompok.dataset.index = indexKelompok;
+            container.querySelectorAll(
+                '.kelompok-kodering'
+            );
 
 
-            const select =
-                kelompok.querySelector('.kodering-select');
+        kelompokList.forEach(
+            function (kelompok, indexKelompok) {
 
-            if (select) {
+                kelompok.dataset.index =
+                    indexKelompok;
 
-                select.name =
-                    'id_kategori[' +
-                    indexKelompok +
-                    ']';
+
+                const select =
+                    kelompok.querySelector(
+                        '.kodering-select'
+                    );
+
+
+                if (select) {
+
+                    select.name =
+                        'id_kategori[' +
+                        indexKelompok +
+                        ']';
+
+                }
+
+
+                const rows =
+                    kelompok.querySelectorAll(
+                        '.baris-barang'
+                    );
+
+
+                rows.forEach(function (row) {
+
+                    const nama =
+                        row.querySelector(
+                            '.nama-barang'
+                        );
+
+                    const jumlah =
+                        row.querySelector(
+                            '.jumlah-barang'
+                        );
+
+                    const satuan =
+                        row.querySelector(
+                            '.satuan-barang'
+                        );
+
+                    const keterangan =
+                        row.querySelector(
+                            '.keterangan-barang'
+                        );
+
+
+                    if (nama) {
+
+                        nama.name =
+                            'nama_barang[' +
+                            indexKelompok +
+                            '][]';
+
+                    }
+
+
+                    if (jumlah) {
+
+                        jumlah.name =
+                            'jumlah[' +
+                            indexKelompok +
+                            '][]';
+
+                    }
+
+
+                    if (satuan) {
+
+                        satuan.name =
+                            'satuan[' +
+                            indexKelompok +
+                            '][]';
+
+                    }
+
+
+                    if (keterangan) {
+
+                        keterangan.name =
+                            'keterangan_detail[' +
+                            indexKelompok +
+                            '][]';
+
+                    }
+
+                });
+
+
+                updateNomorBarang(
+                    kelompok
+                );
 
             }
-
-
-            const rows =
-                kelompok.querySelectorAll('.baris-barang');
-
-            rows.forEach(function (row) {
-
-                const nama =
-                    row.querySelector('.nama-barang');
-
-                const jumlah =
-                    row.querySelector('.jumlah-barang');
-
-                const satuan =
-                    row.querySelector('.satuan-barang');
-
-                const keterangan =
-                    row.querySelector('.keterangan-barang');
-
-
-                if (nama) {
-                    nama.name =
-                        'nama_barang[' +
-                        indexKelompok +
-                        '][]';
-                }
-
-
-                if (jumlah) {
-                    jumlah.name =
-                        'jumlah[' +
-                        indexKelompok +
-                        '][]';
-                }
-
-
-                if (satuan) {
-                    satuan.name =
-                        'satuan[' +
-                        indexKelompok +
-                        '][]';
-                }
-
-
-                if (keterangan) {
-                    keterangan.name =
-                        'keterangan_detail[' +
-                        indexKelompok +
-                        '][]';
-                }
-
-            });
-
-
-            updateNomorBarang(kelompok);
-
-        });
+        );
 
     }
 
@@ -809,7 +897,9 @@ document.addEventListener('DOMContentLoaded', function () {
     function updateTombolHapusKodering() {
 
         const kelompokList =
-            container.querySelectorAll('.kelompok-kodering');
+            container.querySelectorAll(
+                '.kelompok-kodering'
+            );
 
         const jumlahKelompok =
             kelompokList.length;
@@ -818,7 +908,10 @@ document.addEventListener('DOMContentLoaded', function () {
         kelompokList.forEach(function (kelompok) {
 
             const tombol =
-                kelompok.querySelector('.btn-hapus-kodering');
+                kelompok.querySelector(
+                    '.btn-hapus-kodering'
+                );
+
 
             if (!tombol) {
                 return;
@@ -839,343 +932,186 @@ document.addEventListener('DOMContentLoaded', function () {
        TAMBAH BARANG
     ===================================================== */
 
-    container.addEventListener('click', function (event) {
+    container.addEventListener(
+        'click',
+        function (event) {
 
-        const tombol =
-            event.target.closest('.btn-tambah-barang');
-
-        if (!tombol) {
-            return;
-        }
-
-
-        const kelompok =
-            tombol.closest('.kelompok-kodering');
-
-        if (!kelompok) {
-            return;
-        }
+            const tombol =
+                event.target.closest(
+                    '.btn-tambah-barang'
+                );
 
 
-        const kelompokList =
-            Array.from(
-                container.querySelectorAll('.kelompok-kodering')
+            if (!tombol) {
+                return;
+            }
+
+
+            const kelompok =
+                tombol.closest(
+                    '.kelompok-kodering'
+                );
+
+
+            if (!kelompok) {
+                return;
+            }
+
+
+            const kelompokList =
+                Array.from(
+                    container.querySelectorAll(
+                        '.kelompok-kodering'
+                    )
+                );
+
+
+            const indexKelompok =
+                kelompokList.indexOf(
+                    kelompok
+                );
+
+
+            const tbody =
+                kelompok.querySelector(
+                    'tbody'
+                );
+
+
+            if (!tbody) {
+                return;
+            }
+
+
+            const baris =
+                buatBarisBarang(
+                    indexKelompok
+                );
+
+
+            tbody.appendChild(
+                baris
             );
 
 
-        const indexKelompok =
-            kelompokList.indexOf(kelompok);
+            updateNomorBarang(
+                kelompok
+            );
+
+            updateIndexKelompok();
 
 
-        const tbody =
-            kelompok.querySelector('tbody');
-
-        if (!tbody) {
-            return;
-        }
+            const inputNama =
+                baris.querySelector(
+                    '.nama-barang'
+                );
 
 
-        const baris =
-            buatBarisBarang(indexKelompok);
+            if (inputNama) {
 
+                setTimeout(
+                    function () {
 
-        tbody.appendChild(baris);
+                        inputNama.focus();
 
+                    },
+                    50
+                );
 
-        updateNomorBarang(kelompok);
-        updateIndexKelompok();
-
-
-        const inputNama =
-            baris.querySelector('.nama-barang');
-
-
-        if (inputNama) {
-
-            setTimeout(function () {
-                inputNama.focus();
-            }, 50);
+            }
 
         }
-
-    });
+    );
 
 
     /* =====================================================
        HAPUS BARANG
     ===================================================== */
 
-    container.addEventListener('click', function (event) {
+    container.addEventListener(
+        'click',
+        function (event) {
 
-        const tombol =
-            event.target.closest('.btn-hapus-barang');
-
-        if (!tombol) {
-            return;
-        }
-
-
-        const kelompok =
-            tombol.closest('.kelompok-kodering');
-
-        const baris =
-            tombol.closest('.baris-barang');
+            const tombol =
+                event.target.closest(
+                    '.btn-hapus-barang'
+                );
 
 
-        if (!kelompok || !baris) {
-            return;
-        }
+            if (!tombol) {
+                return;
+            }
 
 
-        const jumlahBaris =
-            kelompok.querySelectorAll('.baris-barang').length;
+            const kelompok =
+                tombol.closest(
+                    '.kelompok-kodering'
+                );
+
+            const baris =
+                tombol.closest(
+                    '.baris-barang'
+                );
 
 
-        if (jumlahBaris <= 1) {
+            if (!kelompok || !baris) {
+                return;
+            }
 
-            alert(
-                'Minimal satu barang harus tersedia pada setiap kodering.'
+
+            const jumlahBaris =
+                kelompok.querySelectorAll(
+                    '.baris-barang'
+                ).length;
+
+
+            if (jumlahBaris <= 1) {
+
+                alert(
+                    'Minimal satu barang harus tersedia pada setiap kodering.'
+                );
+
+                return;
+
+            }
+
+
+            baris.remove();
+
+
+            updateNomorBarang(
+                kelompok
             );
 
-            return;
+            updateIndexKelompok();
+
         }
-
-
-        baris.remove();
-
-        updateNomorBarang(kelompok);
-        updateIndexKelompok();
-
-    });
+    );
 
 
     /* =====================================================
        TAMBAH KODERING
     ===================================================== */
 
-    btnTambahKodering.addEventListener('click', function () {
+    btnTambahKodering.addEventListener(
+        'click',
+        function () {
 
-        const kelompokPertama =
-            container.querySelector('.kelompok-kodering');
-
-
-        if (!kelompokPertama) {
-            return;
-        }
-
-
-        const kelompok =
-            kelompokPertama.cloneNode(true);
-
-
-        const select =
-            kelompok.querySelector('.kodering-select');
-
-
-        if (select) {
-
-            select.value = '';
-            select.name = '';
-
-        }
-
-
-        const info =
-            kelompok.querySelector('.kodering-info');
-
-
-        if (info) {
-            info.textContent = '';
-        }
-
-
-        const tbody =
-            kelompok.querySelector('tbody');
-
-
-        if (tbody) {
-
-            tbody.innerHTML = '';
-
-
-            const indexBaru =
-                container.querySelectorAll(
+            const kelompokPertama =
+                container.querySelector(
                     '.kelompok-kodering'
-                ).length;
+                );
 
 
-            tbody.appendChild(
-                buatBarisBarang(indexBaru)
-            );
-
-        }
-
-
-        container.appendChild(kelompok);
-
-
-        updateIndexKelompok();
-        updateTombolHapusKodering();
-
-
-        if (select) {
-
-            setTimeout(function () {
-                select.focus();
-            }, 50);
-
-        }
-
-    });
-
-
-    /* =====================================================
-       HAPUS KODERING
-    ===================================================== */
-
-    container.addEventListener('click', function (event) {
-
-        const tombol =
-            event.target.closest('.btn-hapus-kodering');
-
-
-        if (!tombol) {
-            return;
-        }
-
-
-        const kelompok =
-            tombol.closest('.kelompok-kodering');
-
-
-        if (!kelompok) {
-            return;
-        }
-
-
-        const jumlahKelompok =
-            container.querySelectorAll(
-                '.kelompok-kodering'
-            ).length;
-
-
-        if (jumlahKelompok <= 1) {
-
-            alert(
-                'Minimal satu kodering harus tersedia.'
-            );
-
-            return;
-        }
-
-
-        if (!confirm(
-            'Hapus kelompok kodering beserta seluruh barang di dalamnya?'
-        )) {
-
-            return;
-        }
-
-
-        kelompok.remove();
-
-
-        updateIndexKelompok();
-        updateTombolHapusKodering();
-
-    });
-
-
-    /* =====================================================
-       PERUBAHAN KODERING
-    ===================================================== */
-
-    container.addEventListener('change', function (event) {
-
-        const select =
-            event.target.closest('.kodering-select');
-
-
-        if (!select) {
-            return;
-        }
-
-
-        const kelompok =
-            select.closest('.kelompok-kodering');
-
-
-        if (!kelompok) {
-            return;
-        }
-
-
-        const info =
-            kelompok.querySelector('.kodering-info');
-
-
-        if (!info) {
-            return;
-        }
-
-
-        if (!select.value) {
-
-            info.textContent = '';
-
-            return;
-        }
-
-
-        const option =
-            select.options[select.selectedIndex];
-
-
-        const kodering =
-            option.dataset.kodering || '';
-
-
-        info.textContent =
-            kodering
-                ? 'Kodering: ' + kodering
-                : '';
-
-    });
-
-
-    /* =====================================================
-       VALIDASI FORM
-    ===================================================== */
-
-    form.addEventListener('submit', function (event) {
-
-        let valid = true;
-
-
-        const kelompokList =
-            container.querySelectorAll(
-                '.kelompok-kodering'
-            );
-
-
-        if (kelompokList.length === 0) {
-
-            event.preventDefault();
-
-            alert(
-                'Minimal satu kodering harus tersedia.'
-            );
-
-            return;
-
-        }
-
-
-        kelompokList.forEach(function (kelompok) {
-
-            if (!valid) {
+            if (!kelompokPertama) {
                 return;
             }
+
+
+            const kelompok =
+                kelompokPertama.cloneNode(
+                    true
+                );
 
 
             const select =
@@ -1184,123 +1120,391 @@ document.addEventListener('DOMContentLoaded', function () {
                 );
 
 
-            if (!select || !select.value) {
+            if (select) {
 
-                valid = false;
-
-                if (select) {
-                    select.focus();
-                }
-
-                return;
+                select.value = '';
+                select.name = '';
 
             }
 
 
-            const rows =
-                kelompok.querySelectorAll(
-                    '.baris-barang'
+            const info =
+                kelompok.querySelector(
+                    '.kodering-info'
                 );
 
 
-            if (rows.length === 0) {
+            if (info) {
 
-                valid = false;
+                info.textContent = '';
+
+            }
+
+
+            const tbody =
+                kelompok.querySelector(
+                    'tbody'
+                );
+
+
+            if (tbody) {
+
+                tbody.innerHTML = '';
+
+
+                const indexBaru =
+                    container.querySelectorAll(
+                        '.kelompok-kodering'
+                    ).length;
+
+
+                tbody.appendChild(
+                    buatBarisBarang(
+                        indexBaru
+                    )
+                );
+
+            }
+
+
+            container.appendChild(
+                kelompok
+            );
+
+
+            updateIndexKelompok();
+
+            updateTombolHapusKodering();
+
+
+            if (select) {
+
+                setTimeout(
+                    function () {
+
+                        select.focus();
+
+                    },
+                    50
+                );
+
+            }
+
+        }
+    );
+
+
+    /* =====================================================
+       HAPUS KODERING
+    ===================================================== */
+
+    container.addEventListener(
+        'click',
+        function (event) {
+
+            const tombol =
+                event.target.closest(
+                    '.btn-hapus-kodering'
+                );
+
+
+            if (!tombol) {
+                return;
+            }
+
+
+            const kelompok =
+                tombol.closest(
+                    '.kelompok-kodering'
+                );
+
+
+            if (!kelompok) {
+                return;
+            }
+
+
+            const jumlahKelompok =
+                container.querySelectorAll(
+                    '.kelompok-kodering'
+                ).length;
+
+
+            if (jumlahKelompok <= 1) {
+
+                alert(
+                    'Minimal satu kodering harus tersedia.'
+                );
 
                 return;
 
             }
 
 
-            rows.forEach(function (row) {
+            if (
+                !confirm(
+                    'Hapus kelompok kodering beserta seluruh barang di dalamnya?'
+                )
+            ) {
 
-                if (!valid) {
-                    return;
-                }
+                return;
 
-
-                const nama =
-                    row.querySelector(
-                        '.nama-barang'
-                    );
-
-                const jumlah =
-                    row.querySelector(
-                        '.jumlah-barang'
-                    );
-
-                const satuan =
-                    row.querySelector(
-                        '.satuan-barang'
-                    );
+            }
 
 
-                const namaValue =
-                    nama
-                        ? nama.value.trim()
-                        : '';
+            kelompok.remove();
 
 
-                const jumlahValue =
-                    jumlah
-                        ? parseFloat(jumlah.value)
-                        : 0;
+            updateIndexKelompok();
 
-
-                const satuanValue =
-                    satuan
-                        ? satuan.value.trim()
-                        : '';
-
-
-                if (
-                    namaValue === '' ||
-                    !jumlahValue ||
-                    jumlahValue <= 0 ||
-                    satuanValue === ''
-                ) {
-
-                    valid = false;
-
-                }
-
-            });
-
-        });
-
-
-        if (!valid) {
-
-            event.preventDefault();
-
-            alert(
-                'Mohon lengkapi kodering dan seluruh data barang terlebih dahulu.'
-            );
-
-            return;
+            updateTombolHapusKodering();
 
         }
+    );
 
 
-        /*
-         * Pastikan index name sudah rapi
-         * sebelum dikirim.
-         */
+    /* =====================================================
+       PERUBAHAN KODERING
+    ===================================================== */
 
-        updateIndexKelompok();
+    container.addEventListener(
+        'change',
+        function (event) {
+
+            const select =
+                event.target.closest(
+                    '.kodering-select'
+                );
 
 
-        /*
-         * Cegah double submit.
-         */
+            if (!select) {
+                return;
+            }
 
-        btnSimpan.disabled = true;
 
-        btnSimpan.innerHTML =
-            '<i class="fas fa-spinner fa-spin mr-1"></i>' +
-            ' Menyimpan...';
+            const kelompok =
+                select.closest(
+                    '.kelompok-kodering'
+                );
 
-    });
+
+            if (!kelompok) {
+                return;
+            }
+
+
+            const info =
+                kelompok.querySelector(
+                    '.kodering-info'
+                );
+
+
+            if (!info) {
+                return;
+            }
+
+
+            if (!select.value) {
+
+                info.textContent = '';
+
+                return;
+
+            }
+
+
+            const option =
+                select.options[
+                    select.selectedIndex
+                ];
+
+
+            const kodering =
+                option.dataset.kodering || '';
+
+
+            info.textContent =
+                kodering
+                    ? 'Kodering: ' + kodering
+                    : '';
+
+        }
+    );
+
+
+    /* =====================================================
+       VALIDASI FORM
+    ===================================================== */
+
+    form.addEventListener(
+        'submit',
+        function (event) {
+
+            let valid = true;
+
+
+            const kelompokList =
+                container.querySelectorAll(
+                    '.kelompok-kodering'
+                );
+
+
+            if (kelompokList.length === 0) {
+
+                event.preventDefault();
+
+                alert(
+                    'Minimal satu kodering harus tersedia.'
+                );
+
+                return;
+
+            }
+
+
+            kelompokList.forEach(
+                function (kelompok) {
+
+                    if (!valid) {
+                        return;
+                    }
+
+
+                    const select =
+                        kelompok.querySelector(
+                            '.kodering-select'
+                        );
+
+
+                    if (
+                        !select ||
+                        !select.value
+                    ) {
+
+                        valid = false;
+
+
+                        if (select) {
+                            select.focus();
+                        }
+
+
+                        return;
+
+                    }
+
+
+                    const rows =
+                        kelompok.querySelectorAll(
+                            '.baris-barang'
+                        );
+
+
+                    if (rows.length === 0) {
+
+                        valid = false;
+
+                        return;
+
+                    }
+
+
+                    rows.forEach(
+                        function (row) {
+
+                            if (!valid) {
+                                return;
+                            }
+
+
+                            const nama =
+                                row.querySelector(
+                                    '.nama-barang'
+                                );
+
+                            const jumlah =
+                                row.querySelector(
+                                    '.jumlah-barang'
+                                );
+
+                            const satuan =
+                                row.querySelector(
+                                    '.satuan-barang'
+                                );
+
+
+                            const namaValue =
+                                nama
+                                    ? nama.value.trim()
+                                    : '';
+
+
+                            const jumlahValue =
+                                jumlah
+                                    ? parseFloat(
+                                        jumlah.value
+                                    )
+                                    : 0;
+
+
+                            const satuanValue =
+                                satuan
+                                    ? satuan.value.trim()
+                                    : '';
+
+
+                            if (
+                                namaValue === '' ||
+                                !jumlahValue ||
+                                jumlahValue <= 0 ||
+                                satuanValue === ''
+                            ) {
+
+                                valid = false;
+
+                            }
+
+                        }
+                    );
+
+                }
+            );
+
+
+            if (!valid) {
+
+                event.preventDefault();
+
+                alert(
+                    'Mohon lengkapi kodering dan seluruh data barang terlebih dahulu.'
+                );
+
+                return;
+
+            }
+
+
+            /*
+             * Pastikan index name sudah rapi
+             * sebelum dikirim.
+             */
+
+            updateIndexKelompok();
+
+
+            /*
+             * Cegah double submit.
+             */
+
+            btnSimpan.disabled = true;
+
+
+            btnSimpan.innerHTML =
+                '<i class="fas fa-spinner fa-spin mr-1"></i>' +
+                ' Menyimpan...';
+
+        }
+    );
 
 
     /* =====================================================
@@ -1308,6 +1512,7 @@ document.addEventListener('DOMContentLoaded', function () {
     ===================================================== */
 
     updateIndexKelompok();
+
     updateTombolHapusKodering();
 
 });
