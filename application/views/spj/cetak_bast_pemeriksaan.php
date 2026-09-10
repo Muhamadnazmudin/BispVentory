@@ -9,11 +9,81 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 */
 
 $esc = function ($value) {
+
     return htmlspecialchars(
         (string) $value,
         ENT_QUOTES,
         'UTF-8'
     );
+
+};
+
+
+/*
+|--------------------------------------------------------------------------
+| HELPER FORMAT TANGGAL
+|--------------------------------------------------------------------------
+*/
+
+$format_tanggal = function ($tanggal) use ($esc) {
+
+    if (
+        empty($tanggal) ||
+        $tanggal === '0000-00-00'
+    ) {
+
+        return '-';
+
+    }
+
+
+    $timestamp = strtotime($tanggal);
+
+
+    if ($timestamp === false) {
+
+        return '-';
+
+    }
+
+
+    $bulan_indonesia = array(
+        1  => 'Januari',
+        2  => 'Februari',
+        3  => 'Maret',
+        4  => 'April',
+        5  => 'Mei',
+        6  => 'Juni',
+        7  => 'Juli',
+        8  => 'Agustus',
+        9  => 'September',
+        10 => 'Oktober',
+        11 => 'November',
+        12 => 'Desember'
+    );
+
+
+    $hari =
+        date('d', $timestamp);
+
+
+    $bulan =
+        $bulan_indonesia[
+            (int) date('n', $timestamp)
+        ];
+
+
+    $tahun =
+        date('Y', $timestamp);
+
+
+    return
+        $esc($hari) .
+        ' ' .
+        $esc($bulan) .
+        ' ' .
+        $esc($tahun);
+
 };
 
 
@@ -35,16 +105,45 @@ $nomor_keputusan =
         : '';
 
 
+/*
+|--------------------------------------------------------------------------
+| DATA DARI KEBUTUHAN
+|--------------------------------------------------------------------------
+|
+| Data kebutuhan sudah di-JOIN oleh get_bast_pemeriksaan().
+|
+| Invoice:
+| - nomor_invoice
+| - tanggal_invoice
+|
+| Surat Pesanan:
+| - nomor_pesanan
+| - tanggal_pesanan
+|
+*/
+
 $nomor_invoice =
     !empty($bast->nomor_invoice)
         ? $bast->nomor_invoice
         : '-';
 
 
+$tanggal_invoice =
+    !empty($bast->tanggal_invoice)
+        ? $bast->tanggal_invoice
+        : '';
+
+
 $nomor_pesanan =
     !empty($bast->nomor_pesanan)
         ? $bast->nomor_pesanan
         : '-';
+
+
+$tanggal_pesanan =
+    !empty($bast->tanggal_pesanan)
+        ? $bast->tanggal_pesanan
+        : '';
 
 
 $nama_penyedia =
@@ -63,6 +162,10 @@ $kegiatan =
 |--------------------------------------------------------------------------
 | TANGGAL PEMERIKSAAN
 |--------------------------------------------------------------------------
+|
+| KHUSUS tanggal pemeriksaan:
+| berasal dari BAST Pemeriksaan.
+|
 */
 
 $tanggal_pemeriksaan =
@@ -71,12 +174,11 @@ $tanggal_pemeriksaan =
         : time();
 
 
-$tanggal_angka =
-    date(
-        'd',
-        $tanggal_pemeriksaan
-    );
-
+/*
+|--------------------------------------------------------------------------
+| BULAN INDONESIA
+|--------------------------------------------------------------------------
+*/
 
 $bulan_indonesia = array(
     1  => 'Januari',
@@ -94,6 +196,19 @@ $bulan_indonesia = array(
 );
 
 
+/*
+|--------------------------------------------------------------------------
+| TANGGAL PEMERIKSAAN - ANGKA
+|--------------------------------------------------------------------------
+*/
+
+$tanggal_angka =
+    date(
+        'd',
+        $tanggal_pemeriksaan
+    );
+
+
 $bulan_angka =
     (int) date(
         'n',
@@ -102,7 +217,9 @@ $bulan_angka =
 
 
 $bulan_nama =
-    isset($bulan_indonesia[$bulan_angka])
+    isset(
+        $bulan_indonesia[$bulan_angka]
+    )
         ? $bulan_indonesia[$bulan_angka]
         : '';
 
@@ -128,6 +245,7 @@ $tanggal_lengkap =
 |--------------------------------------------------------------------------
 |
 | Controller sudah mengirim:
+|
 | $nama_hari
 | $tanggal_terbilang
 | $nama_bulan
@@ -161,6 +279,24 @@ $tahun_terbilang =
 
 /*
 |--------------------------------------------------------------------------
+| TANGGAL INVOICE & PESANAN
+|--------------------------------------------------------------------------
+*/
+
+$tanggal_invoice_tampil =
+    $format_tanggal(
+        $tanggal_invoice
+    );
+
+
+$tanggal_pesanan_tampil =
+    $format_tanggal(
+        $tanggal_pesanan
+    );
+
+
+/*
+|--------------------------------------------------------------------------
 | PEMERIKSA
 |--------------------------------------------------------------------------
 */
@@ -185,6 +321,7 @@ $pemeriksa_nip =
 ?>
 
 <!DOCTYPE html>
+
 <html lang="id">
 
 <head>
@@ -218,184 +355,169 @@ $pemeriksa_nip =
                 sans-serif;
 
             font-size: 10.5px;
+
             color: #000;
 
             line-height: 1.45;
         }
 
 
-        /*
-|--------------------------------------------------------------------------
-| KOP
-|--------------------------------------------------------------------------
-*/
+        /* =====================================================
+           KOP
+        ====================================================== */
 
-.kop-surat {
+        .kop-surat {
 
-    position: relative;
+            position: relative;
 
-    width: 100%;
+            width: 100%;
 
-    min-height: 132px;
+            min-height: 132px;
 
-    text-align: center;
+            text-align: center;
 
-    margin: 0 auto;
+            margin: 0 auto;
 
-    padding: 0;
-}
+            padding: 0;
+        }
 
 
-/*
-|--------------------------------------------------------------------------
-| LOGO
-|--------------------------------------------------------------------------
-*/
+        .kop-logo {
 
-.kop-logo {
+            position: absolute;
 
-    position: absolute;
+            left: 80px;
 
-    left: 80px;
+            top: 8px;
 
-    top: 8px;
+            width: 75px;
 
-    width: 75px;
+            text-align: center;
+        }
 
-    text-align: center;
-}
 
+        .kop-logo img {
 
-.kop-logo img {
+            display: block;
 
-    display: block;
+            width: 80px;
 
-    width: 80px;
+            height: 80px;
 
-    height: 80px;
+            object-fit: contain;
 
-    object-fit: contain;
+            margin: 0 auto;
+        }
 
-    margin: 0 auto;
-}
 
+        .kop-teks {
 
-/*
-|--------------------------------------------------------------------------
-| TEKS KOP
-|--------------------------------------------------------------------------
-*/
+            width: 76%;
 
-.kop-teks {
+            margin-left: 14%;
 
-    width: 76%;
+            margin-right: 10%;
 
-    margin-left: 14%;
+            text-align: center;
 
-    margin-right: 10%;
+            line-height: 1.02;
 
-    text-align: center;
+            padding-right: 45px !important;
+        }
 
-    line-height: 1.02;
 
-    padding-right: 45px !important;
-}
+        .kop-instansi {
 
+            font-size: 13px;
 
-.kop-instansi {
+            font-weight: normal;
 
-    font-size: 13px;
+            margin-bottom: 3px;
+        }
 
-    font-weight: normal;
 
-    margin-bottom: 3px;
-}
+        .kop-dinas {
 
+            font-size: 13px;
 
-.kop-dinas {
+            font-weight: normal;
 
-    font-size: 13px;
+            margin-bottom: 3px;
+        }
 
-    font-weight: normal;
 
-    margin-bottom: 3px;
-}
+        .kop-cabang {
 
+            font-size: 13px;
 
-.kop-cabang {
+            font-weight: normal;
 
-    font-size: 13px;
+            margin-bottom: 5px;
+        }
 
-    font-weight: normal;
 
-    margin-bottom: 5px;
-}
+        .kop-sekolah {
 
+            font-size: 15px;
 
-.kop-sekolah {
+            font-weight: bold;
 
-    font-size: 15px;
+            margin-top: 2px;
 
-    font-weight: bold;
+            margin-bottom: 2px;
+        }
 
-    margin-top: 2px;
 
-    margin-bottom: 2px;
-}
+        .kop-alamat {
 
+            font-size: 9px;
 
-.kop-alamat {
+            font-style: italic;
 
-    font-size: 9px;
+            margin-bottom: 0;
+        }
 
-    font-style: italic;
 
-    margin-bottom: 0;
-}
+        .kop-kabupaten {
 
+            font-size: 8.5px;
 
-.kop-kabupaten {
+            font-style: italic;
 
-    font-size: 8.5px;
+            margin-bottom: 0;
+        }
 
-    font-style: italic;
 
-    margin-bottom: 0;
-}
+        .kop-telepon {
 
+            font-size: 8.5px;
 
-.kop-telepon {
+            margin-bottom: 0;
+        }
 
-    font-size: 8.5px;
 
-    margin-bottom: 0;
-}
+        .garis-kop {
 
+            width: 100%;
 
-/*
-|--------------------------------------------------------------------------
-| GARIS KOP
-|--------------------------------------------------------------------------
-*/
+            border-top: 3px double #000;
 
-.garis-kop {
+            margin-top: 4px;
 
-    width: 100%;
+            margin-bottom: 6px;
 
-    border-top: 3px double #000;
+            height: 1px;
+        }
 
-    margin-top: 4px;
 
-    margin-bottom: 6px;
+        .spj-full-bast-gap {
+            height: 0;
+        }
 
-    height: 1px;
-}
 
-        /*
-        |--------------------------------------------------------------------------
-        | JUDUL
-        |--------------------------------------------------------------------------
-        */
+        /* =====================================================
+           JUDUL
+        ====================================================== */
 
         .judul {
 
@@ -423,29 +545,9 @@ $pemeriksa_nip =
         }
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | NOMOR BAST
-        |--------------------------------------------------------------------------
-        */
-
-        .nomor-bast {
-
-            text-align: center;
-
-            margin-bottom: 20px;
-
-            font-size: 10.5px;
-
-            font-weight: bold;
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | PARAGRAF
-        |--------------------------------------------------------------------------
-        */
+        /* =====================================================
+           PARAGRAF
+        ====================================================== */
 
         p {
 
@@ -459,11 +561,9 @@ $pemeriksa_nip =
         }
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | IDENTITAS PEMERIKSA
-        |--------------------------------------------------------------------------
-        */
+        /* =====================================================
+           IDENTITAS PEMERIKSA
+        ====================================================== */
 
         .identitas {
 
@@ -499,23 +599,9 @@ $pemeriksa_nip =
         }
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | TABEL RINCIAN
-        |--------------------------------------------------------------------------
-        */
-
-        .judul-rincian {
-
-            margin-top: 10px;
-
-            margin-bottom: 8px;
-
-            text-align: left;
-
-            font-size: 10.5px;
-        }
-
+        /* =====================================================
+           TABEL RINCIAN
+        ====================================================== */
 
         .tabel-rincian {
 
@@ -560,38 +646,38 @@ $pemeriksa_nip =
 
 
         .col-no {
+
             width: 7%;
+
             text-align: center;
         }
 
 
-        .col-kodering {
-            width: 19%;
-        }
-
-
         .col-nama {
+
             width: 42%;
         }
 
 
         .col-jumlah {
+
             width: 12%;
+
             text-align: center;
         }
 
 
         .col-satuan {
+
             width: 20%;
+
             text-align: center;
         }
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | KETERANGAN / HASIL
-        |--------------------------------------------------------------------------
-        */
+        /* =====================================================
+           HASIL
+        ====================================================== */
 
         .bagian-hasil {
 
@@ -601,11 +687,9 @@ $pemeriksa_nip =
         }
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | TANDA TANGAN
-        |--------------------------------------------------------------------------
-        */
+        /* =====================================================
+           TANDA TANGAN
+        ====================================================== */
 
         .ttd-wrapper {
 
@@ -652,12 +736,6 @@ $pemeriksa_nip =
             margin-top: 2px;
         }
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | UTILITIES
-        |--------------------------------------------------------------------------
-        */
 
         .text-center {
             text-align: center;
@@ -729,18 +807,18 @@ $pemeriksa_nip =
             SMK NEGERI 1 CILIMUS
         </div>
 
-       <div class="kop-alamat">
-    Jalan Eyang Kyai Hasan Maulani Caracas Cilimus
-</div>
+        <div class="kop-alamat">
+            Jalan Eyang Kyai Hasan Maulani Caracas Cilimus
+        </div>
 
-<div class="kop-telepon">
-    Telp. (0232) 8910145,
-    Email: smkn_1cilimus@yahoo.com
-</div>
+        <div class="kop-telepon">
+            Telp. (0232) 8910145,
+            Email: smkn_1cilimus@yahoo.com
+        </div>
 
-<div class="kop-kabupaten">
-    Kabupaten Kuningan 45556
-</div>
+        <div class="kop-kabupaten">
+            Kabupaten Kuningan 45556
+        </div>
 
     </div>
 
@@ -749,7 +827,13 @@ $pemeriksa_nip =
 
 <div class="garis-kop"></div>
 
+
 <div class="spj-full-bast-gap"></div>
+
+
+<!-- =========================================================
+     JUDUL
+========================================================= -->
 
 <div class="judul">
     BERITA ACARA PEMERIKSAAN BARANG
@@ -766,6 +850,7 @@ $pemeriksa_nip =
 ========================================================= -->
 
 <p>
+
     Pada hari ini
     <strong><?= $esc($nama_hari) ?></strong>
     tanggal
@@ -778,6 +863,7 @@ $pemeriksa_nip =
     berdasarkan Surat Keputusan No
     <strong><?= $esc($nomor_keputusan) ?></strong>,
     menerangkan:
+
 </p>
 
 
@@ -849,22 +935,22 @@ $pemeriksa_nip =
     Dengan ini menyatakan bahwa berdasarkan Invoice nomor
     <strong><?= $esc($nomor_invoice) ?></strong>
     tanggal
-    <?= $esc($tanggal_angka) ?>
-    <?= $esc($bulan_nama) ?>
-    <?= $esc($tahun_angka) ?>
+    <strong><?= $tanggal_invoice_tampil ?></strong>
     sebagai realisasi Surat Pesanan nomor
     <strong><?= $esc($nomor_pesanan) ?></strong>
     tanggal
-    <?= $esc($tanggal_angka) ?>
-    <?= $esc($bulan_nama) ?>
-    <?= $esc($tahun_angka) ?>
+    <strong><?= $tanggal_pesanan_tampil ?></strong>
     yang dipercayakan kepada
     <strong><?= $esc($nama_penyedia) ?></strong>
     selaku penyedia barang
     <?php if (!empty($kegiatan)): ?>
+
         <?= $esc($kegiatan) ?>
+
     <?php endif; ?>
+
     dengan rincian belanja sebagai berikut:
+
 </p>
 
 
@@ -881,10 +967,6 @@ $pemeriksa_nip =
             <th class="col-no">
                 No.
             </th>
-
-            <!-- <th class="col-kodering">
-                Kodering
-            </th> -->
 
             <th class="col-nama">
                 Nama Barang/Jasa
@@ -905,68 +987,87 @@ $pemeriksa_nip =
 
     <tbody>
 
-        <?php
-        $no = 1;
-        ?>
+        <?php $no = 1; ?>
 
-        <?php foreach ($detail as $row): ?>
+
+        <?php if (!empty($detail)): ?>
+
+
+            <?php foreach ($detail as $row): ?>
+
+                <tr>
+
+                    <td class="col-no">
+                        <?= $no++ ?>
+                    </td>
+
+
+                    <td>
+
+                        <?= $esc(
+                            !empty($row->nama_barang)
+                                ? $row->nama_barang
+                                : '-'
+                        ) ?>
+
+                    </td>
+
+
+                    <td class="col-jumlah">
+
+                        <?= $esc(
+                            !empty($row->jumlah)
+                                ? rtrim(
+                                    rtrim(
+                                        number_format(
+                                            (float) $row->jumlah,
+                                            2,
+                                            '.',
+                                            ''
+                                        ),
+                                        '0'
+                                    ),
+                                    '.'
+                                )
+                                : '0'
+                        ) ?>
+
+                    </td>
+
+
+                    <td class="col-satuan">
+
+                        <?= $esc(
+                            !empty($row->satuan)
+                                ? $row->satuan
+                                : '-'
+                        ) ?>
+
+                    </td>
+
+                </tr>
+
+            <?php endforeach; ?>
+
+
+        <?php else: ?>
+
 
             <tr>
 
-                <td class="col-no">
-                    <?= $no++ ?>
-                </td>
+                <td
+                    colspan="4"
+                    class="text-center"
+                >
 
+                    Tidak ada rincian barang/jasa.
 
-                <!-- <td>
-                    <?= $esc(
-                        !empty($row->kodering)
-                            ? $row->kodering
-                            : '-'
-                    ) ?>
-                </td> -->
-
-
-                <td>
-                    <?= $esc(
-                        !empty($row->nama_barang)
-                            ? $row->nama_barang
-                            : '-'
-                    ) ?>
-                </td>
-
-
-                <td class="col-jumlah">
-    <?= $esc(
-        !empty($row->jumlah)
-            ? rtrim(
-                rtrim(
-                    number_format(
-                        (float) $row->jumlah,
-                        2,
-                        '.',
-                        ''
-                    ),
-                    '0'
-                ),
-                '.'
-            )
-            : '0'
-    ) ?>
-</td>
-
-
-                <td class="col-satuan">
-                    <?= $esc(
-                        !empty($row->satuan)
-                            ? $row->satuan
-                            : '-'
-                    ) ?>
                 </td>
 
             </tr>
 
-        <?php endforeach; ?>
+
+        <?php endif; ?>
 
     </tbody>
 
@@ -978,6 +1079,7 @@ $pemeriksa_nip =
 ========================================================= -->
 
 <div class="bagian-hasil">
+
 
     <p>
 
@@ -997,6 +1099,7 @@ $pemeriksa_nip =
 
     </p>
 
+
 </div>
 
 
@@ -1006,10 +1109,15 @@ $pemeriksa_nip =
 
 <div class="ttd-wrapper">
 
+
     <div class="ttd">
 
+
         <div>
-            Kuningan, <?= $esc($tanggal_lengkap) ?>
+
+            Kuningan,
+            <?= $esc($tanggal_lengkap) ?>
+
         </div>
 
 
@@ -1032,6 +1140,7 @@ $pemeriksa_nip =
             NIP. <?= $esc($pemeriksa_nip) ?>
 
         </div>
+
 
     </div>
 

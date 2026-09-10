@@ -1628,15 +1628,27 @@ public function download_spj_full_file($id)
 
 
     $bast_pemeriksaan->nomor_invoice =
-        !empty($kebutuhan->nomor_invoice)
-            ? $kebutuhan->nomor_invoice
-            : null;
+    !empty($kebutuhan->nomor_invoice)
+        ? $kebutuhan->nomor_invoice
+        : null;
 
 
-    $bast_pemeriksaan->nomor_pesanan =
-        !empty($kebutuhan->nomor_pesanan)
-            ? $kebutuhan->nomor_pesanan
-            : null;
+$bast_pemeriksaan->tanggal_invoice =
+    !empty($kebutuhan->tanggal_invoice)
+        ? $kebutuhan->tanggal_invoice
+        : null;
+
+
+$bast_pemeriksaan->nomor_pesanan =
+    !empty($kebutuhan->nomor_pesanan)
+        ? $kebutuhan->nomor_pesanan
+        : null;
+
+
+$bast_pemeriksaan->tanggal_pesanan =
+    !empty($kebutuhan->tanggal_pesanan)
+        ? $kebutuhan->tanggal_pesanan
+        : null;
 
 
     $bast_pemeriksaan->kegiatan =
@@ -3075,7 +3087,78 @@ public function edit_bast_internal($id)
         $this->Spj_model->get_kebutuhan($id);
 
     if (!$kebutuhan) {
+
         show_404();
+
+        return;
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | AMBIL DATA BAST PEMERIKSAAN
+    |--------------------------------------------------------------------------
+    |
+    | Tanggal BAST Internal wajib mengikuti:
+    | spj_bast_pemeriksaan.tanggal_pemeriksaan
+    |
+    */
+
+    $bast_pemeriksaan =
+        $this->Spj_model
+            ->get_bast_pemeriksaan_by_kebutuhan($id);
+
+
+    if (!$bast_pemeriksaan) {
+
+        $this->session->set_flashdata(
+            'error',
+            'BAST Pemeriksaan untuk kebutuhan ini belum dibuat.'
+        );
+
+        redirect(
+            'spj/bast_internal'
+        );
+
+        return;
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | TANGGAL BAST INTERNAL
+    |--------------------------------------------------------------------------
+    |
+    | Tidak mengambil dari POST.
+    | Selalu mengikuti tanggal pemeriksaan.
+    |
+    */
+
+    $tanggal_bast =
+        !empty(
+            $bast_pemeriksaan->tanggal_pemeriksaan
+        )
+            ? $bast_pemeriksaan->tanggal_pemeriksaan
+            : '';
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | VALIDASI TANGGAL PEMERIKSAAN
+    |--------------------------------------------------------------------------
+    */
+
+    if (empty($tanggal_bast)) {
+
+        $this->session->set_flashdata(
+            'error',
+            'Tanggal Pemeriksaan pada BAST Pemeriksaan belum diisi.'
+        );
+
+        redirect(
+            'spj/bast_internal'
+        );
+
         return;
     }
 
@@ -3096,24 +3179,18 @@ public function edit_bast_internal($id)
                 )
             );
 
-        $tanggal_bast =
-            $this->input->post(
-                'tanggal_bast_internal',
-                true
-            );
-
 
         /*
-        |----------------------------------------------------------------------
-        | VALIDASI
-        |----------------------------------------------------------------------
+        |--------------------------------------------------------------------------
+        | VALIDASI NOMOR BAST
+        |--------------------------------------------------------------------------
         */
 
-        if (empty($nomor_bast) || empty($tanggal_bast)) {
+        if (empty($nomor_bast)) {
 
             $this->session->set_flashdata(
                 'error',
-                'Nomor BAST dan tanggal BAST wajib diisi.'
+                'Nomor BAST wajib diisi.'
             );
 
             redirect(
@@ -3125,9 +3202,13 @@ public function edit_bast_internal($id)
 
 
         /*
-        |----------------------------------------------------------------------
+        |--------------------------------------------------------------------------
         | UPDATE
-        |----------------------------------------------------------------------
+        |--------------------------------------------------------------------------
+        |
+        | Tanggal TIDAK berasal dari form.
+        | Tanggal diambil langsung dari BAST Pemeriksaan.
+        |
         */
 
         $data = array(
@@ -3188,7 +3269,10 @@ public function edit_bast_internal($id)
             'Edit BAST Internal',
 
         'kebutuhan' =>
-            $kebutuhan
+            $kebutuhan,
+
+        'bast' =>
+            $bast_pemeriksaan
 
     );
 
@@ -4975,16 +5059,22 @@ public function edit_bast_pemeriksaan($id)
 
         $header = array(
 
-            'nomor_bast' =>
-                $nomor_bast,
+    'nomor_bast' =>
+        $nomor_bast,
 
-            'nomor_keputusan' =>
-                $nomor_keputusan,
+    'nomor_keputusan' =>
+        $nomor_keputusan,
 
-            'tanggal_pemeriksaan' =>
-                $kebutuhan->tanggal
+    'tanggal_pemeriksaan' =>
+        trim(
+            (string)
+            $this->input->post(
+                'tanggal_pemeriksaan',
+                true
+            )
+        )
 
-        );
+);
 
 
         /*

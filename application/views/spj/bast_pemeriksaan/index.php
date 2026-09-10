@@ -204,19 +204,26 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                     ) ?>
                                 </td>
 
+<td>
 
-                                <td>
+    <?php if ($bastRow && !empty($bastRow->tanggal_pemeriksaan)): ?>
 
-                                    <?= date(
-                                        'd-m-Y',
-                                        strtotime(
-                                            $bastRow
-                                                ? $bastRow->tanggal_pemeriksaan
-                                                : $row->tanggal
-                                        )
-                                    ) ?>
+        <?= date(
+            'd-m-Y',
+            strtotime(
+                $bastRow->tanggal_pemeriksaan
+            )
+        ) ?>
 
-                                </td>
+    <?php else: ?>
+
+        <span class="text-muted">
+            -
+        </span>
+
+    <?php endif; ?>
+
+</td>
 
 
                                 <td>

@@ -917,7 +917,7 @@ if (is_file($logo_path)) {
         </td>
 
         <td>
-            <?= html_escape($penyerah_nama) ?>
+            <?= html_escape($penerima_nama) ?>
         </td>
 
     </tr>
@@ -934,7 +934,7 @@ if (is_file($logo_path)) {
         </td>
 
         <td>
-            <?= html_escape($penyerah_jabatan) ?>
+            <?= html_escape($penerima_jabatan) ?>
         </td>
 
     </tr>

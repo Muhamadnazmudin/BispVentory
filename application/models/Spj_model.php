@@ -376,12 +376,18 @@ public function get_bast_pemeriksaan($id)
             spj_bast_pemeriksaan.*,
 
             spj_kebutuhan.nomor_surat,
+            spj_kebutuhan.tanggal AS tanggal_kebutuhan,
+
             spj_kebutuhan.nomor_invoice,
+            spj_kebutuhan.tanggal_invoice,
+
             spj_kebutuhan.nomor_pesanan,
+            spj_kebutuhan.tanggal_pesanan,
+
             spj_kebutuhan.nama_penyedia,
             spj_kebutuhan.perihal,
             spj_kebutuhan.kegiatan,
-            spj_kebutuhan.tanggal AS tanggal_kebutuhan
+            spj_kebutuhan.keterangan
         ')
         ->from('spj_bast_pemeriksaan')
         ->join(

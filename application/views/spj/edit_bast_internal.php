@@ -189,23 +189,27 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
                     <div class="col-md-5">
 
-                        <div class="form-group">
+    <div class="form-group">
 
-                            <label>
-                                Tanggal BAST
-                            </label>
+        <label>
+            Tanggal BAST
+        </label>
 
-                            <input type="date"
-                                   name="tanggal_bast_internal"
-                                   class="form-control"
-                                   value="<?= !empty($kebutuhan->tanggal_bast_internal)
-                                       ? html_escape($kebutuhan->tanggal_bast_internal)
-                                       : date('Y-m-d') ?>"
-                                   required>
+       <input type="date"
+       class="form-control"
+       value="<?= !empty($bast->tanggal_pemeriksaan)
+           ? html_escape($bast->tanggal_pemeriksaan)
+           : '' ?>"
+       readonly>
 
-                        </div>
+        <small class="form-text text-muted">
+            Tanggal BAST Internal mengikuti tanggal pemeriksaan
+            pada BAST Pemeriksaan.
+        </small>
 
-                    </div>
+    </div>
+
+</div>
 
                 </div>
 
