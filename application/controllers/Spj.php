@@ -3338,13 +3338,16 @@ public function download_template_kebutuhan()
     $sheet->setCellValue('A6', 'keterangan');
     $sheet->setCellValue('A7', 'Kodering');
 
+
     /*
      * FIELD BARU
      */
 
     $sheet->setCellValue('A8', 'nomor invoice');
-    $sheet->setCellValue('A9', 'nomor pesanan');
-    $sheet->setCellValue('A10', 'nama CV/penyedia');
+    $sheet->setCellValue('A9', 'tanggal invoice');
+    $sheet->setCellValue('A10', 'nomor pesanan');
+    $sheet->setCellValue('A11', 'tanggal pesanan');
+    $sheet->setCellValue('A12', 'nama CV/penyedia');
 
 
     /*
@@ -3353,11 +3356,11 @@ public function download_template_kebutuhan()
     |--------------------------------------------------------------------------
     */
 
-    $sheet->setCellValue('A12', 'no');
-    $sheet->setCellValue('B12', 'nama barang/jasa');
-    $sheet->setCellValue('C12', 'jumlah');
-    $sheet->setCellValue('D12', 'satuan');
-    $sheet->setCellValue('E12', 'keterangan');
+    $sheet->setCellValue('A14', 'no');
+    $sheet->setCellValue('B14', 'nama barang/jasa');
+    $sheet->setCellValue('C14', 'jumlah');
+    $sheet->setCellValue('D14', 'satuan');
+    $sheet->setCellValue('E14', 'keterangan');
 
 
     /*
@@ -3485,11 +3488,11 @@ public function download_template_kebutuhan()
     |--------------------------------------------------------------------------
     */
 
-    for ($i = 13; $i <= 112; $i++) {
+    for ($i = 15; $i <= 114; $i++) {
 
         $sheet->setCellValue(
             'A' . $i,
-            $i - 12
+            $i - 14
         );
     }
 
@@ -3501,7 +3504,7 @@ public function download_template_kebutuhan()
     */
 
     $sheet
-        ->getStyle('A2:A10')
+        ->getStyle('A2:A12')
         ->getFont()
         ->setBold(true);
 
@@ -3513,19 +3516,19 @@ public function download_template_kebutuhan()
     */
 
     $sheet
-        ->getStyle('A12:E12')
+        ->getStyle('A14:E14')
         ->getFont()
         ->setBold(true);
 
     $sheet
-        ->getStyle('A12:E12')
+        ->getStyle('A14:E14')
         ->getAlignment()
         ->setHorizontal(
             \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER
         );
 
     $sheet
-        ->getStyle('A12:E12')
+        ->getStyle('A14:E14')
         ->getFill()
         ->setFillType(
             \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID
@@ -3541,7 +3544,7 @@ public function download_template_kebutuhan()
     */
 
     $sheet
-        ->getStyle('A12:E112')
+        ->getStyle('A14:E114')
         ->getBorders()
         ->getAllBorders()
         ->setBorderStyle(
@@ -3630,6 +3633,20 @@ public function download_template_kebutuhan()
             'dd-mm-yyyy'
         );
 
+    $sheet
+        ->getStyle('B9')
+        ->getNumberFormat()
+        ->setFormatCode(
+            'dd-mm-yyyy'
+        );
+
+    $sheet
+        ->getStyle('B11')
+        ->getNumberFormat()
+        ->setFormatCode(
+            'dd-mm-yyyy'
+        );
+
 
     /*
     |--------------------------------------------------------------------------
@@ -3637,7 +3654,7 @@ public function download_template_kebutuhan()
     |--------------------------------------------------------------------------
     */
 
-    $sheet->freezePane('A13');
+    $sheet->freezePane('A15');
 
     $referensi->freezePane('A2');
 
@@ -3981,20 +3998,32 @@ public function import_kebutuhan()
         );
 
 
+    $tanggal_invoice_raw =
+        $sheet
+            ->getCell('B9')
+            ->getValue();
+
+
     $nomor_pesanan =
         trim(
             (string)
             $sheet
-                ->getCell('B9')
+                ->getCell('B10')
                 ->getFormattedValue()
         );
+
+
+    $tanggal_pesanan_raw =
+        $sheet
+            ->getCell('B11')
+            ->getValue();
 
 
     $nama_penyedia =
         trim(
             (string)
             $sheet
-                ->getCell('B10')
+                ->getCell('B12')
                 ->getFormattedValue()
         );
 
@@ -4045,6 +4074,68 @@ public function import_kebutuhan()
 
         $errors[] =
             'Tanggal tidak valid. Gunakan format tanggal yang benar.';
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | TANGGAL INVOICE
+    |--------------------------------------------------------------------------
+    |
+    | Opsional.
+    |
+    */
+
+    $tanggal_invoice = null;
+
+
+    if (
+        $tanggal_invoice_raw !== '' &&
+        $tanggal_invoice_raw !== null
+    ) {
+
+        $tanggal_invoice =
+            $this->_normalisasi_tanggal_excel(
+                $tanggal_invoice_raw
+            );
+
+
+        if (!$tanggal_invoice) {
+
+            $errors[] =
+                'Tanggal invoice tidak valid. Gunakan format tanggal yang benar.';
+        }
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | TANGGAL PESANAN
+    |--------------------------------------------------------------------------
+    |
+    | Opsional.
+    |
+    */
+
+    $tanggal_pesanan = null;
+
+
+    if (
+        $tanggal_pesanan_raw !== '' &&
+        $tanggal_pesanan_raw !== null
+    ) {
+
+        $tanggal_pesanan =
+            $this->_normalisasi_tanggal_excel(
+                $tanggal_pesanan_raw
+            );
+
+
+        if (!$tanggal_pesanan) {
+
+            $errors[] =
+                'Tanggal pesanan tidak valid. Gunakan format tanggal yang benar.';
+        }
     }
 
 
@@ -4112,9 +4203,9 @@ public function import_kebutuhan()
     |
     | Template baru:
     |
-    | Row 12 = header detail
-    | Row 13 = data pertama
-    | Row 112 = data terakhir
+    | Row 14 = header detail
+    | Row 15 = data pertama
+    | Row 114 = data terakhir
     |
     */
 
@@ -4122,9 +4213,9 @@ public function import_kebutuhan()
         $sheet->getHighestDataRow();
 
 
-    if ($highest_row < 13) {
+    if ($highest_row < 15) {
 
-        $highest_row = 12;
+        $highest_row = 14;
     }
 
 
@@ -4135,7 +4226,7 @@ public function import_kebutuhan()
     */
 
     for (
-        $baris = 13;
+        $baris = 15;
         $baris <= $highest_row;
         $baris++
     ) {
@@ -4360,10 +4451,16 @@ public function import_kebutuhan()
                 ? $nomor_invoice
                 : null,
 
+        'tanggal_invoice' =>
+            $tanggal_invoice,
+
         'nomor_pesanan' =>
             $nomor_pesanan !== ''
                 ? $nomor_pesanan
                 : null,
+
+        'tanggal_pesanan' =>
+            $tanggal_pesanan,
 
         'nama_penyedia' =>
             $nama_penyedia !== ''
