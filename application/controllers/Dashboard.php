@@ -18,115 +18,28 @@ class Dashboard extends MY_Controller
 
     /*
     |--------------------------------------------------------------------------
-    | STATISTIK INVENTARIS
-    |--------------------------------------------------------------------------
-    */
-
-    $data['kategori'] =
-        $this->Dashboard_model->count('kategori_barang');
-
-    $data['barang'] =
-        $this->Dashboard_model->count('barang');
-
-    $data['ruangan'] =
-        $this->Dashboard_model->count('ruangan');
-
-    $data['guru'] =
-        $this->Dashboard_model->count('guru');
-
-    $data['siswa'] =
-        $this->Dashboard_model->count('siswa');
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | STATISTIK PERMOHONAN
-    |--------------------------------------------------------------------------
-    */
-
-    $data['permohonan_total'] =
-        $this->Dashboard_model->permohonan_total();
-
-    $data['permohonan_setujui'] =
-        $this->Dashboard_model->permohonan_status('disetujui');
-
-    $data['permohonan_tolak'] =
-        $this->Dashboard_model->permohonan_status('ditolak');
-
-    $data['permohonan_pending'] =
-        $this->Dashboard_model->permohonan_status('pending');
-
-
-    /*
-    |--------------------------------------------------------------------------
     | STATISTIK SPJ
     |--------------------------------------------------------------------------
-    |
-    | Mengikuti struktur baru:
-    |
-    | Input Kebutuhan
-    |       ↓
-    | BAST Pemeriksaan
-    |       ↓
-    | BAST Internal
-    |
     */
 
     $data['spj_kebutuhan'] =
-        $this->Dashboard_model->count('spj_kebutuhan');
+        $this->Dashboard_model
+            ->total_spj_kebutuhan();
+
+
+    $data['barang'] =
+        $this->Dashboard_model
+            ->total_detail_barang();
+
 
     $data['spj_pemeriksaan'] =
-        $this->Dashboard_model->count('spj_bast_pemeriksaan');
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | GRAFIK PENGELUARAN
-    |--------------------------------------------------------------------------
-    */
-
-    $tahun_list =
-        $this->Dashboard_model->tahun_pengeluaran();
-
-    $data['tahun_list'] = $tahun_list;
-
-
-    $tahun =
-        $this->input->get('tahun');
-
-    if (empty($tahun)) {
-
-        $tahun =
-            !empty($tahun_list)
-                ? $tahun_list[0]->tahun
-                : date('Y');
-    }
-
-    $data['tahun'] = $tahun;
-
-
-    $data['grafik_pengeluaran'] =
         $this->Dashboard_model
-            ->pengeluaran_per_bulan($tahun);
+            ->total_spj_pemeriksaan();
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | STOK MENIPIS
-    |--------------------------------------------------------------------------
-    */
-
-    $batas_stok = 10;
-
-    $data['batas_stok'] =
-        $batas_stok;
-
-    $data['stok_menipis'] =
+    $data['spj_internal'] =
         $this->Dashboard_model
-            ->stok_menipis($batas_stok);
-
-    $data['jumlah_stok_menipis'] =
-        count($data['stok_menipis']);
+            ->total_spj_internal();
 
 
     /*
